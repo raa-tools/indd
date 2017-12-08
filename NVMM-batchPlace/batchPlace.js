@@ -25,14 +25,6 @@ if(panelFolder === null || scriptFolder === null) {
                 panel   : panelCode.split("_")[2]
             };
 
-            // var scriptCode = getNameFromPath(scriptFiles[0]).split(".")[0];
-
-            // var script = {
-            //     exhibit : scriptCode.split("_")[0],
-            //     topc    : scriptCode.split("_")[1],
-            //     story   : scriptCode.split("_")[2]
-            // };
-
             var scriptType = chooseScriptType(panel.panel);
 
             var titleFile = panel.exhibit + "_" + panel.topic + "_" + scriptType + "-T.txt";
@@ -41,13 +33,8 @@ if(panelFolder === null || scriptFolder === null) {
             var textBoxes = doc.textFrames;
             var objectStyle = chooseObjectStyles(panel.panel);
             
-            for(var i = 0; i < textBoxes.length; i++) {
-                if(textBoxes[i].appliedObjectStyle == objectStyle.section) {
-                    textBoxes[i].contents = "";
-                    textBoxes[i].place(File(scriptFolder + "/" + titleFile));
-                    textBoxes[i].applyObjectStyle(objectStyle.section, true);
-                    
-                } else if(textBoxes[i].appliedObjectStyle == objectStyle.title){
+            for(var i = 0; i < textBoxes.length; i++) {    
+                if(textBoxes[i].appliedObjectStyle == objectStyle.title){
                     textBoxes[i].contents = "";
                     textBoxes[i].place(File(scriptFolder + "/" + titleFile));
                     textBoxes[i].applyObjectStyle(objectStyle.title, true);
@@ -56,6 +43,11 @@ if(panelFolder === null || scriptFolder === null) {
                     textBoxes[i].contents = "";
                     textBoxes[i].place(File(scriptFolder + "/" + bodyFile));
                     textBoxes[i].applyObjectStyle(objectStyle.body, true);
+
+                } else if(textBoxes[i].appliedObjectStyle == objectStyle.section) {
+                    textBoxes[i].contents = "";
+                    textBoxes[i].place(File(scriptFolder + "/" + titleFile));
+                    textBoxes[i].applyObjectStyle(objectStyle.section, true);
                 }
             }
         
@@ -91,13 +83,13 @@ function chooseObjectStyles(panelType){
     
     } else if(panelType === "GP04") {
         return {
-            title : doc.objectStyles.item("AL Primary Title"),
-            body  : doc.objectStyles.item("AL Primary Body")
+            title : doc.objectStyleGroups.item("AL Primary").objectStyles.item("AL Primary TItle"),
+            body  : doc.objectStyleGroups.item("AL Primary").objectStyles.item("AL Primary Body")
         };
     } else if(panelType === "GP05") {
-        return {
-            title : doc.objectStyles.item("AL Secondary Title"),
-            body  : doc.objectStyles.item("AL Secondary Body")
+        return {,
+            title : doc.objectStyleGroups.item("AL Secondary").objectStyles.item("AL Secondary Title"),
+            body  : doc.objectStyleGroups.item("AL Secondary").objectStyles.item("AL Secondary Body")
         };
     }
     
