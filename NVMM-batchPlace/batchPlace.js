@@ -11,19 +11,22 @@ if(panelFolder === null || scriptFolder === null) {
 } else {
     var panelFiles = panelFolder.getFiles();
     var scriptFiles = scriptFolder.getFiles();
+    
+    app.textImportPreferences.characterSet = TextImportCharacterSet.UTF8;
+    app.textImportPreferences.stripReturnsBetweenLines = true;
 
     for(var j = 0; j < panelFiles.length; j ++) {
-        if(getNameFromPath(panelFiles[j]) != ".DS_Store") {
+        var panelFileName = getNameFromPath(panelFiles[j]);
+        var panelCode = panelFileName.split(".")[0];
 
+        var panel = {
+            exhibit : panelCode.split("_")[0],
+            topic   : panelCode.split("_")[1],
+            panel   : panelCode.split("_")[2]
+        };
+
+        if(panelFileName.split(".")[1] === "indd" && panel.topic != "EX06" && panel.topic != "EX07" && panel.panel != "GP02") {
             var doc = app.open(panelFiles[j], false);
-        
-            var panelCode  = doc.name.split(".")[0];
-            
-            var panel = {
-                exhibit : panelCode.split("_")[0],
-                topic   : panelCode.split("_")[1],
-                panel   : panelCode.split("_")[2]
-            };
 
             var scriptType = chooseScriptType(panel.panel);
 
@@ -35,13 +38,13 @@ if(panelFolder === null || scriptFolder === null) {
             
             for(var i = 0; i < textBoxes.length; i++) {    
                 if(textBoxes[i].appliedObjectStyle == objectStyle.title){
-                    fillWithScript(i, titleFile, objectStyle.title);
+                    fillTextBox(i, titleFile, objectStyle.title);
 
                 } else if (textBoxes[i].appliedObjectStyle == objectStyle.body) {
-                    fillWithScript(i, bodyFile, objectStyle.body);
+                    fillTextBox(i, bodyFile, objectStyle.body);
 
                 } else if(textBoxes[i].appliedObjectStyle == objectStyle.section) {
-                    fillWithScript(i, titleFile, objectStyle.title);
+                    fillTextBox(i, titleFile, objectStyle.section);
                 }
             }
         
@@ -52,7 +55,7 @@ if(panelFolder === null || scriptFolder === null) {
 }
 
 function getNameFromPath(inputPath){
-    return inputPath.toString().split("/").slice(-1)[0]
+    return inputPath.toString().split("/").slice(-1)[0];
 }
 
 function chooseScriptType(panelType){
@@ -80,34 +83,17 @@ function chooseObjectStyles(panelType){
             title : doc.objectStyleGroups.item("AL Primary").objectStyles.item("AL Primary TItle"),
             body  : doc.objectStyleGroups.item("AL Primary").objectStyles.item("AL Primary Body")
         };
+    
     } else if(panelType === "GP05") {
         return {
             title : doc.objectStyleGroups.item("AL Secondary").objectStyles.item("AL Secondary Title"),
             body  : doc.objectStyleGroups.item("AL Secondary").objectStyles.item("AL Secondary Body")
         };
     }
-    
 }
 
-function fillWithScript(index, inputFileType, objectStyle){
+function fillTextBox(index, inputFileType, objectStyle){
     textBoxes[index].contents = "";
     textBoxes[index].place(File(scriptFolder + "/" + inputFileType));
     textBoxes[index].applyObjectStyle(objectStyle, true);
 }
-
-
-// var txtFileList = myFolder.getFiles();
-
-// for(var i = 0; i < txtFileList.length; i++) {
-//     var pathList = txtFileList[i].toString().split("/");
-    
-//     var txtFileName = pathList.slice(-1)[0]
-
-//     var script = {
-//         exhibit : txtFileName.split("_")[0],
-//         topic   : txtFileName.split("_")[1],
-//         content : txtFileName.split("_")[2].split(".")[0]
-//     };
-
-//     $.writeln(script.exhibit + "_" + script.topic + "_" + script.content);
-// }
