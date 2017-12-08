@@ -35,19 +35,13 @@ if(panelFolder === null || scriptFolder === null) {
             
             for(var i = 0; i < textBoxes.length; i++) {    
                 if(textBoxes[i].appliedObjectStyle == objectStyle.title){
-                    textBoxes[i].contents = "";
-                    textBoxes[i].place(File(scriptFolder + "/" + titleFile));
-                    textBoxes[i].applyObjectStyle(objectStyle.title, true);
+                    fillWithScript(i, titleFile, objectStyle.title);
 
                 } else if (textBoxes[i].appliedObjectStyle == objectStyle.body) {
-                    textBoxes[i].contents = "";
-                    textBoxes[i].place(File(scriptFolder + "/" + bodyFile));
-                    textBoxes[i].applyObjectStyle(objectStyle.body, true);
+                    fillWithScript(i, bodyFile, objectStyle.body);
 
                 } else if(textBoxes[i].appliedObjectStyle == objectStyle.section) {
-                    textBoxes[i].contents = "";
-                    textBoxes[i].place(File(scriptFolder + "/" + titleFile));
-                    textBoxes[i].applyObjectStyle(objectStyle.section, true);
+                    fillWithScript(i, titleFile, objectStyle.title);
                 }
             }
         
@@ -87,13 +81,20 @@ function chooseObjectStyles(panelType){
             body  : doc.objectStyleGroups.item("AL Primary").objectStyles.item("AL Primary Body")
         };
     } else if(panelType === "GP05") {
-        return {,
+        return {
             title : doc.objectStyleGroups.item("AL Secondary").objectStyles.item("AL Secondary Title"),
             body  : doc.objectStyleGroups.item("AL Secondary").objectStyles.item("AL Secondary Body")
         };
     }
     
 }
+
+function fillWithScript(index, inputFileType, objectStyle){
+    textBoxes[index].contents = "";
+    textBoxes[index].place(File(scriptFolder + "/" + inputFileType));
+    textBoxes[index].applyObjectStyle(objectStyle, true);
+}
+
 
 // var txtFileList = myFolder.getFiles();
 
