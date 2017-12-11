@@ -3,12 +3,8 @@
 var panelFolder  = Folder.selectDialog("Pick Panel Folder");
 var scriptFolder = Folder.selectDialog("Pick Scripts Folder");
 
-
 if(panelFolder === null || scriptFolder === null) {
     alert("No folder selected", "Nope");
-    
-// } else if(panelFolder.getFiles().length != scriptFolder.getFiles.length * 2) {
-//     alert("Number of panels and script elements don't match");
     
 } else {
     var panelFiles = panelFolder.getFiles();
