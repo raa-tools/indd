@@ -43,7 +43,7 @@ if(panelFolder === null || scriptFolder === null) {
                 var scriptFile = panel.exhibit + "_" + panel.topic + "_" + story.code + story.ext;
                 
                 if(story.code !== undefined && story.ext !== undefined){
-                    fillTextBox(i, scriptFile, objectStyle);
+                    placeText(i, scriptFile, objectStyle);
                 }
             }
         
@@ -66,7 +66,7 @@ function getScriptExt(objectStyleName){
     }
 }
 
-function fillTextBox(index, inputFile, objectStyle){
+function placeText(index, inputFile, objectStyle){
     textBoxes[index].contents = "";
     textBoxes[index].place(File(scriptFolder + "/" + inputFile));
     textBoxes[index].applyObjectStyle(objectStyle, true);
