@@ -14,8 +14,6 @@ for(var i = 0; i < panelFiles.length; i++) {
     
         for(var j = 0; j < textFrames.length; j++) {
             textFrames[j].label = getLabel(textFrames[j]);
-            // $.writeln(Math.round(textFrames[j].geometricBounds[1]));
-    
         }
     
         doc.save();
