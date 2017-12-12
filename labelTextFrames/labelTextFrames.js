@@ -1,26 +1,31 @@
-﻿// var panelFolder = Folder.selectDialog("Pick Folder");
+﻿#target "InDesign-8.0"
 
-// var panelFiles = panelFolder.getFiles();
+var panelFolder = Folder.selectDialog("Pick Folder");
 
-// for(var i = 0; i < paneFiles.length; i++) {
-    // var doc = app.open(panelFiles[i], false);
-    app.scriptPreferences.measurementUnit = MeasurementUnits.points;
+var panelFiles = panelFolder.getFiles();
 
+for(var i = 0; i < panelFiles.length; i++) {
+    if(getNameFromPath(panelFiles[i]) !== ".DS_Store") {
+        app.scriptPreferences.measurementUnit = MeasurementUnits.points;
+        
+        var doc = app.open(panelFiles[i], false);
+        
+        var textFrames = doc.textFrames;
     
-    var doc = app.activeDocument;
+        for(var j = 0; j < textFrames.length; j++) {
+            textFrames[j].label = getLabel(textFrames[j]);
+            // $.writeln(Math.round(textFrames[j].geometricBounds[1]));
     
-    var textFrames = doc.textFrames;
-
-    for(var j = 0; j < textFrames.length; j++) {
-        textFrames[j].label = getLabel(textFrames[j]);
-        // $.writeln(Math.round(textFrames[j].geometricBounds[1]));
-
+        }
+    
+        doc.save();
+        doc.close();
     }
+}
 
-    // doc.save();
-    // doc.close();
-// }
-
+function getNameFromPath(inputPath){
+    return inputPath.toString().split("/").slice(-1)[0];
+}
 
 function getLabel(textFrame) {
     var frameX = Math.round(textFrame.geometricBounds[1]); 
