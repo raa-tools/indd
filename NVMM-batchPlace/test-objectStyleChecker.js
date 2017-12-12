@@ -1,3 +1,7 @@
+/*
+Script that checks if certain strings are in a doc's object styles
+*/
+
 var doc = app.activeDocument;
 
 var textBoxes = doc.textFrames;
