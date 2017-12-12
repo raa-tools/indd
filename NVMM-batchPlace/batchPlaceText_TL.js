@@ -10,6 +10,8 @@ if(panelFolder === null || scriptFolder === null) {
     var panelFiles = panelFolder.getFiles();
     var scriptFiles = scriptFolder.getFiles();
     
+    app.clearOverridesWhenApplyingStyle = true;
+
     app.textImportPreferences.characterSet = TextImportCharacterSet.UTF8;
     app.textImportPreferences.stripReturnsBetweenLines = true;
 
@@ -38,8 +40,8 @@ if(panelFolder === null || scriptFolder === null) {
 
                 var scriptFile = panel.exhibit + "_" + panel.topic + "_" + story.code + story.ext;
                 
-                if(story.code !== undefined && story.ext !== undefined){
-                    placeText(i, scriptFile, objectStyle);
+                if(story.code !== undefined && story.ext !== undefined && story.code !== "" && story.ext !== ""){
+                    placeText(i, panel.topic, scriptFile, objectStyle);
                 }
             }
         
@@ -62,8 +64,8 @@ function getScriptExt(objectStyleName){
     }
 }
 
-function placeText(index, inputFile, objectStyle){
+function placeText(index, topicFolder, inputFile, objectStyle){
     textBoxes[index].contents = "";
-    textBoxes[index].place(File(scriptFolder + "/" + inputFile));
+    textBoxes[index].place(File(scriptFolder + "/" + topicFolder + "/" + inputFile));
     textBoxes[index].applyObjectStyle(objectStyle, true);
 }
