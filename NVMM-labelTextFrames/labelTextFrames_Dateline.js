@@ -11,7 +11,7 @@ var panelFiles = panelFolder.getFiles();
 for(var i = 0; i < panelFiles.length; i++) {
     var fileName = getNameFromPath(panelFiles[i]);
 
-    if(checkExtension(fileName, "indd")) {
+    if(checkExtension(fileName, ".indd")) {
         app.scriptPreferences.measurementUnit = MeasurementUnits.points;
         
         var doc = app.open(panelFiles[i], false);
