@@ -1,4 +1,4 @@
-﻿// #target "InDesign-8.0"
+﻿#target "InDesign-8.0"
 
 var lib = (File($.fileName)).parent.parent + "/functionLib/";
 $.evalFile(lib + "getNameFromPath.js");
@@ -35,7 +35,7 @@ function getLabel(textFrame) {
         return "main";
     } else if((frameX === 405 || frameX === 1335 || frameX === 2265 || frameX === 3195) && frameY === 215) {
         return "date";
-    } else if((frameX === 149 || frameX === 1079 || frameX === 2009 || frameX === 2939) && frameY === 105) {
+    } else if((frameX === 149 || frameX === 1079 || frameX === 2009 || frameX === 2939) && frameY === 109) {
         return "year";
     }
 
