@@ -1,4 +1,8 @@
-﻿#target "InDesign-8.0"
+﻿// #target "InDesign-8.0"
+
+var lib = (File($.fileName)).parent.parent + "/functionLib/";
+$.evalFile(lib + "getNameFromPath.js");
+$.evalFile(lib + "checkExtension.js");
 
 var panelFolder = Folder.selectDialog("Pick Folder");
 
@@ -23,14 +27,6 @@ for(var i = 0; i < panelFiles.length; i++) {
     }
 }
 
-function getNameFromPath(inputPath){
-    return inputPath.toString().split("/").slice(-1)[0];
-}
-
-function checkExtension(fileName, extension) {
-    return fileName.split(".").slice(-1)[0] === extension
-}
-
 function getLabel(textFrame) {
     var frameX = Math.round(textFrame.geometricBounds[1]); 
     var frameY = Math.round(textFrame.geometricBounds[0]);
@@ -45,7 +41,3 @@ function getLabel(textFrame) {
 
     return "no label";
 }
-
-
-
-
