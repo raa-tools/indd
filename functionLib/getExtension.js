@@ -1,3 +1,3 @@
 function getExtension(fileName) {
-    return fileName.split(".").slice(-1)[0]
+    return "." + fileName.split(".").pop()
 }
