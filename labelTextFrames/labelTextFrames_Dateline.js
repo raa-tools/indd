@@ -5,12 +5,14 @@ var panelFolder = Folder.selectDialog("Pick Folder");
 var panelFiles = panelFolder.getFiles();
 
 for(var i = 0; i < panelFiles.length; i++) {
-    if(getNameFromPath(panelFiles[i]) !== ".DS_Store") {
+    var fileName = getNameFromPath(panelFiles[i]);
+
+    if(checkExtension(fileName, "indd")) {
         app.scriptPreferences.measurementUnit = MeasurementUnits.points;
         
         var doc = app.open(panelFiles[i], false);
         
-        var textFrames = doc.textFrames;
+        var textFrames = doc.layers.item("TEXT").textFrames;
     
         for(var j = 0; j < textFrames.length; j++) {
             textFrames[j].label = getLabel(textFrames[j]);
@@ -25,29 +27,22 @@ function getNameFromPath(inputPath){
     return inputPath.toString().split("/").slice(-1)[0];
 }
 
+function checkExtension(fileName, extension) {
+    return fileName.split(".").slice(-1)[0] === extension
+}
+
 function getLabel(textFrame) {
     var frameX = Math.round(textFrame.geometricBounds[1]); 
     var frameY = Math.round(textFrame.geometricBounds[0]);
 
-    if(frameX === 410 && (frameY === 2242 || frameY === 2950)) {
-        return "PT01";
-    
-    } else if(frameX === 0 && (frameY === 2709 || frameY == 2927)) {
-        return "ST01";
-    
-    } else if((frameX === 2232 && (frameY === 2709 || frameY === 2927)) || (frameX === 1674 && (frameY === 2709 || frameY === 2927))) {
-        return "ST02";
-    
-    } else if((frameX === 276 && frameY === 4977) || (frameX === 315 && frameY === 5046)) {
-        return "TT01";
-    
-    } else if((frameX === 1949 && frameY === 4977) || (frameX === 1392 && frameY === 4977) || (frameX === 1989 && frameY === 5046) || (frameX === 1431 && frameY === 5046)) {
-        return "TT02";
-    
-    } else if((frameX === 2508 && frameY === 4977) || (frameX === 2547 && frameY === 5046)) {
-        return "TT03";
+    if((frameX === 405 || frameX === 1335 || frameX === 2265 || frameX === 3195) && frameY === 36) {
+        return "main";
+    } else if((frameX === 405 || frameX === 1335 || frameX === 2265 || frameX === 3195) && frameY === 215) {
+        return "date";
+    } else if((frameX === 149 || frameX === 1079 || frameX === 2009 || frameX === 2939) && frameY === 105) {
+        return "year";
     }
-    
+
     return "no label";
 }
 
