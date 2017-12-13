@@ -1,10 +1,10 @@
 ﻿#target "InDesign-8.0"
 
-var panelFolder  = Folder.selectDialog("Pick Panel Folder");
-var scriptFolder = Folder.selectDialog("Pick Scripts Folder");
-
 var lib = (File($.fileName)).parent.parent + "/functionLib/";
 $.evalFile(lib + "getNameFromPath.js");
+
+var panelFolder  = Folder.selectDialog("Pick Panel Folder");
+var scriptFolder = Folder.selectDialog("Pick Scripts Folder");
 
 if(panelFolder === null || scriptFolder === null) {
     alert("No folder selected", "Nope");
