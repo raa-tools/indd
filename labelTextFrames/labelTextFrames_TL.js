@@ -1,5 +1,8 @@
 ﻿#target "InDesign-8.0"
 
+var lib = (File($.fileName)).parent.parent + "/functionLib/";
+$.evalFile(lib + "getNameFromPath.js");
+
 var panelFolder = Folder.selectDialog("Pick Folder");
 
 var panelFiles = panelFolder.getFiles();
@@ -19,10 +22,6 @@ for(var i = 0; i < panelFiles.length; i++) {
         doc.save();
         doc.close();
     }
-}
-
-function getNameFromPath(inputPath){
-    return inputPath.toString().split("/").slice(-1)[0];
 }
 
 function getLabel(textFrame) {
