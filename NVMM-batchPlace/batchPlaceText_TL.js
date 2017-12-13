@@ -1,5 +1,8 @@
 ﻿#target "InDesign-8.0"
 
+var lib = (File($.fileName)).parent.parent + "/functionLib/";
+$.evalFile(lib + "getNameFromPath.js");
+
 var panelFolder  = Folder.selectDialog("Pick Panel Folder");
 var scriptFolder = Folder.selectDialog("Pick Scripts Folder");
 
@@ -49,10 +52,6 @@ if(panelFolder === null || scriptFolder === null) {
             doc.close();
         }
     }
-}
-
-function getNameFromPath(inputPath){
-    return inputPath.toString().split("/").slice(-1)[0];
 }
 
 function getScriptExt(objectStyleName){
