@@ -20,7 +20,6 @@ function findGNum(gNumInput) {
     $.evalFile(lib + "getExtension.js");
     $.evalFile(lib + "getNameFromPath.js");
     
-    // var gNumInput = "g3847";
     var docList = [];
     
     var panelFolder = Folder.selectDialog("Select Panel Foder");
