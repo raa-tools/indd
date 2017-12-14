@@ -22,12 +22,12 @@ for(var j = 0; j < panelFiles.length; j++) {
     var fileName = getNameFromPath(panelFiles[j]);
     
     if(getExtension(fileName) === ".indd") {
-        var doc = app.open(panelFiles[j]);
-        var doc = app.activeDocument;
+        var doc = app.open(panelFiles[j], false);
+        // var doc = app.activeDocument;
         var badImages = [];
 
         for(var i = 0; i < doc.links.length; i++) {
-            var gNum = doc.links[i].name.slice(0,5);
+            var gNum = doc.links[i].name.slice(0, 5);
             // var ext = getExtension(doc.links[i].name);
             
             try {
