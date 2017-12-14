@@ -1,9 +1,14 @@
+/*
+Script to find a specific G-number. The script looks through a folder of panel files.
+*/
+
 #target "InDesign-8.0"
 
+// Dialog setup
 var findGNumDialog = app.dialogs.add({name:"Find G#"});
 
 with(findGNumDialog.dialogColumns.add()) {
-    var gNumEditText = textEditboxes.add({editContents: "g####", minWidth:180});
+    var gNumEditText = textEditboxes.add({editContents: "g####", minWidth:100});
 }
 
 var showDialog = findGNumDialog.show();
@@ -14,7 +19,7 @@ if(showDialog === true) {
 
 findGNumDialog.destroy();
 
-
+// Finder function below
 function findGNum(gNumInput) {
     var lib = (File($.fileName)).parent.parent + "/functionLib/";
     $.evalFile(lib + "getExtension.js");
