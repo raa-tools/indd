@@ -6,7 +6,7 @@ Currently file names are G####.ext & extension is set to ".tif"
 */
 
 
-var lib = (File($.fileName)).parent.parent + "/functionLib/";
+var lib = (File($.fileName)).parent.parent + "/_lib/";
 $.evalFile(lib + "getExtension.js");
 $.evalFile(lib + "getNameFromPath.js");
 

@@ -1,6 +1,6 @@
 ﻿#target "InDesign-8.0"
 
-var lib = (File($.fileName)).parent.parent + "/functionLib/";
+var lib = (File($.fileName)).parent.parent + "/_lib/";
 $.evalFile(lib + "getNameFromPath.js");
 
 var panelFolder  = Folder.selectDialog("Pick Panel Folder");
