@@ -1,3 +1,9 @@
+/*
+Replace dates in TL panels with PDFs.
+
+Maybe generalize this script for other uses?
+*/
+
 #target "InDesign-8.0"
 
 var lib = (File($.fileName)).parent.parent + "/_lib/";
