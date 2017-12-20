@@ -8,14 +8,12 @@ $.evalFile(lib + "zFill.js");
 var panelFolder = Folder.selectDialog("Pick Folder");
 var panelFiles = panelFolder.getFiles();
 
-var panelExhibit = "";
 var panelTopic = "";
 
-var stCheck = 1;
-var stCount = 1;
+var stNum;
 
-stLeftFlag = false;
-stRightFlag = false;
+hasLeft = false;
+hasRight = false;
 
 for(var i = 0; i < panelFiles.length; i++) {
     var fileName = getNameFromPath(panelFiles[i]);
@@ -32,49 +30,79 @@ for(var i = 0; i < panelFiles.length; i++) {
         };
 
         if(panel.panel !== "GP01c" && panel.panel.slice(-1)[0] !== "b") {
-            if(panelTopic === panel.topic) {
-                if(stLeftFlag && stRightFlag) {
-                    stCount += 2;
-
-                } else if(stLeftFlag || stRightFlag) {
-                    stCount ++;
-                }
-                   
-            } else {
+            if(panelTopic !== panel.topic) {
+                stNum = 1;
                 panelTopic = panel.topic;
-                stCount = 1;
-                stLeftFlag = false;
-                stRightFlag = false;
+                hasLeft = false;
+                hasRight = false;
+            
+            } else {
+                if(hasLeft && hasRight) {
+                    stNum += 2;
+                    hasLeft = false;
+                    hasRight = false;
+    
+                } else if(hasLeft || hasRight) {
+                    stNum ++;
+                    hasLeft = false;
+                    hasRight = false;
+                }
             }
-        }
 
-        var textFrames = doc.textFrames;
-    
-        for(var j = 0; j < textFrames.length; j++) {
-            textFrames[j].label = getLabel(textFrames[j], stCount);
+            var textFrames = doc.textFrames;
+            var stCount = 0;
+        
+            for(var j = 0; j < textFrames.length; j++) {
+                stCount = countST(textFrames[j]);
+
+                textFrames[j].label = getLabel(textFrames[j], stNum, stCount);
+            }
+        
+            doc.save();
+            doc.close();
         }
-    
-        doc.save();
-        doc.close();
     }
 }
 
-function getLabel(textFrame, stCount) {
+function countST(textFrame) {
+    var frameX = Math.round(textFrame.geometricBounds[1]); 
+    var objectStyle = textFrame.appliedObjectStyle.name;
+
+    if(frameX === 0 && objectStyle.indexOf("National") !== -1) {
+        stCount++
+
+    } else if((frameX === 2232 && objectStyle.indexOf("National") !== -1) || (frameX === 1674 && objectStyle.indexOf("National") !== -1)) {
+        stCount++
+    }
+    $.writeln(stCount);
+    return stCount;
+}
+
+function getLabel(textFrame, stNum, stCount) {
     var frameX = Math.round(textFrame.geometricBounds[1]); 
     var frameY = Math.round(textFrame.geometricBounds[0]);
-
+    var objectStyle = textFrame.appliedObjectStyle.name;
+    
+    var stSecond;
+    
     if(frameX === 410 && (frameY === 2242 || frameY === 2950)) {
         return "PT01";
     
-    } else if(frameX === 0 && (frameY === 2709 || frameY == 2927)) {
-        stLeftFlag = true;
-        stCheck++;
-        return "ST" + zFill(stCount, 2);
+    } else if(frameX === 0 && objectStyle.indexOf("National") !== -1) {
+        hasLeft = true;
+
+        return "ST" + zFill(stNum, 2);
     
-    } else if((frameX === 2232 && (frameY === 2709 || frameY === 2927)) || (frameX === 1674 && (frameY === 2709 || frameY === 2927))) {
-        stRightFlag = true;
-        stCheck++;
-        return "ST" + zFill(stCount + 1, 2);
+    } else if((frameX === 2232 && objectStyle.indexOf("National") !== -1) || (frameX === 1674 && objectStyle.indexOf("National") !== -1)) {
+        hasRight = true;
+        
+        if(stCount === 2) {
+            stSecond = stNum;
+        } else if(stCount === 4) {
+            stSecond = stNum + 1;
+        }
+
+        return "ST" + zFill(stSecond, 2);
     
     } else if((frameX === 276 && frameY === 4977) || (frameX === 315 && frameY === 5046)) {
         return "TT01";
@@ -85,14 +113,6 @@ function getLabel(textFrame, stCount) {
     } else if((frameX === 2508 && frameY === 4977) || (frameX === 2547 && frameY === 5046)) {
         return "TT03";
     }
-    
-    if(stCheck !== stCount) {
-        stLeftFlag = false;
-        stRightFlag = false;
-    }
+
     return "no label";
 }
-
-
-
-
