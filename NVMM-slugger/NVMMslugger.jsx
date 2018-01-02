@@ -26,7 +26,7 @@ var my_slug = 200;
 
 //Allow the user to select a folder of INDD layout files
 //and establish variables for the folder and each individual file,
-var myFolder = Folder.selectDialog("*****     Please select a folder of the SAME kind of panel     *****");  
+var myFolder = Folder.selectDialog("*****     Please select a folder of panels     *****");  
 var myInddFiles = myFolder.getFiles("*.indd"); 
 
 
