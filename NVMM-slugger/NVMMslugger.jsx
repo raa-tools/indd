@@ -17,7 +17,7 @@ var inputText3 = "SUBMISSION DATE";
 
 //Establish page dimensions as a variable
 var my_bleedDim = 36;
-var my_slug = 200;
+var my_slug = 144;
 
 
 ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
@@ -52,16 +52,16 @@ var bigBoxWidth = 326;
 var bigBoxHeight = 35;
 
 var titleBoxPos = {
-    x1 : -36,
+    x1 : 0,
     y1 : -110,
-    x2 : 418,
+    x2 : 454,
     y2 : -56
 };
 
 var inputBoxPos = {
-    x1 : 77,
+    x1 : 113,
     y1 : -125,
-    x2 : 531,
+    x2 : 567,
     y2 : -71
 };
 
@@ -146,7 +146,7 @@ if (myWindow.show () == true) {
             slugInsideOrLeftOffset : my_slug,
             slugRightOrOutsideOffset : my_slug,
         };
-    
+
     
         ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
         ////// //////   —   Document Layer and Style Clean-up    —   ////// //////
@@ -221,7 +221,7 @@ if (myWindow.show () == true) {
             //Formatting the Character text style
             basedOn = "None";
             appliedFont = app.fonts.itemByName("Times New Roman");
-            fontStyle = "Light";
+            fontStyle = "Regular";
             pointSize = 14;
             tracking = 25;
             capitalization = Capitalization.allCaps;
@@ -247,7 +247,7 @@ if (myWindow.show () == true) {
             //Formatting the Character text style
             basedOn = "None";
             appliedFont = app.fonts.itemByName("Times New Roman");
-            fontStyle = "Light";
+            fontStyle = "Regular";
             pointSize = 32;
             tracking = 0;
             capitalization = Capitalization.normal;
