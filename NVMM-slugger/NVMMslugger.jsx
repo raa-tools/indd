@@ -6,9 +6,8 @@
 //////   —   Change Text Defaults in this section as necessary   —    //////
 ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
 
-var inputText1 = "Dims";
-var inputText2 = "BATCH # - REVIEW #";
-var inputText3 = "SUBMISSION DATE";
+var inputText1 = "BATCH # - REVIEW #";
+var inputText2 = "SUBMISSION DATE";
 
 
 ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
@@ -75,26 +74,18 @@ var myWindow = new Window("dialog", "Panels are CHILL");
 //Set up text fields
 var myInputGroup1 = myWindow.add("group");
 myInputGroup1.alignment = "right";
-myInputGroup1.add("statictext", undefined, "W x H:");
+myInputGroup1.add("statictext", undefined, "Review:");
 
 var myTextEditField1 = myInputGroup1.add("edittext", undefined, inputText1);
 myTextEditField1.characters = 50;
 
 var myInputGroup2 = myWindow.add("group");
 myInputGroup2.alignment = "right";
-myInputGroup2.add("statictext", undefined, "Review:");
+myInputGroup2.add("statictext", undefined, "Date:");
 
 var myTextEditField2 = myInputGroup2.add("edittext", undefined, inputText2);
 myTextEditField2.characters = 50;
 myTextEditField2.active = true;
-
-var myInputGroup3 = myWindow.add("group");
-myInputGroup3.alignment = "right";
-myInputGroup3.add("statictext", undefined, "Date:");
-
-var myTextEditField3 = myInputGroup3.add("edittext", undefined, inputText3);
-myTextEditField3.characters = 50;
-
 
 ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
 
@@ -112,7 +103,6 @@ if (myWindow.show () == true) {
     //Capture text input
     var myString1 = myTextEditField1.text;
     var myString2 = myTextEditField2.text;
-    var myString3 = myTextEditField3.text;
 
     ////// — MAIN Script — //////
 
@@ -127,16 +117,17 @@ if (myWindow.show () == true) {
         //Doc setup
         var myDocument = app.open(myInddFiles[k]);
         var myPage = app.activeWindow.activePage;
+
+        app.scriptPreferences.measurementUnit = MeasurementUnits.inches;
+        var pageDims = Math.round(1000*myDocument.documentPreferences.pageWidth)/1000 + " × " + Math.round(1000*myDocument.documentPreferences.pageHeight)/1000 + " in.";
         
         app.scriptPreferences.measurementUnit = MeasurementUnits.points;
     
         //Reset the Zero Point/Ruler to top left corner
         app.activeDocument.zeroPoint = [0,0];
     
-        //Set page dimensions
+        //Set bleed and slug dims
         app.activeDocument.documentPreferences.properties = {
-            // pageHeight : my_pageHeight ,
-            // pageWidth : my_pageWidth ,
             documentBleedBottomOffset : my_bleedDim ,
             documentBleedTopOffset : my_bleedDim ,
             documentBleedInsideOrLeftOffset : my_bleedDim ,
@@ -147,6 +138,21 @@ if (myWindow.show () == true) {
             slugRightOrOutsideOffset : my_slug,
         };
 
+        // Add text variables for File Name & Dimensions
+        var varFileName = myDocument.textVariables.item("File Name");
+        var varDims = myDocument.textVariables.item("Dimensions");
+
+        // Check if variable text item exists and is the right type
+        // If not, add one
+        if(!varDims.isValid || varDims.variableType !== VariableTypes.CUSTOM_TEXT_TYPE) {
+            varDims = doc.textVariables.add();
+            varDims.variableType = VariableTypes.CUSTOM_TEXT_TYPE;
+            varDims.name = "Dimensions";
+        }
+        
+        // Either way, insert content here
+        varDims.variableOptions.contents = pageDims;
+        
     
         ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
         ////// //////   —   Document Layer and Style Clean-up    —   ////// //////
@@ -308,8 +314,8 @@ if (myWindow.show () == true) {
             ruleAboveOffset = -1;
             ruleAboveRightIndent = 0;
         }
-    
-    
+
+
         ////// ////// ////// ////// //////  ////// ////// ////// ////// ////// ////// 
         ////// //////   —   Set Up the three kinds of Text Boxes   —    ////// //////
         ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
@@ -345,8 +351,7 @@ if (myWindow.show () == true) {
     
         //Set up Text Frames and set Text Variables to be styled (later)
         var codeInputBox_TextFrame = myPage.textFrames.add({geometricBounds:[inputBoxPos.y1, inputBoxPos.x1, inputBoxPos.y1 + bigBoxHeight, inputBoxPos.x1 + bigBoxWidth]});
-        myVariable = myDocument.textVariables.item("File Name");
-        codeInputBox_TextFrame.textVariableInstances.add({associatedTextVariable:myVariable});
+        codeInputBox_TextFrame.textVariableInstances.add({associatedTextVariable:varFileName});
         codeInputBox_TextFrame.textFramePreferences.verticalJustification = VerticalJustification.BOTTOM_ALIGN;
         codeInputBox_TextFrame.label = "codeInput"
     
@@ -354,21 +359,21 @@ if (myWindow.show () == true) {
     
         //Set up Text Frames and set Text Variables to be styled (later)
         var dimsInputBox_TextFrame = myPage.textFrames.add({geometricBounds:[inputBoxPos.y2, inputBoxPos.x1, inputBoxPos.y2 + bigBoxHeight, inputBoxPos.x1 + bigBoxWidth]});
-        dimsInputBox_TextFrame.contents = myString1;
+        dimsInputBox_TextFrame.textVariableInstances.add({associatedTextVariable:varDims});
         dimsInputBox_TextFrame.textFramePreferences.verticalJustification = VerticalJustification.BOTTOM_ALIGN;
         dimsInputBox_TextFrame.label = "dimsInput"
     
         var dimsInput = dimsInputBox_TextFrame.parentStory;
     
         var reviewInputBox_TextFrame = myPage.textFrames.add({geometricBounds:[inputBoxPos.y1, inputBoxPos.x2, inputBoxPos.y1 + bigBoxHeight, inputBoxPos.x2 + bigBoxWidth]});
-        reviewInputBox_TextFrame.contents = myString2;
+        reviewInputBox_TextFrame.contents = myString1;
         reviewInputBox_TextFrame.textFramePreferences.verticalJustification = VerticalJustification.BOTTOM_ALIGN;
         reviewInputBox_TextFrame.label = "reviewInput"
     
         var reviewInput = reviewInputBox_TextFrame.parentStory;
     
         var dateInputBox_TextFrame = myPage.textFrames.add({geometricBounds:[inputBoxPos.y2, inputBoxPos.x2, inputBoxPos.y2 + bigBoxHeight, inputBoxPos.x2 + bigBoxWidth]});
-        dateInputBox_TextFrame.contents = myString3;
+        dateInputBox_TextFrame.contents = myString2;
         dateInputBox_TextFrame.textFramePreferences.verticalJustification = VerticalJustification.BOTTOM_ALIGN;
         dateInputBox_TextFrame.label = "dateInput"
     
