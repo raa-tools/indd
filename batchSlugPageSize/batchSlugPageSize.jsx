@@ -1,8 +1,8 @@
 ﻿/*
 A "batch" version of page dimensions slug info updater.
 
-Still requires each file to have a variable text item called "Dimensions",
-but this script will auto-update all .indd files in a folder.
+The script uses a "Dimensions" text variable.
+If one doesn't exist, it will make one.
 */
 
 #target InDesign
