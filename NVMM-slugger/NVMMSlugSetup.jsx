@@ -2,14 +2,15 @@
 #target InDesign
 
 
-////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
-////// —   Change bleed + slug dim in this section as necessary   — //////
-////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
+// GLOBAL VARIABLES – CHANGE PER PROJECT AS NECESSARY
+BLEEDDIM = 36;
+SLUGDIM = 144;
 
-//Establish page dimensions as a variable
-var my_bleedDim = 36;
-var my_slug = 144;
-
+FONT = {
+    FAMILY  : "Nitti Grotesk",
+    WEIGHT1 : "Light",
+    WEIGHT2 : "Bold"
+};
 
 ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
 ////// ////// /////        —   What the file    —       ////// ////// //////
@@ -25,54 +26,26 @@ try{
     main();
 
 } catch(error) {
-    alert("No folder selected");
+    if(error instanceof TypeError) {
+        alert("No folder selected");
+    }
 }
 
-
+// Using a main() function so the entire try block above isn't super long...
 function main() {
-    ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
-    ////// ////// /////  —   D i a l o g   B u s i n e s s    —     ///// ////// //////
-    ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
-    var today = getTodaysDate();
+    // These are declared here so they can be used by dialogSetup()
+    var myWindow; var batchEditText; var reviewEditText; var dateEditText;
 
-    var myWindow = new Window("dialog", "Panels are CHILL");
+    dialogSetup();
 
-    // Row 1
-    var inputRow1 = myWindow.add("group {alignment: 'left'}");
-    
-    // Batch
-    var batchStaticText = inputRow1.add('statictext {text: "Batch:", size: [40, 24], alignment: "bottom", justify: "right"}');
-    var batchEditText = inputRow1.add('edittext {text: "1", size: [40, 25], active: true}');
-    
-    var reviewStaticText = inputRow1.add('statictext {text: "Review:", size: [55, 24], alignment: "bottom", justify: "right"}');
-    var reviewEditText = inputRow1.add('edittext {text: "1", size: [40, 25]}');
-
-    // Row 2
-    var inputRow2 = myWindow.add('group {alignment: "left"}');
-
-    // Date
-    var dateStaticText = inputRow2.add("statictext {text: 'Date:', size: [40, 24], alignment: 'bottom', justify: 'right'}");
-    var dateEditText = inputRow2.add("edittext {size: [155, 25]}");
-    dateEditText.text = today;
-    
-    // Buttons
-    var buttonGroup = myWindow.add("group {alignment: 'right'}");
-    buttonGroup.add ("button", undefined, "OK");
-    buttonGroup.add ("button", undefined, "Cancel");
-    
-    
-    ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
-    
     if(myWindow.show() == true) {
         //Capture text input
         var batchReviewText = "Batch " + batchEditText.text + " - " + "Review " + reviewEditText.text;
         var dateInputText = dateEditText.text;
 
-        ////// — MAIN Script — //////
     
         //Establish a loop to deal with all the files:
         for(k=0; k<myInddFiles.length; k++) {
-        
         
             ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
             ////// ////// /////      —    Document  Business     —      ///// ////// //////
@@ -94,14 +67,14 @@ function main() {
         
             //Set bleed and slug dims
             myDocument.documentPreferences.properties = {
-                documentBleedBottomOffset : my_bleedDim ,
-                documentBleedTopOffset : my_bleedDim ,
-                documentBleedInsideOrLeftOffset : my_bleedDim ,
-                documentBleedOutsideOrRightOffset : my_bleedDim,
-                slugBottomOffset : my_slug,
-                slugTopOffset : my_slug,
-                slugInsideOrLeftOffset : my_slug,
-                slugRightOrOutsideOffset : my_slug,
+                documentBleedBottomOffset : BLEEDDIM ,
+                documentBleedTopOffset : BLEEDDIM ,
+                documentBleedInsideOrLeftOffset : BLEEDDIM ,
+                documentBleedOutsideOrRightOffset : BLEEDDIM,
+                slugBottomOffset : SLUGDIM,
+                slugTopOffset : SLUGDIM,
+                slugInsideOrLeftOffset : SLUGDIM,
+                slugRightOrOutsideOffset : SLUGDIM,
             };
     
             // Add text variables for File Name & Dimensions
@@ -149,8 +122,8 @@ function main() {
             with(my_CODE_NOTE_characterStyle){
                 //Formatting the Character text style
                 basedOn = "None";
-                appliedFont = app.fonts.itemByName("Times New Roman");
-                fontStyle = "Regular";
+                appliedFont = app.fonts.itemByName(FONT.FAMILY);
+                fontStyle = FONT.WEIGHT1;
                 pointSize = 14;
                 tracking = 25;
                 capitalization = Capitalization.allCaps;
@@ -169,8 +142,8 @@ function main() {
             with(my_CODE_LIGHT_characterStyle){
                 //Formatting the Character text style
                 basedOn = "None";
-                appliedFont = app.fonts.itemByName("Times New Roman");
-                fontStyle = "Regular";
+                appliedFont = app.fonts.itemByName(FONT.FAMILY);
+                fontStyle = FONT.WEIGHT1;
                 pointSize = 32;
                 tracking = 0;
                 capitalization = Capitalization.normal;
@@ -198,8 +171,8 @@ function main() {
             with(my_CODE_BOLD_paragraphStyle){
                 //Formatting the paragraph text style
                 nextParagraphStyle = "None";
-                appliedFont = app.fonts.itemByName("Times New Roman");
-                fontStyle = "Bold";
+                appliedFont = app.fonts.itemByName(FONT.FAMILY);
+                fontStyle = FONT.WEIGHT2;
                 pointSize = 32;
                 fillColor = myDocument.colors.item("Black");
                 capitalization = Capitalization.allCaps;
@@ -321,6 +294,36 @@ function main() {
     }
     
 
+    function dialogSetup() {
+        var today = getTodaysDate();
+
+        myWindow = new Window("dialog", "Panels are CHILL");
+
+        // Row 1
+        var inputRow1 = myWindow.add("group {alignment: 'left'}");
+        
+        // Batch
+        var batchStaticText = inputRow1.add('statictext {text: "Batch:", size: [40, 24], alignment: "bottom", justify: "right"}');
+        batchEditText = inputRow1.add('edittext {text: "1", size: [40, 25], active: true}');
+        
+        var reviewStaticText = inputRow1.add('statictext {text: "Review:", size: [55, 24], alignment: "bottom", justify: "right"}');
+        reviewEditText = inputRow1.add('edittext {text: "1", size: [40, 25]}');
+
+        // Row 2
+        var inputRow2 = myWindow.add('group {alignment: "left"}');
+
+        // Date
+        var dateStaticText = inputRow2.add("statictext {text: 'Date:', size: [40, 24], alignment: 'bottom', justify: 'right'}");
+        dateEditText = inputRow2.add("edittext {size: [155, 25]}");
+        dateEditText.text = today;
+        
+        // Buttons
+        var buttonGroup = myWindow.add("group {alignment: 'right'}");
+        buttonGroup.add ("button", undefined, "OK");
+        buttonGroup.add ("button", undefined, "Cancel");
+    }
+
+
     function getTodaysDate() {
         var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];    
         var timeStamp = new Date();
@@ -329,13 +332,14 @@ function main() {
     }
 
 
-    // Textbox setup functions
+    // Set up title boxes
     function titleBoxSetup(textFrame, content) {
         // textFrame is an object, content is a string
         textFrame.contents = content;
         textFrame.textFramePreferences.verticalJustification = VerticalJustification.BOTTOM_ALIGN;               
     }
     
+    // Set up input boxes
     function inputBoxSetup(textFrame, labelName) {
         // textFrame is an object, labelName is a string
         if(labelName === "codeInput") {
