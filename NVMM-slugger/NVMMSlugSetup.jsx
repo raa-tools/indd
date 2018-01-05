@@ -1,13 +1,5 @@
 ﻿//Just in case this little script gets lost in the woods:
-#target InDesign 
-
-
-////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
-//////   —   Change Text Defaults in this section as necessary   —    //////
-////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
-
-var inputText1 = "Batch # - Review #";
-var inputText2 = "Month ##, ####";
+#target InDesign
 
 
 ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
@@ -43,26 +35,6 @@ function main() {
     ////// —  Change dimension values in this section as necessary  — //////
     ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
     
-    // Box dimensions
-    var smallBoxWidth = 100;
-    var smallBoxHeight = 20;
-    var bigBoxWidth = 326;
-    var bigBoxHeight = 35;
-    
-    // Box locations
-    var titleBoxPos = {
-        x1 : 0,
-        y1 : -110,
-        x2 : 454,
-        y2 : -56
-    };
-    
-    var inputBoxPos = {
-        x1 : 113,
-        y1 : -125,
-        x2 : 567,
-        y2 : -71
-    };
     
     
     ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
@@ -76,7 +48,7 @@ function main() {
     myInputGroup1.alignment = "right";
     myInputGroup1.add("statictext", undefined, "Review:");
     
-    var myTextEditField1 = myInputGroup1.add("edittext", undefined, inputText1);
+    var myTextEditField1 = myInputGroup1.add("edittext", undefined, "Batch # - Review #");
     myTextEditField1.characters = 50;
     myTextEditField1.active = true;
     
@@ -84,7 +56,7 @@ function main() {
     myInputGroup2.alignment = "right";
     myInputGroup2.add("statictext", undefined, "Date:");
     
-    var myTextEditField2 = myInputGroup2.add("edittext", undefined, inputText2);
+    var myTextEditField2 = myInputGroup2.add("edittext", undefined, "Month ##, ####");
     myTextEditField2.characters = 50;
     
     ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
@@ -99,7 +71,7 @@ function main() {
     ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
     
     
-    if (myWindow.show () === true) {
+    if (myWindow.show () == true) {
         //Capture text input
         var myString1 = myTextEditField1.text;
         var myString2 = myTextEditField2.text;
@@ -124,7 +96,7 @@ function main() {
             var pageDims =  pageWidth + " × " + pageHeight + " in.";
             
             app.scriptPreferences.measurementUnit = MeasurementUnits.points;
-        
+
             //Reset the Zero Point/Ruler to top left corner
             myDocument.zeroPoint = [0,0];
         
@@ -193,7 +165,6 @@ function main() {
                 fillTint = 50;
             }
         
-    
             //Set up "New Code Light" Character Style
             var my_CODE_LIGHT_characterStyle = myDocument.characterStyles.item("New Code Light");
     
@@ -261,64 +232,48 @@ function main() {
     
     
             ////// ////// ////// ////// //////  ////// ////// ////// ////// ////// ////// 
-            ////// //////   —   Set Up the three kinds of Text Boxes   —    ////// //////
+            ////// //////   —   Set Up Text Boxes   —    ////// //////
             ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
-        
-            // Title boxes. Is object literal + for loop better than semi-manual?
-            // 0 – 3 are title boxes; 4 – 7 are input boxes
-            var slugBoxInfo = {
-                0 : {
-                    bounds : [titleBoxPos.y1, titleBoxPos.x1, titleBoxPos.y1 + smallBoxHeight, titleBoxPos.x1 + smallBoxWidth], 
-                    text   : "Code"
-                },
-                
-                1 : { 
-                    bounds : [titleBoxPos.y2, titleBoxPos.x1, titleBoxPos.y2 + smallBoxHeight, titleBoxPos.x1 + smallBoxWidth], 
-                    text   : "w × h"
-                },
-    
-                2 : {
-                    bounds : [titleBoxPos.y1, titleBoxPos.x2, titleBoxPos.y1 + smallBoxHeight, titleBoxPos.x2 + smallBoxWidth], 
-                    text   : "Review"
-                },
-    
-                3 : {
-                    bounds : [titleBoxPos.y2, titleBoxPos.x2, titleBoxPos.y2 + smallBoxHeight, titleBoxPos.x2 + smallBoxWidth], 
-                    text   : "Date"
-                },
-    
-                4 : {
-                    bounds : [inputBoxPos.y1, inputBoxPos.x1, inputBoxPos.y1 + bigBoxHeight, inputBoxPos.x1 + bigBoxWidth], 
-                    label  : "codeInput"
-                },
-    
-                5 : {
-                    bounds : [inputBoxPos.y2, inputBoxPos.x1, inputBoxPos.y2 + bigBoxHeight, inputBoxPos.x1 + bigBoxWidth], 
-                    label  : "dimsInput"
-                },
-    
-                6 : {
-                    bounds : [inputBoxPos.y1, inputBoxPos.x2, inputBoxPos.y1 + bigBoxHeight, inputBoxPos.x2 + bigBoxWidth], 
-                    label  : "reviewInput"
-                },
-    
-                7 : {
-                    bounds : [inputBoxPos.y2, inputBoxPos.x2, inputBoxPos.y2 + bigBoxHeight, inputBoxPos.x2 + bigBoxWidth], 
-                    label  : "dateInput"
-                }
-    
+
+            var titleBoxData = {
+                width  : 100, 
+                height : 20,
+
+                0 : "Code",
+                1 : "w × h",
+                2 : "Review",
+                3 : "Date"
             };
-    
-            for(var l = 0; l < 8; l++) {
-                if(l < 4) {
-                    var titleBox = myPage.textFrames.add({geometricBounds: slugBoxInfo[l].bounds});
-                    titleBoxSetup(titleBox, slugBoxInfo[l].text);
-    
-                } else {
-                    var inputBox = myPage.textFrames.add({geometricBounds: slugBoxInfo[l].bounds});
-                    inputBoxSetup(inputBox, slugBoxInfo[l].label);
+
+            var inputBoxData = {
+                width  : 326,
+                height : 35,
+
+                0 : "codeInput",
+                1 : "dimsInput",
+                2 : "reviewInput",
+                3 : "dateInput"
+            };
+            
+            var counter = 0;
+            
+            for(var col = 0; col < 2; col++) {
+                var titleBoxX = 454 * col;
+                var inputBoxX = titleBoxX + 113;
+
+                for(var row = 0; row < 2; row++) {
+                    var titleBoxY = 54 * row -110;
+                    var inputBoxY = titleBoxY - 15;
+
+                    var titleBox = myPage.textFrames.add({geometricBounds: [titleBoxY, titleBoxX, titleBoxY + titleBoxData.height, titleBoxX + titleBoxData.width]});
+                    titleBoxSetup(titleBox, titleBoxData[counter]);
+
+                    var inputBox = myPage.textFrames.add({geometricBounds: [inputBoxY, inputBoxX, inputBoxY + inputBoxData.height, inputBoxX + inputBoxData.width]});
+                    inputBoxSetup(inputBox, inputBoxData[counter]);
+
+                    counter++;
                 }
-            }
+            }    
             
         
             ////// ////// ////// ////// //////  ////// ////// ////// ////// ////// ////// 
