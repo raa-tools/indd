@@ -26,6 +26,7 @@ try{
     main();
 
 } catch(error) {
+    $.writeln(error);
     if(error instanceof TypeError) {
         alert("No folder selected");
     }
@@ -79,7 +80,7 @@ function main() {
             // Check if variable text item exists and is the right type
             // If not, add one
             if(!varDims.isValid || varDims.variableType !== VariableTypes.CUSTOM_TEXT_TYPE) {
-                varDims = doc.textVariables.add();
+                varDims = myDocument.textVariables.add();
                 varDims.variableType = VariableTypes.CUSTOM_TEXT_TYPE;
                 varDims.name = "Dimensions";
             }
