@@ -39,11 +39,6 @@ function main() {
     dialogSetup();
 
     if(myWindow.show() == true) {
-        //Capture text input
-        var batchReviewText = "Batch " + batchEditText.text + " - " + "Review " + reviewEditText.text;
-        var dateInputText = dateEditText.text;
-
-    
         //Establish a loop to deal with all the files:
         for(k=0; k<myInddFiles.length; k++) {
         
@@ -349,10 +344,10 @@ function main() {
             textFrame.textVariableInstances.add({associatedTextVariable:varDims});
     
         } else if(labelName === "batchReviewInput"){
-            textFrame.contents = batchReviewText;
+            textFrame.contents = "Batch " + batchEditText.text + " - " + "Review " + reviewEditText.text;
         
         } else {
-            textFrame.contents = dateInputText;
+            textFrame.contents = dateEditText.text;
         }
     
         textFrame.textFramePreferences.verticalJustification = VerticalJustification.BOTTOM_ALIGN;
