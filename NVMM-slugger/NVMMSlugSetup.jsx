@@ -247,7 +247,6 @@ function main() {
                 codeInfoFrames[z].appliedObjectStyle = myDocument.objectStyles.item("[None]");
                 codeInfoFrames[z].textFramePreferences.verticalJustification = VerticalJustification.BOTTOM_ALIGN;
 
-
                 if(codeInfoFrames[z].label === "codeInput") {
                     var frameStory = codeInfoFrames[z].parentStory;
     
