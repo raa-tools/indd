@@ -29,6 +29,8 @@ try{
 
 
 function main() {
+    var myInddFiles = myFolder.getFiles("*.indd");
+
     ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
     ////// ////// /////  —   D i a l o g   B u s i n e s s    —     ///// ////// //////
     ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
@@ -36,21 +38,25 @@ function main() {
     var myWindow = new Window("dialog", "Panels are CHILL");
     
     //Set up text fields
-    var myInputGroup1 = myWindow.add("group");
-    myInputGroup1.alignment = "right";
-    myInputGroup1.add("statictext", undefined, "Review:");
+
+    // Row 1
+    var inputRow1 = myWindow.add("group {alignment: 'left'}");
     
-    var reviewEditText = myInputGroup1.add("edittext", undefined, "Batch # - Review #");
-    reviewEditText.characters = 50;
-    reviewEditText.active = true;
+    // Batch
+    var batchStaticText = inputRow1.add('statictext {text: "Batch:", size: [40, 24], alignment: "bottom", justify: "right"}');
+    var batchEditText = inputRow1.add('edittext {text: "#", size: [40, 25], active: true}');
     
-    var myInputGroup2 = myWindow.add("group");
-    myInputGroup2.alignment = "right";
-    myInputGroup2.add("statictext", undefined, "Date:");
-    
-    var dateEditText = myInputGroup2.add("edittext", undefined, "Month ##, ####");
-    dateEditText.characters = 50;
-    
+    var reviewStaticText = inputRow1.add('statictext {text: "Review:", size: [55, 24], alignment: "bottom", justify: "right"}');
+    var reviewEditText = inputRow1.add('edittext {text: "#", size: [40, 25]}');
+
+    // Row 2
+    var inputRow2 = myWindow.add('group {alignment: "left"}');
+
+    // Date
+    var dateStaticText = inputRow2.add("statictext {text: 'Date:', size: [40, 24], alignment: 'bottom', justify: 'right'}");
+    var dateEditText = inputRow2.add("edittext {text: 'Month dd, yyyy', size: [155, 25]}");
+
+
     ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
     
     //Set up and display the dialog buttons
@@ -64,9 +70,8 @@ function main() {
     
 
     if(myWindow.show() == true) {
-        var myInddFiles = myFolder.getFiles("*.indd");
-        
         //Capture text input
+        var batchInputText = batchEditText.text;
         var reviewInputText = reviewEditText.text;
         var dateInputText = dateEditText.text;
     
