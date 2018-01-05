@@ -244,6 +244,8 @@ function main() {
             var codeInfoFrames = codeInfoLayer.textFrames;
     
             for(var z = 0; z < codeInfoFrames.length; z++) {
+                codeInfoFrames[z].appliedObjectStyle = myDocument.objectStyles.item("[None]");
+
                 if(codeInfoFrames[z].label === "codeInput") {
                     var frameStory = codeInfoFrames[z].parentStory;
     
