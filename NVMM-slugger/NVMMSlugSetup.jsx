@@ -30,17 +30,6 @@ var myInddFiles = myFolder.getFiles("*.indd");
 
 
 ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
-//////   —   Page Dims are now defined by Dropdown Selection   —  //////
-////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
-
-//Establish page dimensions as a variable
-// var my_pageWidth = selectedPanelType.width;
-// var my_pageHeight = selectedPanelType.height;
-var my_pageWidth = 1000;
-var my_pageHeight = 500;
-
-
-////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
 ////// —  Change dimension values in this section as necessary  — //////
 ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
 
@@ -50,6 +39,7 @@ var smallBoxHeight = 20;
 var bigBoxWidth = 326;
 var bigBoxHeight = 35;
 
+// Box locations
 var titleBoxPos = {
     x1 : 0,
     y1 : -110,
@@ -119,15 +109,17 @@ if (myWindow.show () == true) {
         var myPage = app.activeWindow.activePage;
 
         app.scriptPreferences.measurementUnit = MeasurementUnits.inches;
-        var pageDims = Math.round(1000*myDocument.documentPreferences.pageWidth)/1000 + " × " + Math.round(1000*myDocument.documentPreferences.pageHeight)/1000 + " in.";
+        var pageWidth = Math.round(1000*myDocument.documentPreferences.pageWidth)/1000; 
+        var pageHeight = Math.round(1000*myDocument.documentPreferences.pageHeight)/1000;
+        var pageDims =  pageWidth + " × " + pageHeight + " in.";
         
         app.scriptPreferences.measurementUnit = MeasurementUnits.points;
     
         //Reset the Zero Point/Ruler to top left corner
-        app.activeDocument.zeroPoint = [0,0];
+        myDocument.zeroPoint = [0,0];
     
         //Set bleed and slug dims
-        app.activeDocument.documentPreferences.properties = {
+        myDocument.documentPreferences.properties = {
             documentBleedBottomOffset : my_bleedDim ,
             documentBleedTopOffset : my_bleedDim ,
             documentBleedInsideOrLeftOffset : my_bleedDim ,
@@ -152,78 +144,35 @@ if (myWindow.show () == true) {
         
         // Either way, insert content here
         varDims.variableOptions.contents = pageDims;
+
+    
+        ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
+        ////// //////   —   Code and info layer set up    —   ////// //////
+        ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
         
-    
-        ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
-        ////// //////   —   Document Layer and Style Clean-up    —   ////// //////
-        ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
-    
-        try {
-            app.activeDocument.layers.item("Code and info").remove();
-            
-            //create new “Code and info” layer and move to top
-            newCodeLayer = app.activeDocument.layers.add({name: "Code and info"});
-            newCodeLayer.move(LocationOptions.BEFORE, app.activeDocument.layers[0]);    
-            
-            }
-    
-        catch (whatWeWantIsNotActuallyAnErrorButHeyWeWillTakeIt){
-             //create new “Code and info” layer and move to top
-            newCodeLayer = app.activeDocument.layers.add({name: "Code and info"});
-            newCodeLayer.move(LocationOptions.BEFORE, app.activeDocument.layers[0]);    
-            
-            }
-    
-        var old_CODE_NOTE_characterStyle = app.activeDocument.characterStyles.item("Code Note");
-        try {
-            //check to see if the style exists. if it does, delete it
-            var myCleanUpName1 = old_CODE_NOTE_characterStyle.name;
-            old_CODE_NOTE_characterStyle.remove();
+        var codeInfoLayer = myDocument.layers.item("Code and info");
+
+        if(codeInfoLayer.isValid) {
+            codeInfoLayer.remove();
         }
-        catch (myError){
-            //the character style did not exist, so no problem
-        }
-    
-        var old_CODE_LIGHT_characterStyle = app.activeDocument.characterStyles.item("Code Light");
-        try {
-            //check to see if the style exists. if it does, delete it
-            var myCleanUpName2 = old_CODE_LIGHT_characterStyle.name;
-            old_CODE_LIGHT_characterStyle.remove();
-        }
-        catch (myError){
-            //the character style did not exist, so no problem
-        }
-    
-        var old_CODE_BOLD_characterStyle = app.activeDocument.characterStyles.item("Code Bold");
-        try {
-            //check to see if the style exists. if it does, delete it
-            var myCleanUpName3 = old_CODE_BOLD_characterStyle.name;
-            old_CODE_BOLD_characterStyle.remove();
-        }
-        catch (myError){
-            //the character style did not exist, so no problem
-        }
-    
+
+        codeInfoLayer = myDocument.layers.add({name: "Code and info"});
+        codeInfoLayer.move(LocationOptions.BEFORE, myDocument.layers[0]);    
     
     
         ////// ////// ////// ////// //////  ////// ////// ////// ////// ////// ////// 
         //   —   Establish Paragraph and Character Styles needed for Slug   —    //
         ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
     
-        var my_CODE_NOTE_characterStyle = app.activeDocument.characterStyles.item("New Code Note");
-        try {
-            //check to see if the style exists. if it does, delete it and add a fresh version
-            var myName1 = my_CODE_NOTE_characterStyle.name;
+        var my_CODE_NOTE_characterStyle = myDocument.characterStyles.item("New Code Note");
+
+        if(my_CODE_NOTE_characterStyle.isValid) {
             my_CODE_NOTE_characterStyle.remove();
-            var my_CODE_NOTE_characterStyle = app.activeDocument.characterStyles.add({name:"New Code Note"});
         }
-        catch (myError){
-        //The paragraph style did not exist, so create it
-        var my_CODE_NOTE_characterStyle = app.activeDocument.characterStyles.add({name:"New Code Note"});
-        }
-    
+
+        my_CODE_NOTE_characterStyle = myDocument.characterStyles.add({name:"New Code Note"});
+
         with(my_CODE_NOTE_characterStyle){
-    
             //Formatting the Character text style
             basedOn = "None";
             appliedFont = app.fonts.itemByName("Times New Roman");
@@ -232,24 +181,19 @@ if (myWindow.show () == true) {
             tracking = 25;
             capitalization = Capitalization.allCaps;
             fillTint = 50;
-    
         }
     
+
         //Set up "New Code Light" Character Style
-        var my_CODE_LIGHT_characterStyle = app.activeDocument.characterStyles.item("New Code Light");
-        try {
-            //check to see if the style exists. if it does, delete it and add a fresh version
-            var myName2 = my_CODE_LIGHT_characterStyle.name;
+        var my_CODE_LIGHT_characterStyle = myDocument.characterStyles.item("New Code Light");
+
+        if(my_CODE_LIGHT_characterStyle.isValid) {
             my_CODE_LIGHT_characterStyle.remove();
-            var my_CODE_LIGHT_characterStyle = app.activeDocument.characterStyles.add({name:"New Code Light"});
         }
-        catch (myError){
-        //The paragraph style did not exist, so create it
-        var my_CODE_LIGHT_characterStyle = app.activeDocument.characterStyles.add({name:"New Code Light"});
-        }
-    
+
+        my_CODE_LIGHT_characterStyle = myDocument.characterStyles.add({name:"New Code Light"});
+
         with(my_CODE_LIGHT_characterStyle){
-    
             //Formatting the Character text style
             basedOn = "None";
             appliedFont = app.fonts.itemByName("Times New Roman");
@@ -258,42 +202,32 @@ if (myWindow.show () == true) {
             tracking = 0;
             capitalization = Capitalization.normal;
             fillTint = 100;
-    
         }
-    
+
     
         //Set up "New Code Bold" Paragraph Style
-        var my_CODE_BOLD_paragraphStyle = app.activeDocument.paragraphStyles.item("New Code Bold");
-        try {
-            //check to see if the style exists. if it does, delete it and add a fresh version
-            var myName3 = my_CODE_BOLD_paragraphStyle.name;
+        var my_CODE_BOLD_paragraphStyle = myDocument.paragraphStyles.item("New Code Bold");
+
+        if(my_CODE_BOLD_paragraphStyle.isValid) {
             my_CODE_BOLD_paragraphStyle.remove();
-            var my_CODE_BOLD_paragraphStyle = app.activeDocument.paragraphStyles.add({name:"New Code Bold"});
         }
-        catch (myError){
-            //The paragraph style did not exist, so create it
-            var my_CODE_BOLD_paragraphStyle = app.activeDocument.paragraphStyles.add({name:"New Code Bold"});
-        }
-    
+        
+        my_CODE_BOLD_paragraphStyle = myDocument.paragraphStyles.add({name:"New Code Bold"});
+        
         //Set up New "Yellow Highlight" Swatch Color
-        var myColor = app.activeDocument.colors.item("Yellow Highlight")
-        try {
-            var myName = myColor.name;
+        var myColor = myDocument.colors.item("Yellow Highlight")
+
+        if(!myColor.isValid) {
+            myColor = myDocument.colors.add({name:"Yellow Highlight", model:ColorModel.process, colorValue:[0,0,100,0]});
+
         }
-        catch (myError){
-            //The color swatch did not exist, so create it
-            myColor = app.activeDocument.colors.add({name:"Yellow Highlight", model:ColorModel.process, colorValue:[0,0,100,0]});
-        }
-    
+        
         with(my_CODE_BOLD_paragraphStyle){
-    
             //Formatting the paragraph text style
             nextParagraphStyle = "None";
             appliedFont = app.fonts.itemByName("Times New Roman");
             fontStyle = "Bold";
             pointSize = 32;
-            //spaceAfter = 24;
-            //spaceBefore = 24;
             fillColor = myDocument.colors.item("Black");
             capitalization = Capitalization.allCaps;
     
@@ -320,65 +254,62 @@ if (myWindow.show () == true) {
         ////// //////   —   Set Up the three kinds of Text Boxes   —    ////// //////
         ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
     
-    
-        //Set up Text Frames and set Text Variables to be styled (later)
-        var codeTitleBox_TextFrame = myPage.textFrames.add({geometricBounds:[titleBoxPos.y1, titleBoxPos.x1, titleBoxPos.y1 + smallBoxHeight, titleBoxPos.x1 + smallBoxWidth]});
-        codeTitleBox_TextFrame.contents = "Code";
-        codeTitleBox_TextFrame.textFramePreferences.verticalJustification = VerticalJustification.BOTTOM_ALIGN;
-    
-        var codeTitle = codeTitleBox_TextFrame.parentStory;
-    
-        var dimsTitleBox_TextFrame = myPage.textFrames.add({geometricBounds:[titleBoxPos.y2, titleBoxPos.x1, titleBoxPos.y2 + smallBoxHeight, titleBoxPos.x1 + smallBoxWidth]});
-        dimsTitleBox_TextFrame.contents = "w × h";
-        dimsTitleBox_TextFrame.textFramePreferences.verticalJustification = VerticalJustification.BOTTOM_ALIGN;
-    
-        var dimsTitle = dimsTitleBox_TextFrame.parentStory;
-    
-        var reviewTitleBox_TextFrame = myPage.textFrames.add({geometricBounds:[titleBoxPos.y1, titleBoxPos.x2, titleBoxPos.y1 + smallBoxHeight, titleBoxPos.x2 + smallBoxWidth]});
-        reviewTitleBox_TextFrame.contents = "Review";
-        reviewTitleBox_TextFrame.textFramePreferences.verticalJustification = VerticalJustification.BOTTOM_ALIGN;
-    
-        var reviewTitle = reviewTitleBox_TextFrame.parentStory;
-    
-        var dateTitleBox_TextFrame = myPage.textFrames.add({geometricBounds:[titleBoxPos.y2, titleBoxPos.x2, titleBoxPos.y2 + smallBoxHeight, titleBoxPos.x2 + smallBoxWidth]});
-        dateTitleBox_TextFrame.contents = "Date";
-        dateTitleBox_TextFrame.textFramePreferences.verticalJustification = VerticalJustification.BOTTOM_ALIGN;
-    
-        var dateTitle = dateTitleBox_TextFrame.parentStory;
-    
-    
-        ///////// Text Variable Box  --  5 /////////
-    
-        //Set up Text Frames and set Text Variables to be styled (later)
-        var codeInputBox_TextFrame = myPage.textFrames.add({geometricBounds:[inputBoxPos.y1, inputBoxPos.x1, inputBoxPos.y1 + bigBoxHeight, inputBoxPos.x1 + bigBoxWidth]});
-        codeInputBox_TextFrame.textVariableInstances.add({associatedTextVariable:varFileName});
-        codeInputBox_TextFrame.textFramePreferences.verticalJustification = VerticalJustification.BOTTOM_ALIGN;
-        codeInputBox_TextFrame.label = "codeInput"
-    
-        var codeInput = codeInputBox_TextFrame.parentStory;
-    
-        //Set up Text Frames and set Text Variables to be styled (later)
-        var dimsInputBox_TextFrame = myPage.textFrames.add({geometricBounds:[inputBoxPos.y2, inputBoxPos.x1, inputBoxPos.y2 + bigBoxHeight, inputBoxPos.x1 + bigBoxWidth]});
-        dimsInputBox_TextFrame.textVariableInstances.add({associatedTextVariable:varDims});
-        dimsInputBox_TextFrame.textFramePreferences.verticalJustification = VerticalJustification.BOTTOM_ALIGN;
-        dimsInputBox_TextFrame.label = "dimsInput"
-    
-        var dimsInput = dimsInputBox_TextFrame.parentStory;
-    
-        var reviewInputBox_TextFrame = myPage.textFrames.add({geometricBounds:[inputBoxPos.y1, inputBoxPos.x2, inputBoxPos.y1 + bigBoxHeight, inputBoxPos.x2 + bigBoxWidth]});
-        reviewInputBox_TextFrame.contents = myString1;
-        reviewInputBox_TextFrame.textFramePreferences.verticalJustification = VerticalJustification.BOTTOM_ALIGN;
-        reviewInputBox_TextFrame.label = "reviewInput"
-    
-        var reviewInput = reviewInputBox_TextFrame.parentStory;
-    
-        var dateInputBox_TextFrame = myPage.textFrames.add({geometricBounds:[inputBoxPos.y2, inputBoxPos.x2, inputBoxPos.y2 + bigBoxHeight, inputBoxPos.x2 + bigBoxWidth]});
-        dateInputBox_TextFrame.contents = myString2;
-        dateInputBox_TextFrame.textFramePreferences.verticalJustification = VerticalJustification.BOTTOM_ALIGN;
-        dateInputBox_TextFrame.label = "dateInput"
-    
-        var dateInput = dateInputBox_TextFrame.parentStory;
-    
+        // Title boxes. Is object literal + for loop better than semi-manual?
+        // 0 – 3 are title boxes; 4 – 7 are input boxes
+        var slugBoxInfo = {
+            0 : {
+                bounds : [titleBoxPos.y1, titleBoxPos.x1, titleBoxPos.y1 + smallBoxHeight, titleBoxPos.x1 + smallBoxWidth], 
+                text   : "Code"
+            },
+            
+            1 : { 
+                bounds : [titleBoxPos.y2, titleBoxPos.x1, titleBoxPos.y2 + smallBoxHeight, titleBoxPos.x1 + smallBoxWidth], 
+                text   : "w × h"
+            },
+
+            2 : {
+                bounds : [titleBoxPos.y1, titleBoxPos.x2, titleBoxPos.y1 + smallBoxHeight, titleBoxPos.x2 + smallBoxWidth], 
+                text   : "Review"
+            },
+
+            3 : {
+                bounds : [titleBoxPos.y2, titleBoxPos.x2, titleBoxPos.y2 + smallBoxHeight, titleBoxPos.x2 + smallBoxWidth], 
+                text   : "Date"
+            },
+
+            4 : {
+                bounds : [inputBoxPos.y1, inputBoxPos.x1, inputBoxPos.y1 + bigBoxHeight, inputBoxPos.x1 + bigBoxWidth], 
+                label  : "codeInput"
+            },
+
+            5 : {
+                bounds : [inputBoxPos.y2, inputBoxPos.x1, inputBoxPos.y2 + bigBoxHeight, inputBoxPos.x1 + bigBoxWidth], 
+                label  : "dimsInput"
+            },
+
+            6 : {
+                bounds : [inputBoxPos.y1, inputBoxPos.x2, inputBoxPos.y1 + bigBoxHeight, inputBoxPos.x2 + bigBoxWidth], 
+                label  : "reviewInput"
+            },
+
+            7 : {
+                bounds : [inputBoxPos.y2, inputBoxPos.x2, inputBoxPos.y2 + bigBoxHeight, inputBoxPos.x2 + bigBoxWidth], 
+                label  : "dateInput"
+            }
+
+        };
+
+        for(var l = 0; l < 8; l++) {
+            if(l < 4) {
+                var titleBox = myPage.textFrames.add({geometricBounds: slugBoxInfo[l].bounds});
+                titleBoxSetup(titleBox, slugBoxInfo[l].text);
+
+            } else {
+                var inputBox = myPage.textFrames.add({geometricBounds: slugBoxInfo[l].bounds});
+                inputBoxSetup(inputBox, slugBoxInfo[l].label);
+            }
+        }
+        
     
         ////// ////// ////// ////// //////  ////// ////// ////// ////// ////// ////// 
         ////// ////// ////// //// —  Apply all the things  —  //// ////// ////// ////
@@ -390,7 +321,7 @@ if (myWindow.show () == true) {
             if(codeInfoFrames[z].label === "codeInput") {
                 var frameStory = codeInfoFrames[z].parentStory;
 
-                frameStory.appliedCharacterStyle = app.activeDocument.characterStyles.item("[None]");
+                frameStory.appliedCharacterStyle = myDocument.characterStyles.item("[None]");
                 frameStory.appliedParagraphStyle = my_CODE_BOLD_paragraphStyle;
                 frameStory.justification = Justification.LEFT_ALIGN;
             
@@ -398,14 +329,14 @@ if (myWindow.show () == true) {
                 var frameStory = codeInfoFrames[z].parentStory;
 
                 frameStory.appliedCharacterStyle = my_CODE_LIGHT_characterStyle;
-                frameStory.appliedParagraphStyle = app.activeDocument.paragraphStyles.item("[Basic Paragraph]");
+                frameStory.appliedParagraphStyle = myDocument.paragraphStyles.item("[Basic Paragraph]");
                 frameStory.justification = Justification.LEFT_ALIGN;
             
             } else {
                 var frameStory = codeInfoFrames[z].parentStory;
 
                 frameStory.appliedCharacterStyle = my_CODE_NOTE_characterStyle;
-                frameStory.appliedParagraphStyle = app.activeDocument.paragraphStyles.item("[Basic Paragraph]");
+                frameStory.appliedParagraphStyle = myDocument.paragraphStyles.item("[Basic Paragraph]");
                 frameStory.justification = Justification.RIGHT_ALIGN;
                 
             }
@@ -417,17 +348,42 @@ if (myWindow.show () == true) {
         ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
     
         //Re-lock Code and info layer
-        app.activeDocument.layers.item("Code and info").locked = true;
+        myDocument.layers.item("Code and info").locked = true;
     
         //save file
-        app.activeDocument.save();
+        myDocument.save();
     
         //close file
-        app.activeDocument.close();
+        myDocument.close();
     }
     
     alert("Oh, did you just blink? \rYou missed a lot of fun.\r" + myInddFiles.length + " files processed.");
 
 } else {
     app.dialogs.everyItem().destroy()
+}
+
+function titleBoxSetup(textFrame, content) {
+    // textFrame is an object, content is a string
+    textFrame.contents = content;
+    textFrame.textFramePreferences.verticalJustification = VerticalJustification.BOTTOM_ALIGN;               
+}
+
+function inputBoxSetup(textFrame, labelName) {
+    // textFrame is an object, labelName is a string
+    if(labelName === "codeInput") {
+        textFrame.textVariableInstances.add({associatedTextVariable:varFileName});
+    
+    } else if(labelName === "dimsInput") {
+        textFrame.textVariableInstances.add({associatedTextVariable:varDims});
+
+    } else if(labelName === "reviewInput"){
+        textFrame.contents = myString1;
+    
+    } else {
+        textFrame.contents = myString2;
+    }
+
+    textFrame.textFramePreferences.verticalJustification = VerticalJustification.BOTTOM_ALIGN;
+    textFrame.label = labelName;
 }
