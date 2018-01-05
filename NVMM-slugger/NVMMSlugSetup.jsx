@@ -21,6 +21,7 @@ var myFolder = Folder.selectDialog("*****     Please select a folder of panels  
 
 // Use try/catch in case user cancels out of folder select dialog
 try{
+    var myInddFiles = myFolder.getFiles("*.indd");
     main();
 
 } catch(error) {
@@ -29,52 +30,44 @@ try{
 
 
 function main() {
-    var myInddFiles = myFolder.getFiles("*.indd");
-
     ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
     ////// ////// /////  —   D i a l o g   B u s i n e s s    —     ///// ////// //////
     ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
-    
+    var today = getTodaysDate();
+
     var myWindow = new Window("dialog", "Panels are CHILL");
-    
-    //Set up text fields
 
     // Row 1
     var inputRow1 = myWindow.add("group {alignment: 'left'}");
     
     // Batch
     var batchStaticText = inputRow1.add('statictext {text: "Batch:", size: [40, 24], alignment: "bottom", justify: "right"}');
-    var batchEditText = inputRow1.add('edittext {text: "#", size: [40, 25], active: true}');
+    var batchEditText = inputRow1.add('edittext {text: "1", size: [40, 25], active: true}');
     
     var reviewStaticText = inputRow1.add('statictext {text: "Review:", size: [55, 24], alignment: "bottom", justify: "right"}');
-    var reviewEditText = inputRow1.add('edittext {text: "#", size: [40, 25]}');
+    var reviewEditText = inputRow1.add('edittext {text: "1", size: [40, 25]}');
 
     // Row 2
     var inputRow2 = myWindow.add('group {alignment: "left"}');
 
     // Date
     var dateStaticText = inputRow2.add("statictext {text: 'Date:', size: [40, 24], alignment: 'bottom', justify: 'right'}");
-    var dateEditText = inputRow2.add("edittext {text: 'Month dd, yyyy', size: [155, 25]}");
-
-
-    ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
+    var dateEditText = inputRow2.add("edittext {size: [155, 25]}");
+    dateEditText.text = today;
     
-    //Set up and display the dialog buttons
-    var myButtonGroup = myWindow.add ("group");
-    myButtonGroup.alignment = "right";
-    myButtonGroup.add ("button", undefined, "OK");
-    myButtonGroup.add ("button", undefined, "Cancel");
+    // Buttons
+    var buttonGroup = myWindow.add("group {alignment: 'right'}");
+    buttonGroup.add ("button", undefined, "OK");
+    buttonGroup.add ("button", undefined, "Cancel");
     
     
     ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
     
-
     if(myWindow.show() == true) {
         //Capture text input
-        var batchInputText = batchEditText.text;
-        var reviewInputText = reviewEditText.text;
+        var batchReviewText = "Batch " + batchEditText.text + " - " + "Review " + reviewEditText.text;
         var dateInputText = dateEditText.text;
-    
+
         ////// — MAIN Script — //////
     
         //Establish a loop to deal with all the files:
@@ -250,7 +243,7 @@ function main() {
 
                 0 : "codeInput",
                 1 : "dimsInput",
-                2 : "reviewInput",
+                2 : "batchReviewInput",
                 3 : "dateInput"
             };
             
@@ -328,8 +321,15 @@ function main() {
     }
     
 
-    // Textbox setup functions
+    function getTodaysDate() {
+        var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];    
+        var timeStamp = new Date();
 
+        return monthNames[timeStamp.getMonth()] + " " + timeStamp.getDate() + ", " + timeStamp.getFullYear();
+    }
+
+
+    // Textbox setup functions
     function titleBoxSetup(textFrame, content) {
         // textFrame is an object, content is a string
         textFrame.contents = content;
@@ -344,8 +344,8 @@ function main() {
         } else if(labelName === "dimsInput") {
             textFrame.textVariableInstances.add({associatedTextVariable:varDims});
     
-        } else if(labelName === "reviewInput"){
-            textFrame.contents = reviewInputText;
+        } else if(labelName === "batchReviewInput"){
+            textFrame.contents = batchReviewText;
         
         } else {
             textFrame.contents = dateInputText;
@@ -354,5 +354,4 @@ function main() {
         textFrame.textFramePreferences.verticalJustification = VerticalJustification.BOTTOM_ALIGN;
         textFrame.label = labelName;
     }
-    
 }
