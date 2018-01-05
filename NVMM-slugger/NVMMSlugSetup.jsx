@@ -62,9 +62,10 @@ function main() {
     
     ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
     
-    if(myWindow.show() === true) {
-        var myInddFiles = myFolder.getFiles("*.indd");
 
+    if(myWindow.show() == true) {
+        var myInddFiles = myFolder.getFiles("*.indd");
+        
         //Capture text input
         var reviewInputText = reviewEditText.text;
         var dateInputText = dateEditText.text;
@@ -323,7 +324,7 @@ function main() {
     
 
     // Textbox setup functions
-    
+
     function titleBoxSetup(textFrame, content) {
         // textFrame is an object, content is a string
         textFrame.contents = content;
