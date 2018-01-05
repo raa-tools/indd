@@ -40,16 +40,16 @@ function main() {
     myInputGroup1.alignment = "right";
     myInputGroup1.add("statictext", undefined, "Review:");
     
-    var myTextEditField1 = myInputGroup1.add("edittext", undefined, "Batch # - Review #");
-    myTextEditField1.characters = 50;
-    myTextEditField1.active = true;
+    var reviewEditText = myInputGroup1.add("edittext", undefined, "Batch # - Review #");
+    reviewEditText.characters = 50;
+    reviewEditText.active = true;
     
     var myInputGroup2 = myWindow.add("group");
     myInputGroup2.alignment = "right";
     myInputGroup2.add("statictext", undefined, "Date:");
     
-    var myTextEditField2 = myInputGroup2.add("edittext", undefined, "Month ##, ####");
-    myTextEditField2.characters = 50;
+    var dateEditText = myInputGroup2.add("edittext", undefined, "Month ##, ####");
+    dateEditText.characters = 50;
     
     ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
     
@@ -62,12 +62,12 @@ function main() {
     
     ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
     
-    if (myWindow.show () == true) {
+    if(myWindow.show() === true) {
         var myInddFiles = myFolder.getFiles("*.indd");
 
         //Capture text input
-        var myString1 = myTextEditField1.text;
-        var myString2 = myTextEditField2.text;
+        var reviewInputText = reviewEditText.text;
+        var dateInputText = dateEditText.text;
     
         ////// — MAIN Script — //////
     
@@ -321,6 +321,9 @@ function main() {
         app.dialogs.everyItem().destroy()
     }
     
+
+    // Textbox setup functions
+    
     function titleBoxSetup(textFrame, content) {
         // textFrame is an object, content is a string
         textFrame.contents = content;
@@ -336,10 +339,10 @@ function main() {
             textFrame.textVariableInstances.add({associatedTextVariable:varDims});
     
         } else if(labelName === "reviewInput"){
-            textFrame.contents = myString1;
+            textFrame.contents = reviewInputText;
         
         } else {
-            textFrame.contents = myString2;
+            textFrame.contents = dateInputText;
         }
     
         textFrame.textFramePreferences.verticalJustification = VerticalJustification.BOTTOM_ALIGN;
