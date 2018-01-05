@@ -245,7 +245,7 @@ function main() {
             ////// ////// ////// //// —  Apply all the things  —  //// ////// ////// ////
             ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
         
-            var codeInfoFrames = myDocument.layers.item("Code and info").textFrames;
+            var codeInfoFrames = codeInfoLayer.textFrames;
     
             for(var z = 0; z < codeInfoFrames.length; z++) {
                 if(codeInfoFrames[z].label === "codeInput") {
@@ -278,7 +278,7 @@ function main() {
             ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
         
             //Re-lock Code and info layer
-            myDocument.layers.item("Code and info").locked = true;
+            codeInfoLayer.locked = true;
         
             //save file
             myDocument.save();
