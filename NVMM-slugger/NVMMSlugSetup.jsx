@@ -245,6 +245,8 @@ function main() {
     
             for(var z = 0; z < codeInfoFrames.length; z++) {
                 codeInfoFrames[z].appliedObjectStyle = myDocument.objectStyles.item("[None]");
+                codeInfoFrames[z].textFramePreferences.verticalJustification = VerticalJustification.BOTTOM_ALIGN;
+
 
                 if(codeInfoFrames[z].label === "codeInput") {
                     var frameStory = codeInfoFrames[z].parentStory;
@@ -334,7 +336,6 @@ function main() {
     function titleBoxSetup(textFrame, content) {
         // textFrame is an object, content is a string
         textFrame.contents = content;
-        textFrame.textFramePreferences.verticalJustification = VerticalJustification.BOTTOM_ALIGN;               
     }
     
     // Set up input boxes
@@ -353,7 +354,6 @@ function main() {
             textFrame.contents = dateEditText.text;
         }
     
-        textFrame.textFramePreferences.verticalJustification = VerticalJustification.BOTTOM_ALIGN;
         textFrame.label = labelName;
     }
 }
