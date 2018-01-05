@@ -29,14 +29,6 @@ try{
 
 
 function main() {
-    var myInddFiles = myFolder.getFiles("*.indd"); 
-
-    ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
-    ////// —  Change dimension values in this section as necessary  — //////
-    ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
-    
-    
-    
     ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
     ////// ////// /////  —   D i a l o g   B u s i n e s s    —     ///// ////// //////
     ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
@@ -70,8 +62,9 @@ function main() {
     
     ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
     
-    
     if (myWindow.show () == true) {
+        var myInddFiles = myFolder.getFiles("*.indd");
+
         //Capture text input
         var myString1 = myTextEditField1.text;
         var myString2 = myTextEditField2.text;
@@ -256,7 +249,7 @@ function main() {
             };
             
             var counter = 0;
-            
+
             for(var col = 0; col < 2; col++) {
                 var titleBoxX = 454 * col;
                 var inputBoxX = titleBoxX + 113;
