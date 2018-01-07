@@ -1,7 +1,7 @@
 ﻿#target InDesign
 
 // Allow the user to select a folder of INDD layout files
-// and establish variables for the folder and each individual file,
+// and establish variables for the folder and each individual file
 var myFolder = Folder.selectDialog("*****     Please select a folder of panels     *****");
 
 // Use try/catch in case user cancels out of folder select dialog
@@ -27,8 +27,6 @@ function main() {
 
     
     if(myWindow.show() == true) {
-        
-        
         //Establish a loop to deal with all the files:
         for(k=0; k<myInddFiles.length; k++) {
 
