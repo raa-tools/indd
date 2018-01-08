@@ -41,14 +41,14 @@ function dialogSetup() {
     // Batch & Review
     batchReviewCheck = inputRow1.add("checkbox {size: [60, 15], text: '\u00A0Batch:'}");
     batchReviewCheck.onClick = function() {
-        if(batchReviewCheck.value == true) {
+        if(batchReviewCheck.value) {
             batchEditText.enabled = true;
             reviewEditText.enabled = true;
+        
         } else {
             batchEditText.enabled = false;
             reviewEditText.enabled = false;
         }
-
     };
 
     batchEditText = inputRow1.add('edittext {text: "1", size: [40, 27], enabled: false}');
@@ -62,8 +62,9 @@ function dialogSetup() {
     // Date
     dateCheck = inputRow2.add("checkbox {size: [60, 15], text: '\u00A0Date:'}");
     dateCheck.onClick = function() {
-        if(dateCheck.value == true) {
+        if(dateCheck.value) {
             dateEditText.enabled = true;
+        
         } else {
             dateEditText.enabled = false;
         }
@@ -112,16 +113,16 @@ function main() {
         
         var codeInfoFrames = codeInfoLayer.textFrames;
 
-        if(batchReviewCheck.value == true && dateCheck.value == true) {
+        if(batchReviewCheck.value && dateCheck.value) {
             for(var i = 0; i < codeInfoFrames.length; i++) {
                 updateBatchReview();
                 updateDate();
             }
-        } else if(batchReviewCheck.value == true) {
+        } else if(batchReviewCheck.value) {
             for(var i = 0; i < codeInfoFrames.length; i++) {
                 updateBatchReview();
             }
-        } else if(dateCheck.value == true) {
+        } else if(dateCheck.value) {
             for(var i = 0; i < codeInfoFrames.length; i++) {
                 updateDate();
             }
