@@ -1,7 +1,7 @@
-﻿// Script to duplicate pages & replace PDFs with consecutive files
+﻿/* Script to duplicate pages & replace PDFs with consecutive files */
 
-
-#target "InDesign-8.0" // Targetting Indd CS6
+// Targetting Indd CS6
+#target "InDesign-8.0"
 
 try{
     var doc = app.activeDocument;
@@ -11,19 +11,19 @@ try{
 }
 
 // Dialog setup
-var pageDupeDialog = app.dialogs.add({name:"Number of pages to duplicate"});
+var dupePageDialog = app.dialogs.add({name:"Number of pages to duplicate"});
 
-with(pageDupeDialog.dialogColumns.add()) {
-    var pageDupeEditText = textEditboxes.add({editContents: "1", minWidth:100});
+with(dupePageDialog.dialogColumns.add()) {
+    var dupePageEditText = textEditboxes.add({editContents: "1", minWidth:100});
 }
 
-var showDialog = pageDupeDialog.show();
+var showDialog = dupePageDialog.show();
 
 if(showDialog) {
-    dupePages(pageDupeEditText.editContents);
+    dupePages(dupePageEditText.editContents);
 }
 
-pageDupeDialog.destroy();
+dupePageDialog.destroy();
 
 // Main function below
 function dupePages(pageToDupe){
