@@ -74,7 +74,7 @@ function dialogSetup() {
     var inputRow3 = myWindow.add("group {alignment: 'left'}");
 
     // Notes
-    notesCheck = inputRow3.add("checkbox {size: [65, 15], text: '\u00A0Notes:', alignment: 'top'}");
+    notesCheck = inputRow3.add("checkbox {size: [65, 15], text: '\u00A0Notes:'}");
     notesCheck.onClick = function() {
         if(notesCheck.value) {
             notesEditText.enabled = true;
