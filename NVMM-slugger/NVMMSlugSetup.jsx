@@ -26,6 +26,7 @@ try{
 
     // These are declared here so they can be used by dialogSetup()
     var myWindow; var batchEditText; var reviewEditText; var dateEditText;
+    var notesCheck; var notesEditText;
 
     dialogSetup();
 
@@ -53,20 +54,40 @@ function dialogSetup() {
     var inputRow1 = myWindow.add("group {alignment: 'left'}");
     
     // Batch
-    var batchStaticText = inputRow1.add('statictext {text: "Batch:", size: [40, 24], alignment: "bottom", justify: "right"}');
+    var batchStaticText = inputRow1.add('statictext {text: "Batch:", size: [65, 24], alignment: "bottom", justify: "left"}');
     batchEditText = inputRow1.add('edittext {text: "1", size: [40, 25], active: true}');
     
     var reviewStaticText = inputRow1.add('statictext {text: "Review:", size: [55, 24], alignment: "bottom", justify: "right"}');
     reviewEditText = inputRow1.add('edittext {text: "1", size: [40, 25]}');
 
+
     // Row 2
     var inputRow2 = myWindow.add('group {alignment: "left"}');
 
     // Date
-    var dateStaticText = inputRow2.add("statictext {text: 'Date:', size: [40, 24], alignment: 'bottom', justify: 'right'}");
+    var dateStaticText = inputRow2.add("statictext {text: 'Date:', size: [65, 24], alignment: 'bottom', justify: 'left'}");
     dateEditText = inputRow2.add("edittext {size: [155, 25]}");
     dateEditText.text = today;
     
+
+    // Row 3
+    var inputRow3 = myWindow.add("group {alignment: 'left'}");
+
+    // Notes
+    notesCheck = inputRow3.add("checkbox {size: [65, 15], text: '\u00A0Notes:', alignment: 'top'}");
+    notesCheck.onClick = function() {
+        if(notesCheck.value) {
+            notesEditText.enabled = true;
+        
+        } else {
+            notesEditText.enabled = false;
+            notesEditText.text = "";
+        }
+    }
+
+    notesEditText = inputRow3.add("edittext", [0, 0, 155, 100], "", {multiline: true, scrolling: true});
+    notesEditText.enabled = false;
+
     // Buttons
     var buttonGroup = myWindow.add("group {alignment: 'right'}");
     buttonGroup.add ("button", undefined, "OK");
@@ -248,7 +269,8 @@ function main() {
             0 : "Code",
             1 : "w × h",
             2 : "Review",
-            3 : "Date"
+            3 : "Date",
+            4 : "Notes",
         };
 
         var inputBoxData = {
@@ -258,26 +280,46 @@ function main() {
             0 : "codeInput",
             1 : "dimsInput",
             2 : "batchReviewInput",
-            3 : "dateInput"
+            3 : "dateInput",
+            4 : "notesInput",
         };
         
         var counter = 0;
 
-        for(var col = 0; col < 2; col++) {
+        if(notesCheck.value) {
+            var maxCol = 3;
+        
+        } else {
+            var maxCol = 2;
+        }
+
+        for(var col = 0; col < maxCol; col++) {
             var titleBoxX = 454 * col;
             var inputBoxX = titleBoxX + 113;
-
-            for(var row = 0; row < 2; row++) {
-                var titleBoxY = 54 * row -110;
+            
+            if(col < 2) {
+                for(var row = 0; row < 2; row++) {
+                    titleBoxY = 54 * row -110;
+                    inputBoxY = titleBoxY - 15;
+    
+                    var titleBox = myPage.textFrames.add({geometricBounds: [titleBoxY, titleBoxX, titleBoxY + titleBoxData.height, titleBoxX + titleBoxData.width]});
+                    titleBoxSetup(titleBox, titleBoxData[counter]);
+    
+                    var inputBox = myPage.textFrames.add({geometricBounds: [inputBoxY, inputBoxX, inputBoxY + inputBoxData.height, inputBoxX + inputBoxData.width]});
+                    inputBoxSetup(inputBox, inputBoxData[counter]);
+    
+                    counter++;
+                }
+            
+            } else {
+                var titleBoxY = -110;
                 var inputBoxY = titleBoxY - 15;
 
                 var titleBox = myPage.textFrames.add({geometricBounds: [titleBoxY, titleBoxX, titleBoxY + titleBoxData.height, titleBoxX + titleBoxData.width]});
                 titleBoxSetup(titleBox, titleBoxData[counter]);
 
-                var inputBox = myPage.textFrames.add({geometricBounds: [inputBoxY, inputBoxX, inputBoxY + inputBoxData.height, inputBoxX + inputBoxData.width]});
+                var inputBox = myPage.textFrames.add({geometricBounds: [inputBoxY, inputBoxX, inputBoxY + inputBoxData.height, myDocument.documentPreferences.pageWidth]});
                 inputBoxSetup(inputBox, inputBoxData[counter]);
-
-                counter++;
             }
         }    
         
@@ -312,7 +354,6 @@ function main() {
                 frameStory.appliedCharacterStyle = my_CODE_NOTE_characterStyle;
                 frameStory.appliedParagraphStyle = myDocument.paragraphStyles.item("[Basic Paragraph]");
                 frameStory.justification = Justification.RIGHT_ALIGN;
-                
             }
         }
 
@@ -353,8 +394,11 @@ function main() {
         } else if(labelName === "batchReviewInput"){
             textFrame.contents = "Batch " + batchEditText.text + " - " + "Review " + reviewEditText.text;
         
-        } else {
+        } else if(labelName === "dateInput"){
             textFrame.contents = dateEditText.text;
+        
+        } else {
+            textFrame.contents = notesEditText.text;
         }
     
         textFrame.label = labelName;
