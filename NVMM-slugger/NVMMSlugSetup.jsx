@@ -29,7 +29,7 @@ try{
 
     dialogSetup();
 
-    if(myWindow.show() == true) {
+    if(myWindow.show()) {
         main();
         
     } else {
