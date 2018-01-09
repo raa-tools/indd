@@ -18,12 +18,10 @@ var badPanels = [];
 
 for(var j = 0; j < panelFiles.length; j++) {
     var doc = app.open(panelFiles[j], false);
-    // var doc = app.activeDocument;
     var badImages = [];
 
     for(var i = 0; i < doc.links.length; i++) {
         var gNum = doc.links[i].name.slice(0, 5);
-        // var ext = getExtension(doc.links[i].name);
         
         try {
             var newLink = new File(relinkFolder + "/" + gNum + ext)
@@ -35,7 +33,7 @@ for(var j = 0; j < panelFiles.length; j++) {
         }
     }
     
-    badPanels.push(badDoc + ": " + badImages);
+    badPanels.push(badDoc + ": " + badImages.join(", "));
     
     doc.save();
     doc.close();
