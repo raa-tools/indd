@@ -136,7 +136,8 @@ function main() {
     }
     
     if(missingLayer) {
-        alert('"Code and info" layer missing from:\r' + badFilesList.join("\r"));
+        alert('"Code and info" layer missing from some files\r See slugUpdateLog.txt on Desktop.');
+        writeLogFile(badFilesList);
         
     } else {
         alert("Oh, did you just blink? \rYou missed a lot of fun.\r" + myInddFiles.length + " files processed.");
@@ -153,5 +154,14 @@ function main() {
         if(codeInfoFrames[i].label === "dateInput") {
             codeInfoFrames[i].contents = dateEditText.text;
         }
+    }
+
+    function writeLogFile(filesList){
+        var logFile = new File("~/Desktop/slugUpdateLog.txt");
+        logFile.encoding = "UTF-8";
+        
+        logFile.open("w");
+        logFile.write(filesList.join("\n"));
+        logFile.close();
     }
 }
