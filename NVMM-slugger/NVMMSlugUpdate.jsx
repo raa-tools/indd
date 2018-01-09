@@ -136,7 +136,7 @@ function main() {
     }
     
     if(missingLayer) {
-        alert('"Code and info" layer missing from some files\r See slugUpdateLog.txt on Desktop.');
+        alert('"Code and info" layer missing from files\r See slugUpdateLog.txt on Desktop.');
         writeLogFile(badFilesList);
         
     } else {
