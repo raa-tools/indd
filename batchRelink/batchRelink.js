@@ -10,6 +10,9 @@ var relinkFolder = Folder.selectDialog("Pick new link folder");
 
 var panelFiles = panelFolder.getFiles("*.indd");
 
+var logFile = new File("~/Desktop/batchRelinkLog.txt");
+logFile.encoding = "UTF-8";
+
 var ext = ".tiff";
 var badPanels = [];
 
@@ -39,7 +42,6 @@ for(var j = 0; j < panelFiles.length; j++) {
 
 }
 
-for(var z = 0; z < badPanels.length; z++) {
-    $.writeln(badPanels[z] + "\n");
-}
-
+logFile.open("w");
+logFile.write(badPanels.join("\n"));
+logFile.close();
