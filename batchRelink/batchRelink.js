@@ -10,15 +10,12 @@ var relinkFolder = Folder.selectDialog("Pick new link folder");
 
 var panelFiles = panelFolder.getFiles("*.indd");
 
-var logFile = new File("~/Desktop/batchRelinkLog.txt");
-logFile.encoding = "UTF-8";
-
 var ext = ".tiff";
 var badPanels = [];
 
 for(var j = 0; j < panelFiles.length; j++) {
     var doc = app.open(panelFiles[j], false);
-    var badImages = [];
+    var badImages = []; var errorHappened = false;
 
     for(var i = 0; i < doc.links.length; i++) {
         var gNum = doc.links[i].name.slice(0, 5);
@@ -28,18 +25,28 @@ for(var j = 0; j < panelFiles.length; j++) {
             doc.links[i].relink(newLink);
 
         } catch (error) {
+            errorHappened = true;
             var badDoc = doc.name.split(".")[0];
             badImages.push(gNum);
         }
     }
     
-    badPanels.push(badDoc + ": " + badImages.join(", "));
+    if(errorHappened) {
+        badPanels.push(badDoc + ": " + badImages.join(", "));
+    }
     
     doc.save();
     doc.close();
 
 }
 
-logFile.open("w");
-logFile.write(badPanels.join("\n"));
-logFile.close();
+if(errorHappened) {
+    alert("Some images were not re-linked\r See batchRelinkLog.txt on Desktop.");
+    
+    var logFile = new File("~/Desktop/batchRelinkLog.txt");
+    logFile.encoding = "UTF-8";
+    
+    logFile.open("w");
+    logFile.write(badPanels.join("\n"));
+    logFile.close();
+}
