@@ -1,30 +1,22 @@
 ﻿#target "InDesign-8.0"
 
-var lib = (File($.fileName)).parent.parent + "/_lib/";
-$.evalFile(lib + "getNameFromPath.js");
-$.evalFile(lib + "checkExtension.js");
-
 var panelFolder = Folder.selectDialog("Pick Folder");
 
-var panelFiles = panelFolder.getFiles();
+var panelFiles = panelFolder.getFiles("*.indd");
 
 for(var i = 0; i < panelFiles.length; i++) {
-    var fileName = getNameFromPath(panelFiles[i]);
+    app.scriptPreferences.measurementUnit = MeasurementUnits.points;
+    
+    var doc = app.open(panelFiles[i], false);
+    
+    var textFrames = doc.layers.item("TEXT").textFrames;
 
-    if(checkExtension(fileName, ".indd")) {
-        app.scriptPreferences.measurementUnit = MeasurementUnits.points;
-        
-        var doc = app.open(panelFiles[i], false);
-        
-        var textFrames = doc.layers.item("TEXT").textFrames;
-    
-        for(var j = 0; j < textFrames.length; j++) {
-            textFrames[j].label = getLabel(textFrames[j]);
-        }
-    
-        doc.save();
-        doc.close();
+    for(var j = 0; j < textFrames.length; j++) {
+        textFrames[j].label = getLabel(textFrames[j]);
     }
+
+    doc.save();
+    doc.close();
 }
 
 function getLabel(textFrame) {
