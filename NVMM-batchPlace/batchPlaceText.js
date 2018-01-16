@@ -1,8 +1,5 @@
 ﻿#target "InDesign-8.0"
 
-var lib = (File($.fileName)).parent.parent + "/_lib/";
-$.evalFile(lib + "getNameFromPath.js");
-
 var panelFolder  = Folder.selectDialog("Pick Panel Folder");
 var scriptFolder = Folder.selectDialog("Pick Scripts Folder");
 
@@ -17,19 +14,15 @@ if(panelFolder === null || scriptFolder === null) {
     app.textImportPreferences.stripReturnsBetweenLines = true;
 
     for(var j = 0; j < panelFiles.length; j ++) {
+        var doc = app.open(panelFiles[j], false);
+        
+        var panel = {
+            exhibit : doc.name.split("_")[0],
+            topic   : doc.name.split("_")[1],
+            panel   : doc.name.split("_")[2]
+        };
+        
         if(panel.topic != "EX06" && panel.topic != "EX07" && panel.panel != "GP02") {
-            var doc = app.open(panelFiles[j], false);
-
-            // var panelFileName = getNameFromPath(panelFiles[j]);
-            // var panelCode = panelFileName.split(".")[0];
-
-            var panel = {
-                exhibit : doc.name.split("_")[0],
-                topic   : doc.name.split("_")[1],
-                panel   : doc.name.split("_")[2]
-            };
-
-
             var scriptType = chooseScriptType(panel.panel);
 
             var titleFile = panel.exhibit + "_" + panel.topic + "_" + scriptType + "-T.txt";
@@ -51,8 +44,9 @@ if(panelFolder === null || scriptFolder === null) {
             }
         
             doc.save();
-            doc.close();
         }
+        
+        doc.close();
     }
 }
 
