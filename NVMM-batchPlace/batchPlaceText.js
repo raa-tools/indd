@@ -10,8 +10,8 @@ if(panelFolder === null || scriptFolder === null) {
     alert("No folder selected", "Nope");
     
 } else {
-    var panelFiles = panelFolder.getFiles();
-    var scriptFiles = scriptFolder.getFiles();
+    var panelFiles = panelFolder.getFiles("*.indd");
+    var scriptFiles = scriptFolder.getFiles("*.txt");
     
     app.textImportPreferences.characterSet = TextImportCharacterSet.UTF8;
     app.textImportPreferences.stripReturnsBetweenLines = true;
@@ -26,7 +26,7 @@ if(panelFolder === null || scriptFolder === null) {
             panel   : panelCode.split("_")[2]
         };
 
-        if(panelFileName.split(".")[1] === "indd" && panel.topic != "EX06" && panel.topic != "EX07" && panel.panel != "GP02") {
+        if(panel.topic != "EX06" && panel.topic != "EX07" && panel.panel != "GP02") {
             var doc = app.open(panelFiles[j], false);
 
             var scriptType = chooseScriptType(panel.panel);
