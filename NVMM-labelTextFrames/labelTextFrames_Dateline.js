@@ -31,12 +31,58 @@ function getLabel(textFrame) {
     var frameX = Math.round(textFrame.geometricBounds[1]); 
     var frameY = Math.round(textFrame.geometricBounds[0]);
 
-    if((frameX === 405 || frameX === 1335 || frameX === 2265 || frameX === 3195) && frameY === 36) {
-        return "main";
-    } else if((frameX === 405 || frameX === 1335 || frameX === 2265 || frameX === 3195) && frameY === 215) {
-        return "date";
-    } else if((frameX === 149 || frameX === 1079 || frameX === 2009 || frameX === 2939) && frameY === 109) {
-        return "year";
+    if(frameY === 36) {
+        if (frameX === 405) {
+            return "main1";
+        
+        } else if(frameX === 1335) {
+            return "main2";
+        
+        } else if (frameX === 2265) {
+            return "main3";
+        
+        } else if (frameX === 3195) {
+            return "main4";
+        
+        } else {
+            return "main";
+        }
+
+    } else if(frameY === 215) {
+        if(frameX === 405) {
+            return "date1";
+        
+        } else if(frameX === 1335) {
+            return "date2";
+        
+        } else if(frameX === 2265) {
+            return "date3";
+        
+        } else if(frameX === 3195) {
+            return "date4";
+        
+        } else {
+            return "date";
+        }
+
+
+    } else if(frameY === 109) {
+        if(frameX === 149) {
+            return "year1";
+        
+        } else if(frameX === 1079) {
+            return "year2";
+        
+        } else if(frameX === 2009) {
+            return "year3";
+        
+        } else if(frameX === 2939) {
+            return "year4";
+        
+        } else {
+            return "year";
+        }
+        
     }
 
     return "no label";
