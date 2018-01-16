@@ -17,17 +17,18 @@ if(panelFolder === null || scriptFolder === null) {
     app.textImportPreferences.stripReturnsBetweenLines = true;
 
     for(var j = 0; j < panelFiles.length; j ++) {
-        var panelFileName = getNameFromPath(panelFiles[j]);
-        var panelCode = panelFileName.split(".")[0];
-
-        var panel = {
-            exhibit : panelCode.split("_")[0],
-            topic   : panelCode.split("_")[1],
-            panel   : panelCode.split("_")[2]
-        };
-
         if(panel.topic != "EX06" && panel.topic != "EX07" && panel.panel != "GP02") {
             var doc = app.open(panelFiles[j], false);
+
+            // var panelFileName = getNameFromPath(panelFiles[j]);
+            // var panelCode = panelFileName.split(".")[0];
+
+            var panel = {
+                exhibit : doc.name.split("_")[0],
+                topic   : doc.name.split("_")[1],
+                panel   : doc.name.split("_")[2]
+            };
+
 
             var scriptType = chooseScriptType(panel.panel);
 
