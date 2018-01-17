@@ -23,7 +23,7 @@ for(var j = 0; j < panelFiles.length; j++) {
 
         // Skip PDFs that don't start with "g" because they're
         // most likely other panel files (ie. TL Dates)
-        if(fileExt !== "pdf" || gNum[0] === "g") {
+        if(gNum[0] === "g" || fileExt !== "pdf") {
             try {
                 var newLink = new File(relinkFolder + "/" + gNum + ext)
                 doc.links[i].relink(newLink);
