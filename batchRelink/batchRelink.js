@@ -5,7 +5,7 @@ Relinks all document link to a new folder
 Currently file names are G####.ext & extension is set to ".tiff"
 */
 
-var panelFolder = Folder.selectDialog("Pink panel folder");
+var panelFolder = Folder.selectDialog("Pick panel folder");
 var relinkFolder = Folder.selectDialog("Pick new link folder");
 
 var panelFiles = panelFolder.getFiles("*.indd");
