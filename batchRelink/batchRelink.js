@@ -14,9 +14,17 @@ var ext = ".tiff";
 var badPanels = [];
 var writeLog = false; 
 
+// Progress bar
+var w = new Window("palette");
+w.progressBar = w.add ('progressbar', undefined, 0, panelFiles.length);
+w.progressBar.preferredSize.width = 300;
+w.show();
+
 for(var j = 0; j < panelFiles.length; j++) {
     var doc = app.open(panelFiles[j], false);
     var badImages = []; var errorHappened = false;
+    
+    w.progressBar.value = j+1;
 
     for(var i = 0; i < doc.links.length; i++) {
         var gNum = doc.links[i].name.slice(0, 5);
