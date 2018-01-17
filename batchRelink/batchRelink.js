@@ -29,7 +29,7 @@ for(var j = 0; j < panelFiles.length; j++) {
                 var newLink = new File(relinkFolder + "/" + gNum + ext)
                 doc.links[i].relink(newLink);
             
-            // Raise flag when file isn't found & log g# 
+            // Raise flags when file isn't found & log g# 
             } catch (error) {
                 panelError = true;
                 errorHappened = true;
