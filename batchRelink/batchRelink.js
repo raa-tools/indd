@@ -28,17 +28,18 @@ for(var j = 0; j < panelFiles.length; j++) {
                 var newLink = new File(relinkFolder + "/" + gNum + ext)
                 doc.links[i].relink(newLink);
             
-            // Error: file not found
+            // Raise flag when file isn't found & log g# 
             } catch (error) {
                 errorHappened = true;
-                var badDoc = doc.name.split(".")[0];
                 badImages.push(gNum);
             }
-
+            
         }
     }
-    
+
+    // Log panel code & missing g#s in that panel
     if(errorHappened) {
+        var badDoc = doc.name.split(".")[0];
         badPanels.push(badDoc + ": " + badImages.join(", "));
     }
     
@@ -47,6 +48,7 @@ for(var j = 0; j < panelFiles.length; j++) {
 
 }
 
+// Write a .txt log to list panels with missing g#s
 if(errorHappened) {
     alert("Some images were not re-linked\r See batchRelinkLog.txt on Desktop.");
     
