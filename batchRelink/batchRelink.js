@@ -19,15 +19,22 @@ for(var j = 0; j < panelFiles.length; j++) {
 
     for(var i = 0; i < doc.links.length; i++) {
         var gNum = doc.links[i].name.slice(0, 5);
-        
-        try {
-            var newLink = new File(relinkFolder + "/" + gNum + ext)
-            doc.links[i].relink(newLink);
+        var fileExt = doc.links[i].name.split(".")[1];
 
-        } catch (error) {
-            errorHappened = true;
-            var badDoc = doc.name.split(".")[0];
-            badImages.push(gNum);
+        // Skip PDFs that don't start with "g" because they're
+        // most likely other panel files (ie. TL Dates)
+        if(fileExt !== "pdf" || gNum[0] === "g") {
+            try {
+                var newLink = new File(relinkFolder + "/" + gNum + ext)
+                doc.links[i].relink(newLink);
+            
+            // Error: file not found
+            } catch (error) {
+                errorHappened = true;
+                var badDoc = doc.name.split(".")[0];
+                badImages.push(gNum);
+            }
+
         }
     }
     
