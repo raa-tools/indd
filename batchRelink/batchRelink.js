@@ -12,11 +12,11 @@ var panelFiles = panelFolder.getFiles("*.indd");
 
 var ext = ".tiff";
 var badPanels = [];
-var errorHappened = false; 
+var writeLog = false; 
 
 for(var j = 0; j < panelFiles.length; j++) {
     var doc = app.open(panelFiles[j], false);
-    var badImages = []; var panelError = false;
+    var badImages = []; var errorHappened = false;
 
     for(var i = 0; i < doc.links.length; i++) {
         var gNum = doc.links[i].name.slice(0, 5);
@@ -31,15 +31,15 @@ for(var j = 0; j < panelFiles.length; j++) {
             
             // Raise flags when file isn't found & log g# 
             } catch (error) {
-                panelError = true;
                 errorHappened = true;
+                writeLog = true;
                 badImages.push(gNum);
             }
         }
     }
     
     // Log panel code & missing g#s in that panel
-    if(panelError) {
+    if(errorHappened) {
         var badDoc = doc.name.split(".")[0];
         badPanels.push(badDoc + ": " + badImages.join(", "));
     }
@@ -49,7 +49,7 @@ for(var j = 0; j < panelFiles.length; j++) {
 }
 
 // Write a .txt log to list panels with missing g#s
-if(errorHappened) {
+if(writeLog) {
     alert("Some images were not re-linked\r See batchRelinkLog.txt on Desktop.");
     
     var logFile = new File("~/Desktop/batchRelinkLog.txt");
