@@ -6,7 +6,7 @@ var panelFolder = Folder.selectDialog("Pick panel folder");
 var panelFiles = panelFolder.getFiles("*.indd");
 
 for(var i = 0; i < panelFiles.length; i++) {
-    doc = app.open(panelFiles[i]);
+    var doc = app.open(panelFiles[i]);
     app.doScript(scriptToRun, ScriptLanguage.JAVASCRIPT);
 
     doc.save();
