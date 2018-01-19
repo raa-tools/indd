@@ -9,6 +9,8 @@ var gNumLayer; var gNumFrame;
 var imageLayer = doc.layers.item("IMAGES");
 var varImgName = doc.textVariables.item("Image Name");
 
+var gNumFrameOffset = 24;
+
 // This needs to be fixed:
 // if(!varImgName.isValid) {
 //     // var imgNameMetadata = CaptionMetadataVariablePreference
@@ -52,7 +54,7 @@ function refreshGNumLayer() {
 
 // Make text frames for gNum labels
 function addGNumFrame(yLoc, xLoc) {
-    gNumFrame = pages[j].textFrames.add({itemLayer: gNumLayer, geometricBounds: [yLoc, xLoc, yLoc + 38, xLoc + 512]});
+    gNumFrame = pages[j].textFrames.add({itemLayer: gNumLayer, geometricBounds: [yLoc + gNumFrameOffset, xLoc + gNumFrameOffset, yLoc + 62, xLoc + 512]});
     gNumFrame.textVariableInstances.add({associatedTextVariable: varImgName});
     gNumFrame.parentStory.appliedParagraphStyle = "New Code Bold";
     gNumFrame.parentStory.appliedCharacterStyle = doc.characterStyles.item("[None]");
