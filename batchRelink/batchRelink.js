@@ -10,7 +10,7 @@ var relinkFolder = Folder.selectDialog("Pick new link folder");
 
 var panelFiles = panelFolder.getFiles("*.indd");
 
-var ext = ".tiff";
+var back = "_BW"; var ext = ".tiff";
 var badPanels = [];
 var writeLog = false; 
 
@@ -34,7 +34,7 @@ for(var j = 0; j < panelFiles.length; j++) {
         // most likely other panel files (ie. TL Dates)
         if(gNum[0] === "g" || fileExt !== "pdf") {
             try {
-                var newLink = new File(relinkFolder + "/" + gNum + ext)
+                var newLink = new File(relinkFolder + "/" + gNum + back + ext);
                 doc.links[i].relink(newLink);
             
             // Raise flags when file isn't found & log g# 
