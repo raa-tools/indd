@@ -6,6 +6,7 @@
 BLEEDDIM = 36;
 SLUGDIM = 144;
 
+// Maybe this should just be a system font...
 FONT = {
     FAMILY  : "Nitti Grotesk",
     WEIGHT1 : "Light",
@@ -300,7 +301,7 @@ function main() {
             if(col < 2) {
                 for(var row = 0; row < 2; row++) {
                     titleBoxY = 54 * row - 125;
-                    inputBoxY = titleBoxY - 40;
+                    inputBoxY = titleBoxY - 15;
     
                     var titleBox = myPage.textFrames.add({geometricBounds: [titleBoxY, titleBoxX, titleBoxY + titleBoxData.height, titleBoxX + titleBoxData.width]});
                     titleBoxSetup(titleBox, titleBoxData[counter]);
@@ -313,7 +314,7 @@ function main() {
             
             } else {
                 var titleBoxY = -125;
-                var inputBoxY = titleBoxY - 40;
+                var inputBoxY = titleBoxY - 15;
 
                 var titleBox = myPage.textFrames.add({geometricBounds: [titleBoxY, titleBoxX, titleBoxY + titleBoxData.height, titleBoxX + titleBoxData.width]});
                 titleBoxSetup(titleBox, titleBoxData[counter]);
