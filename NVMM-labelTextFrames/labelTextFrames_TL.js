@@ -1,81 +1,84 @@
 ﻿#target "InDesign-8.0"
 
+// Library dependencies
 var lib = (File($.fileName)).parent.parent + "/_lib/";
-$.evalFile(lib + "getNameFromPath.js");
-$.evalFile(lib + "getExtension.js");
 $.evalFile(lib + "zFill.js");
 
 var panelFolder = Folder.selectDialog("Pick Folder");
-var panelFiles = panelFolder.getFiles();
+var panelFiles = panelFolder.getFiles("*.indd");
 
 var panelTopic = "";
 
-var stNum;
-
-hasLeft = false;
-hasRight = false;
+var stTotal; var hasLeft = false; var hasRight = false;
 
 for(var i = 0; i < panelFiles.length; i++) {
-    var fileName = getNameFromPath(panelFiles[i]);
-
-    if(getExtension(fileName) === ".indd") {
-        app.scriptPreferences.measurementUnit = MeasurementUnits.points;
-        
-        var doc = app.open(panelFiles[i], false);
-
-        var panel = {
-            exhibit : doc.name.split(".")[0].split("_")[0],
-            topic   : doc.name.split(".")[0].split("_")[1],
-            panel   : doc.name.split(".")[0].split("_")[2]
-        };
-
-        if(panel.panel !== "GP01c" && panel.panel.slice(-1)[0] !== "b") {
-            if(panelTopic !== panel.topic) {
-                stNum = 1;
-                panelTopic = panel.topic;
-                hasLeft = false;
-                hasRight = false;
-            
-            } else {
-                if(hasLeft && hasRight) {
-                    stNum += 2;
-                    hasLeft = false;
-                    hasRight = false;
+    app.scriptPreferences.measurementUnit = MeasurementUnits.points;
     
-                } else if(hasLeft || hasRight) {
-                    stNum ++;
-                    hasLeft = false;
-                    hasRight = false;
-                }
-            }
+    var doc = app.open(panelFiles[i], false);
 
-            var textFrames = doc.textFrames;
-            var stCount = 0;
-        
-            for(var j = 0; j < textFrames.length; j++) {
-                stCount = countST(textFrames[j]);
+    var panel = {
+        exhibit : doc.name.split(".")[0].split("_")[0],
+        topic   : doc.name.split(".")[0].split("_")[1],
+        panel   : doc.name.split(".")[0].split("_")[2]
+    };
 
-                textFrames[j].label = getLabel(textFrames[j], stNum, stCount);
-            }
+    // Excluding some panels that aren't full TL panels
+    if(panel.panel === "GP01c" && panel.panel.slice(-1)[0] === "b") {
+        doc.close();
+        continue
+    } 
+    
+    // Check if panel is within the same panel topic
+    // If not, it's because we're at the beginning of a topic, 
+    // so reset counter and flags & remember the topic we're at.
+    if(panelTopic !== panel.topic) {
+        stTotal = 0;
+        panelTopic = panel.topic;
+    }
+
+    // Reset flags and counters per file
+    hasLeft = false; hasRight = false;
+    numOfSTOnThisPanel = 0;
+    
+    var textFrames = doc.textFrames;
+
+    // Count
+    for(var z = 0; z < textFrames.length; z++) {
+        countNumOfST(textFrames[z]);
         
-            doc.save();
-            doc.close();
+        if (hasLeft && hasRight){
+            numOfSTOnThisPanel = 2;
+
+        } else if (hasLeft || hasRight) {
+            numOfSTOnThisPanel = 1;
         }
     }
+
+    // Label
+    for(var j = 0; j < textFrames.length; j++) {
+        textFrames[j].label = getLabel(textFrames[j], numOfSTOnThisPanel, stTotal);
+    }
+
+    doc.save();
+    doc.close();
+    
 }
 
-function countST(textFrame) {
-    var frameX = Math.round(textFrame.geometricBounds[1]); 
+function countNumOfST(textFrame) {
+    var frameX = Math.round(textFrame.geometricBounds[1]);
+    var frameY = Math.round(textFrame.geometricBounds[0]);
     var objectStyle = textFrame.appliedObjectStyle.name;
 
-    if(frameX === 0 && objectStyle.indexOf("National") !== -1) {
-        stCount++
+    // Checks how many STs there are through the position of ST titles
+    // (there's always a title per ST). 1674pt is the left-most x-value for a "right" ST box.
+    if(frameX < 1674 && frameY === 2709 && objectStyle.indexOf("National") !== -1) {
+        stTotal++;
+        hasLeft = true;
 
-    } else if((frameX === 2232 && objectStyle.indexOf("National") !== -1) || (frameX === 1674 && objectStyle.indexOf("National") !== -1)) {
-        stCount++
+    } else if(frameX >= 1674 && frameY === 2709 && objectStyle.indexOf("National") !== -1) {
+        stTotal++;
+        hasRight = true;
     }
-    $.writeln(stCount);
-    return stCount;
 }
 
 function getLabel(textFrame, stNum, stCount) {
@@ -83,36 +86,35 @@ function getLabel(textFrame, stNum, stCount) {
     var frameY = Math.round(textFrame.geometricBounds[0]);
     var objectStyle = textFrame.appliedObjectStyle.name;
     
-    var stSecond;
-    
+    // Primary
     if(frameX === 410 && (frameY === 2242 || frameY === 2950)) {
         return "PT01";
+    } 
     
-    } else if(frameX === 0 && objectStyle.indexOf("National") !== -1) {
-        hasLeft = true;
-
-        return "ST" + zFill(stNum, 2);
-    
-    } else if((frameX === 2232 && objectStyle.indexOf("National") !== -1) || (frameX === 1674 && objectStyle.indexOf("National") !== -1)) {
-        hasRight = true;
-        
-        if(stCount === 2) {
-            stSecond = stNum;
-        } else if(stCount === 4) {
-            stSecond = stNum + 1;
+    // Secondary
+    if(frameX < 1674 && objectStyle.indexOf("National") !== -1) {
+        // If we've determined that there are 2 STs in this panel,
+        // then the left is total number of ST - 1; if not, then it's just total number of ST
+        if (numOfSTOnThisPanel === 2) {
+            return "ST" + zFill(stCount - 1, 2);
         }
 
-        return "ST" + zFill(stSecond, 2);
+        return "ST" + zFill(stCount, 2);
     
-    } else if((frameX === 276 && frameY === 4977) || (frameX === 315 && frameY === 5046)) {
-        return "TT01";
-    
-    } else if((frameX === 1949 && frameY === 4977) || (frameX === 1392 && frameY === 4977) || (frameX === 1989 && frameY === 5046) || (frameX === 1431 && frameY === 5046)) {
-        return "TT02";
-    
-    } else if((frameX === 2508 && frameY === 4977) || (frameX === 2547 && frameY === 5046)) {
-        return "TT03";
+    } else if(frameX >= 1674 && objectStyle.indexOf("National") !== -1) {
+        return "ST" + zFill(stCount, 2);
     }
 
-    return "no label";
+    // // Tertiary
+    // if((frameX === 276 && frameY === 4977) || (frameX === 315 && frameY === 5046)) {
+    //     return "TT01";
+    
+    // } else if((frameX === 1949 && frameY === 4977) || (frameX === 1392 && frameY === 4977) || (frameX === 1989 && frameY === 5046) || (frameX === 1431 && frameY === 5046)) {
+    //     return "TT02";
+    
+    // } else if((frameX === 2508 && frameY === 4977) || (frameX === 2547 && frameY === 5046)) {
+    //     return "TT03";
+    // }
+
+    return "no label yet";
 }
