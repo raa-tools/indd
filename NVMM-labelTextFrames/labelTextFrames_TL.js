@@ -12,7 +12,6 @@ try {
     // from function to function later
     var panelST; var panelTT;
     var totalST; var totalTT;
-    var leftTT; var midTT;
     
     main();
     
@@ -59,7 +58,6 @@ function main() {
     
         // Reset counters and flags per file
         panelST = 0; panelTT = 0;
-        leftTT = false; midTT = false;
         
         var textFrames = doc.layers.item("TEXT").textFrames;
     
@@ -82,11 +80,11 @@ function main() {
             var objectStyle = textFrames[j].appliedObjectStyle.name;
             
             if (objectStyle.indexOf("National") !== -1) {
-                textFrames[j].label = getSTLabel(frameX, frameY);
+                textFrames[j].label = getSTLabel(frameX);
+            
+            } else if(objectStyle.indexOf("Veterans") !== -1) {
+                textFrames[j].label = getTTLabel(frameX);
             }
-            // } else if(objectStyle.indexOf("Veterans") !== -1) {
-            //     textFrames[j].label = getTTLabel(frameX, frameY);
-            // }
 
             // textFrames[j].label = getLabel(textFrames[j], numOfTextsOnThisPanel, totalST, totalTT);
         }
@@ -106,13 +104,6 @@ function countTexts(frameX, objectStyle) {
         panelST++;
 
     } else if(objectStyle === "Veterans Title") {
-        // Turn on some switches for later
-        if(frameX <= 1000) {
-            leftTT = true;
-        } else if(frameX > 1000 && frameX < 1500) {
-            midTT = true;
-        }
-
         totalTT++;
         panelTT++;
     }
@@ -124,7 +115,7 @@ function getPrimaryLabel(textFrame) {
     } 
 }
 
-function getSTLabel(frameX, frameY) {
+function getSTLabel(frameX) {
     // If there are 2 STs, the left one is always ST total - 1
     // otherwise just return ST total
     if(panelST === 2 && frameX < 1674) {
@@ -135,32 +126,31 @@ function getSTLabel(frameX, frameY) {
 }
 
 function getTTLabel(textFrame) {
+    // Samep principle of getSTLabel, but with 3 columns
     if(panelTT === 3){
-        if(frameX < 1390 && objectStyle.indexOf("Veterans") !== -1) {
+        if(frameX < 1390) {
             return "TT" + zFill(totalTT - 2, 2);
         
-        } else if(frameX >= 1390 && frameX < 2507 && objectStyle.indexOf("Veterans") !== -1) {
+        } else if(frameX >= 1390 && frameX < 2507) {
             return "TT" + zFill(totalTT - 1, 2);
 
-        } else if(frameX >= 2507 && objectSTyle.indexOf("Veterans") !== -1) {
-            return "TT" + zFill(totalTT, 2);
-        }
+        return "TT" + zFill(totalTT, 2);
     
-    // Only 2 TTs but no middle
-    } else if(panelTT === 2 && !midTT){
-        if(frameX < 1940 && objectStyle.indexOf("Veterans") !== -1) {
+    // Only 2 TTs — just like STs
+    } else if(panelTT === 2) {
+        if(frameX < 1940) {
             return "TT" + zFill(totalTT - 1, 2);
-        
-        } else if(frameX >= 1940 && objectSTyle.indexOf("Veterans") !== -1) {
-            return "TT" + zFill(totalTT, 2);
         }
 
+        return "TT" + zFill(totalTT, 2);
+    
+    // 2 TTs, with middle
     } else if(panelTT === 2 && midTT) {
         if(leftTT) {
-            if(frameX < 1390 && objectStyle.indexOf("Veterans") !== -1) {
+            if(frameX < 1390) {
                 return "TT" + zFill(totalTT - 1, 2);
                 
-            } else if(frameX >= 1390 && objectSTyle.indexOf("Veterans") !== -1) {
+            } else if(frameX >= 1390) {
                 return "TT" + zFill(totalTT, 2);
             }
         
