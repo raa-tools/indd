@@ -72,7 +72,7 @@ function main() {
         }
 
         $.writeln([panelST, panelTT]);
-        $.writeln([leftTT, midTT]);
+
         // Label
         for(var j = 0; j < textFrames.length; j++) {
             var frameX = Math.round(textFrames[j].geometricBounds[1]); 
@@ -84,9 +84,10 @@ function main() {
             
             } else if(objectStyle.indexOf("Veterans") !== -1) {
                 textFrames[j].label = getTTLabel(frameX);
+            
+            } else {
+                textFrames[j].label = getOtherLabel(objectStyle);
             }
-
-            // textFrames[j].label = getLabel(textFrames[j], numOfTextsOnThisPanel, totalST, totalTT);
         }
     
         doc.save();
@@ -109,10 +110,17 @@ function countTexts(frameX, objectStyle) {
     }
 }
 
-function getPrimaryLabel(textFrame) {
-    if(frameX === 410 && (frameY === 2242 || frameY === 2950)) {
+function getOtherLabel(objectStyle) {
+    // Primary; not labelling title's textframe right now
+    if(objectStyle.indexOf("Conflict") !== -1 && objectStyle !== "Conflict TItle") {
         return "PT01";
-    } 
+    
+    // Who Serve
+    } else if(objectStyle === "Who Served") {
+        return "WS01"
+    }
+
+    return "no label"
 }
 
 function getSTLabel(frameX) {
@@ -122,10 +130,11 @@ function getSTLabel(frameX) {
         return "ST" + zFill(totalST - 1, 2);    
     }
 
+    // Single ST = same case as right ST
     return "ST" + zFill(totalST, 2);
 }
 
-function getTTLabel(textFrame) {
+function getTTLabel(frameX) {
     // Samep principle of getSTLabel, but with 3 columns
     if(panelTT === 3){
         if(frameX < 1390) {
@@ -133,43 +142,13 @@ function getTTLabel(textFrame) {
         
         } else if(frameX >= 1390 && frameX < 2507) {
             return "TT" + zFill(totalTT - 1, 2);
-
-        return "TT" + zFill(totalTT, 2);
+        }
     
     // Only 2 TTs — just like STs
-    } else if(panelTT === 2) {
-        if(frameX < 1940) {
-            return "TT" + zFill(totalTT - 1, 2);
-        }
-
-        return "TT" + zFill(totalTT, 2);
-    
-    // 2 TTs, with middle
-    } else if(panelTT === 2 && midTT) {
-        if(leftTT) {
-            if(frameX < 1390) {
-                return "TT" + zFill(totalTT - 1, 2);
-                
-            } else if(frameX >= 1390) {
-                return "TT" + zFill(totalTT, 2);
-            }
-        
-        } else {
-
-        }
+    } else if(panelTT === 2 && frameX < 1940) {   
+        return "TT" + zFill(totalTT - 1, 2);
     }
+    
+    // Single TT = same case as right TT
+    return "TT" + zFill(totalTT, 2);
 }
-    
-
-    // if((frameX === 276 && frameY === 4977) || (frameX === 315 && frameY === 5046)) {
-    //     return "TT01";
-    
-    // } else if((frameX === 1949 && frameY === 4977) || (frameX === 1392 && frameY === 4977) || (frameX === 1989 && frameY === 5046) || (frameX === 1431 && frameY === 5046)) {
-    //     return "TT02";
-    
-    // } else if((frameX === 2508 && frameY === 4977) || (frameX === 2547 && frameY === 5046)) {
-    //     return "TT03";
-    // }
-
-//     return "no label yet";
-// }
