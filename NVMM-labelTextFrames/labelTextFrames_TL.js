@@ -9,7 +9,9 @@ try {
     var panelFiles = panelFolder.getFiles("*.indd");
     
     var panelTopic = "";
-    var stTotal; var hasLeft = false; var hasRight = false;
+    var stTotal; var ttTotal;
+    var leftST = false; var rightST = false;
+    var leftTT = false; var midTT = false; var rightTT = false;
     
     main();
     
@@ -38,7 +40,7 @@ function main() {
         };
     
         // Excluding some panels that aren't full TL panels
-        if(panel.panel === "GP01c" && panel.panel.slice(-1)[0] === "b") {
+        if(panel.panel === "GP01c") {
             doc.close();
             continue
         } 
@@ -48,11 +50,13 @@ function main() {
         // so reset counter and flags & remember the topic we're at
         if(panelTopic !== panel.topic) {
             stTotal = 0;
+            ttTotal = 0;
             panelTopic = panel.topic;
         }
     
         // Reset flags and counters per file
-        hasLeft = false; hasRight = false;
+        leftST = false; rightST = false;
+        leftTT = false; midTT = false; rightTT = false;
         numOfSTOnThisPanel = 0;
         
         var textFrames = doc.layers.item("TEXT").textFrames;
@@ -61,20 +65,26 @@ function main() {
         // Has to be separated because the script has to "understand"
         // the panel before applying labels
         for(var z = 0; z < textFrames.length; z++) {
-            countNumOfST(textFrames[z]);
+            var frameX = Math.round(textFrames[z].geometricBounds[1]);
+            var objectStyle = textFrames[z].appliedObjectStyle.name;
             
-            if (hasLeft && hasRight){
-                numOfSTOnThisPanel = 2;
+            // countNumOfST(frameX, objectStyle);
+            countNumOfTT(frameX, objectStyle);
+            
+            // if (leftST && rightST){
+            //     numOfSTOnThisPanel = 2;
     
-            } else if (hasLeft || hasRight) {
-                numOfSTOnThisPanel = 1;
-            }
+            // } else if (leftST || rightST) {
+            //     numOfSTOnThisPanel = 1;
+            // }
         }
+
+        $.writeln(ttTotal)
     
         // Label
-        for(var j = 0; j < textFrames.length; j++) {
-            textFrames[j].label = getLabel(textFrames[j], numOfSTOnThisPanel, stTotal);
-        }
+        // for(var j = 0; j < textFrames.length; j++) {
+        //     textFrames[j].label = getSTLabel(textFrames[j], numOfSTOnThisPanel, stTotal);
+        // }
     
         doc.save();
         doc.close();
@@ -82,26 +92,41 @@ function main() {
 }
 
 
-function countNumOfST(textFrame) {
-    var frameX = Math.round(textFrame.geometricBounds[1]);
-    var frameY = Math.round(textFrame.geometricBounds[0]);
-    var objectStyle = textFrame.appliedObjectStyle.name;
-
-    // Checks how many STs there are through the position of ST titles
-    // (there's always 1 title per ST)
+// Checks how many STs there are through the x-position of ST titles
+// (there's always 1 title per ST)
+function countNumOfST(frameX, objectStyle) {
     // 1674pt is the left-most x-value for a "right" ST box
-    if(frameX < 1674 && frameY === 2709 && objectStyle.indexOf("National") !== -1) {
+    if(frameX < 1674 && objectStyle === "National Title") {
         stTotal++;
-        hasLeft = true;
+        leftST = true;
 
-    } else if(frameX >= 1674 && frameY === 2709 && objectStyle.indexOf("National") !== -1) {
+    } else if(frameX >= 1674 && objectStyle === "National Title") {
         stTotal++;
-        hasRight = true;
+        rightST = true;
+    }
+}
+
+// Checks how many TTs there are through the x-position of TT titles
+// (there's always 1 title per TT)
+function countNumOfTT(frameX, objectStyle) {
+    if((frameX === 276 || frameX === 50) && objectStyle === "Veterans Title") {
+        ttTotal++;
+        leftTT = true;
+    
+    } else if(frameX === 1392 && objectStyle === "Veterans Title") {
+        ttTotal++;
+        midTT = true;
+    
+    // TT Right has 2 possible locations, depending on how the panel is divided
+    // >= 1949 guarantees that these 2 possible locations are counted as part of TT Right
+    } else if(frameX >= 1949 && objectStyle === "Veterans Title") {
+        ttTotal++;
+        rightTT = true;
     }
 }
 
 
-function getLabel(textFrame, stNum, stCount) {
+function getSTLabel(textFrame, stNum, stCount) {
     var frameX = Math.round(textFrame.geometricBounds[1]); 
     var frameY = Math.round(textFrame.geometricBounds[0]);
     var objectStyle = textFrame.appliedObjectStyle.name;
