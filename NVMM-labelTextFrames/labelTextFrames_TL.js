@@ -58,8 +58,8 @@ function main() {
         var textFrames = doc.layers.item("TEXT").textFrames;
     
         // Count
-        // Has to be separated because the script has to
-        // "understand" the panel before applying labels
+        // Has to be separated because the script has to "understand"
+        // the panel before applying labels
         for(var z = 0; z < textFrames.length; z++) {
             countNumOfST(textFrames[z]);
             
@@ -99,6 +99,7 @@ function countNumOfST(textFrame) {
         hasRight = true;
     }
 }
+
 
 function getLabel(textFrame, stNum, stCount) {
     var frameX = Math.round(textFrame.geometricBounds[1]); 
