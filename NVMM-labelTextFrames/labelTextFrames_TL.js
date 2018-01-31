@@ -55,7 +55,7 @@ function main() {
         hasLeft = false; hasRight = false;
         numOfSTOnThisPanel = 0;
         
-        var textFrames = doc.textFrames;
+        var textFrames = doc.layers.item("TEXT").textFrames;
     
         // Count
         // Has to be separated because the script has to
@@ -111,6 +111,7 @@ function getLabel(textFrame, stNum, stCount) {
     } 
     
     // Secondary
+    // Using < and >= also lets us label the Captions box without extra code!
     if(frameX < 1674 && objectStyle.indexOf("National") !== -1) {
         // If we've determined that there are 2 STs in this panel,
         // then the left is total number of ST - 1; if not, then it's just total number of ST
