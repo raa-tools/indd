@@ -9,9 +9,9 @@ try {
     var panelFiles = panelFolder.getFiles("*.indd");
     
     var panelTopic = "";
-    var stTotal; var ttTotal;
-    var leftST = false; var rightST = false;
-    var leftTT = false; var midTT = false; var rightTT = false;
+    var panelST; var panelTT;
+    var totalST; var totalTT;
+    var midTT;
     
     main();
     
@@ -49,15 +49,14 @@ function main() {
         // If not, it's because we're at the beginning of a topic, 
         // so reset counter and flags & remember the topic we're at
         if(panelTopic !== panel.topic) {
-            stTotal = 0;
-            ttTotal = 0;
+            totalST = 0;
+            totalTT = 0;
             panelTopic = panel.topic;
         }
     
-        // Reset flags and counters per file
-        leftST = false; rightST = false;
-        leftTT = false; midTT = false; rightTT = false;
-        numOfSTOnThisPanel = 0;
+        // Reset counters and flags per file
+        panelST = 0; panelTT = 0;
+        midTT = false;
         
         var textFrames = doc.layers.item("TEXT").textFrames;
     
@@ -65,21 +64,15 @@ function main() {
         // Has to be separated because the script has to "understand"
         // the panel before applying labels
         for(var z = 0; z < textFrames.length; z++) {
-            var frameX = Math.round(textFrames[z].geometricBounds[1]);
             var objectStyle = textFrames[z].appliedObjectStyle.name;
             
-            countTotalST(frameX, objectStyle);
-            countTotalTT(frameX, objectStyle);
-            
-
+            countTexts(objectStyle);
         }
 
-        var numOfTextsOnThisPanel = analyzePanel();
-
-        $.writeln(numOfTextsOnThisPanel);
+        $.writeln(panelST, panelTT);
         // Label
         // for(var j = 0; j < textFrames.length; j++) {
-        //     textFrames[j].label = getLabel(textFrames[j], numOfSTOnThisPanel, stTotal);
+        //     textFrames[j].label = getLabel(textFrames[j], numOfTextsOnThisPanel, totalST, totalTT);
         // }
     
         doc.save();
@@ -88,66 +81,21 @@ function main() {
 }
 
 
-// Checks how many STs there are through the x-position of ST titles
-// (there's always 1 title per ST)
-function countTotalST(frameX, objectStyle) {
-    // 1674pt is the left-most x-value for a "right" ST box
-    if(frameX < 1674 && objectStyle === "National Title") {
-        stTotal++;
-        leftST = true;
+// Checks how many STs & TTs there are by counting titles
+// (there's always 1 title per group)
+// Tracking total count for sequencing; panel count for labeling
+function countTexts(objectStyle) {
+    if(objectStyle === "National Title") {
+        totalST++;
+        panelST++;
 
-    } else if(frameX >= 1674 && objectStyle === "National Title") {
-        stTotal++;
-        rightST = true;
+    } else if(objectStyle === "Veterans Title") {
+        totalTT++;
+        panelTT+;
     }
 }
 
-// Checks how many TTs there are through the x-position of TT titles
-// (there's always 1 title per TT)
-function countTotalTT(frameX, objectStyle) {
-    if((frameX === 276 || frameX === 50) && objectStyle === "Veterans Title") {
-        ttTotal++;
-        leftTT = true;
-    
-    } else if(frameX === 1392 && objectStyle === "Veterans Title") {
-        ttTotal++;
-        midTT = true;
-    
-    // TT Right has 2 possible locations, depending on how the panel is divided
-    // >= 1949 guarantees that these 2 possible locations are counted as part of TT Right
-    } else if(frameX >= 1949 && objectStyle === "Veterans Title") {
-        ttTotal++;
-        rightTT = true;
-    }
-}
-
-function analyzePanel() {
-    // numOfTexts[0] is number of ST on this panel
-    // numOfTexts[1] is number of TT on this panel
-    var numOfTexts = [0, 0];
-
-    if(leftST && rightST) {
-        numOfTexts[0] = 2;
-
-    } else if(leftST || rightST) {
-        numOfTexts[0] = 1;
-    }
-
-    if (leftTT & midTT & rightTT) {
-        numOfTexts[1] = 3;
-    
-    } else if((leftTT && midTT) || (leftTT && rightTT) || (midTT && rightTT)) {
-        numOfTexts[1] = 2;
-    
-    } else if(leftTT || midTT || rightTT){
-        numOfTexts[1] = 1;
-    }
-
-    return numOfTexts;
-}
-
-
-function getLabel(textFrame, stNum, stCount) {
+function getLabel(textFrame, stCount, ttCount) {
     var frameX = Math.round(textFrame.geometricBounds[1]); 
     var frameY = Math.round(textFrame.geometricBounds[0]);
     var objectStyle = textFrame.appliedObjectStyle.name;
@@ -162,7 +110,7 @@ function getLabel(textFrame, stNum, stCount) {
     if(frameX < 1674 && objectStyle.indexOf("National") !== -1) {
         // If we've determined that there are 2 STs in this panel,
         // then the left is total number of ST - 1; if not, then it's just total number of ST
-        if (numOfSTOnThisPanel === 2) {
+        if(panelST === 2) {
             return "ST" + zFill(stCount - 1, 2);
         }
 
@@ -173,6 +121,19 @@ function getLabel(textFrame, stNum, stCount) {
     }
 
     // Tertiary
+    // if(frameX < 1392 && objectStyle.indexOf("Veterans") !== -1) {
+    //     if(panelCount[1] === 3) {
+    //         return "TT" + zFill(ttCount - 2, 2);
+        
+    //     } else if(panelCount[1] === 2 && leftTT) {
+    //         return "TT" + zFill(ttCount - 1, 2);
+    //     }
+
+    // } else if() {
+
+    // }
+
+
     // if((frameX === 276 && frameY === 4977) || (frameX === 315 && frameY === 5046)) {
     //     return "TT01";
     
