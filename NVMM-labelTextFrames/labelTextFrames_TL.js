@@ -83,7 +83,7 @@ function main() {
     
         // Label
         // for(var j = 0; j < textFrames.length; j++) {
-        //     textFrames[j].label = getSTLabel(textFrames[j], numOfSTOnThisPanel, stTotal);
+        //     textFrames[j].label = getLabel(textFrames[j], numOfSTOnThisPanel, stTotal);
         // }
     
         doc.save();
@@ -126,7 +126,7 @@ function countNumOfTT(frameX, objectStyle) {
 }
 
 
-function getSTLabel(textFrame, stNum, stCount) {
+function getLabel(textFrame, stNum, stCount) {
     var frameX = Math.round(textFrame.geometricBounds[1]); 
     var frameY = Math.round(textFrame.geometricBounds[0]);
     var objectStyle = textFrame.appliedObjectStyle.name;
