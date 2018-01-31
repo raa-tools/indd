@@ -49,14 +49,14 @@ function main() {
         
         // Check if panel is within the same panel topic
         // If not, it's because we're at the beginning of a topic, 
-        // so reset counter and flags & remember the topic we're at
+        // so reset total counters & remember the topic we're at
         if(panelTopic !== panel.topic) {
             totalST = 0;
             totalTT = 0;
             panelTopic = panel.topic;
         }
     
-        // Reset counters and flags per file
+        // Reset panel counters per file
         panelST = 0; panelTT = 0;
         
         var textFrames = doc.layers.item("TEXT").textFrames;
@@ -71,12 +71,9 @@ function main() {
             countTexts(frameX, objectStyle);
         }
 
-        $.writeln([panelST, panelTT]);
-
         // Label
         for(var j = 0; j < textFrames.length; j++) {
             var frameX = Math.round(textFrames[j].geometricBounds[1]); 
-            var frameY = Math.round(textFrames[j].geometricBounds[0]);
             var objectStyle = textFrames[j].appliedObjectStyle.name;
             
             if (objectStyle.indexOf("National") !== -1) {
@@ -94,7 +91,6 @@ function main() {
         doc.close();
     }
 }
-
 
 // Checks how many STs & TTs there are by counting titles
 // (there's always 1 title per group)
