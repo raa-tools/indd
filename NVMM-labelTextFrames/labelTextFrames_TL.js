@@ -68,18 +68,15 @@ function main() {
             var frameX = Math.round(textFrames[z].geometricBounds[1]);
             var objectStyle = textFrames[z].appliedObjectStyle.name;
             
-            // countTotalST(frameX, objectStyle);
+            countTotalST(frameX, objectStyle);
             countTotalTT(frameX, objectStyle);
             
-            if (leftST && rightST){
-                numOfSTOnThisPanel = 2;
-    
-            } else if (leftST || rightST) {
-                numOfSTOnThisPanel = 1;
-            }
+
         }
 
-    
+        var numOfTextsOnThisPanel = analyzePanel();
+
+        $.writeln(numOfTextsOnThisPanel);
         // Label
         // for(var j = 0; j < textFrames.length; j++) {
         //     textFrames[j].label = getLabel(textFrames[j], numOfSTOnThisPanel, stTotal);
@@ -122,6 +119,31 @@ function countTotalTT(frameX, objectStyle) {
         ttTotal++;
         rightTT = true;
     }
+}
+
+function analyzePanel() {
+    // numOfTexts[0] is number of ST on this panel
+    // numOfTexts[1] is number of TT on this panel
+    var numOfTexts = [0, 0];
+
+    if(leftST && rightST) {
+        numOfTexts[0] = 2;
+
+    } else if(leftST || rightST) {
+        numOfTexts[0] = 1;
+    }
+
+    if (leftTT & midTT & rightTT) {
+        numOfTexts[1] = 3;
+    
+    } else if((leftTT && midTT) || (leftTT && rightTT) || (midTT && rightTT)) {
+        numOfTexts[1] = 2;
+    
+    } else if(leftTT || midTT || rightTT){
+        numOfTexts[1] = 1;
+    }
+
+    return numOfTexts;
 }
 
 
