@@ -126,7 +126,7 @@ function getLabel(textFrame, stNum, stCount) {
         return "ST" + zFill(stCount, 2);
     }
 
-    // // Tertiary
+    // Tertiary
     // if((frameX === 276 && frameY === 4977) || (frameX === 315 && frameY === 5046)) {
     //     return "TT01";
     
