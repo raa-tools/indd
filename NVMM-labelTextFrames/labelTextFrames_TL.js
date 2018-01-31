@@ -68,18 +68,17 @@ function main() {
             var frameX = Math.round(textFrames[z].geometricBounds[1]);
             var objectStyle = textFrames[z].appliedObjectStyle.name;
             
-            // countNumOfST(frameX, objectStyle);
-            countNumOfTT(frameX, objectStyle);
+            // countTotalST(frameX, objectStyle);
+            countTotalTT(frameX, objectStyle);
             
-            // if (leftST && rightST){
-            //     numOfSTOnThisPanel = 2;
+            if (leftST && rightST){
+                numOfSTOnThisPanel = 2;
     
-            // } else if (leftST || rightST) {
-            //     numOfSTOnThisPanel = 1;
-            // }
+            } else if (leftST || rightST) {
+                numOfSTOnThisPanel = 1;
+            }
         }
 
-        $.writeln(ttTotal)
     
         // Label
         // for(var j = 0; j < textFrames.length; j++) {
@@ -94,7 +93,7 @@ function main() {
 
 // Checks how many STs there are through the x-position of ST titles
 // (there's always 1 title per ST)
-function countNumOfST(frameX, objectStyle) {
+function countTotalST(frameX, objectStyle) {
     // 1674pt is the left-most x-value for a "right" ST box
     if(frameX < 1674 && objectStyle === "National Title") {
         stTotal++;
@@ -108,7 +107,7 @@ function countNumOfST(frameX, objectStyle) {
 
 // Checks how many TTs there are through the x-position of TT titles
 // (there's always 1 title per TT)
-function countNumOfTT(frameX, objectStyle) {
+function countTotalTT(frameX, objectStyle) {
     if((frameX === 276 || frameX === 50) && objectStyle === "Veterans Title") {
         ttTotal++;
         leftTT = true;
