@@ -8,10 +8,11 @@ try {
     var panelFolder = Folder.selectDialog("Pick Folder");
     var panelFiles = panelFolder.getFiles("*.indd");
     
-    var panelTopic = "";
+    // Declaring some global variables so we don't have to pass them
+    // from function to function later
     var panelST; var panelTT;
     var totalST; var totalTT;
-    var midTT;
+    var leftTT; var midTT;
     
     main();
     
@@ -28,6 +29,8 @@ try {
 }
 
 function main() {
+    var panelTopic = "";
+
     for(var i = 0; i < panelFiles.length; i++) {
         app.scriptPreferences.measurementUnit = MeasurementUnits.points;
         
@@ -56,7 +59,7 @@ function main() {
     
         // Reset counters and flags per file
         panelST = 0; panelTT = 0;
-        midTT = false;
+        leftTT = false; midTT = false;
         
         var textFrames = doc.layers.item("TEXT").textFrames;
     
@@ -64,16 +67,29 @@ function main() {
         // Has to be separated because the script has to "understand"
         // the panel before applying labels
         for(var z = 0; z < textFrames.length; z++) {
+            var frameX = Math.round(textFrames[z].geometricBounds[1]);
             var objectStyle = textFrames[z].appliedObjectStyle.name;
-            
-            countTexts(objectStyle);
+
+            countTexts(frameX, objectStyle);
         }
 
-        $.writeln(panelST, panelTT);
+        $.writeln([panelST, panelTT]);
+        $.writeln([leftTT, midTT]);
         // Label
-        // for(var j = 0; j < textFrames.length; j++) {
-        //     textFrames[j].label = getLabel(textFrames[j], numOfTextsOnThisPanel, totalST, totalTT);
-        // }
+        for(var j = 0; j < textFrames.length; j++) {
+            var frameX = Math.round(textFrames[j].geometricBounds[1]); 
+            var frameY = Math.round(textFrames[j].geometricBounds[0]);
+            var objectStyle = textFrames[j].appliedObjectStyle.name;
+            
+            if (objectStyle.indexOf("National") !== -1) {
+                textFrames[j].label = getSTLabel(frameX, frameY);
+            }
+            // } else if(objectStyle.indexOf("Veterans") !== -1) {
+            //     textFrames[j].label = getTTLabel(frameX, frameY);
+            // }
+
+            // textFrames[j].label = getLabel(textFrames[j], numOfTextsOnThisPanel, totalST, totalTT);
+        }
     
         doc.save();
         doc.close();
@@ -84,55 +100,76 @@ function main() {
 // Checks how many STs & TTs there are by counting titles
 // (there's always 1 title per group)
 // Tracking total count for sequencing; panel count for labeling
-function countTexts(objectStyle) {
+function countTexts(frameX, objectStyle) {
     if(objectStyle === "National Title") {
         totalST++;
         panelST++;
 
     } else if(objectStyle === "Veterans Title") {
+        // Turn on some switches for later
+        if(frameX <= 1000) {
+            leftTT = true;
+        } else if(frameX > 1000 && frameX < 1500) {
+            midTT = true;
+        }
+
         totalTT++;
-        panelTT+;
+        panelTT++;
     }
 }
 
-function getLabel(textFrame, stCount, ttCount) {
-    var frameX = Math.round(textFrame.geometricBounds[1]); 
-    var frameY = Math.round(textFrame.geometricBounds[0]);
-    var objectStyle = textFrame.appliedObjectStyle.name;
-    
-    // Primary
+function getPrimaryLabel(textFrame) {
     if(frameX === 410 && (frameY === 2242 || frameY === 2950)) {
         return "PT01";
     } 
-    
-    // Secondary
-    // Using < and >= also lets us label the Captions box without extra code!
-    if(frameX < 1674 && objectStyle.indexOf("National") !== -1) {
-        // If we've determined that there are 2 STs in this panel,
-        // then the left is total number of ST - 1; if not, then it's just total number of ST
-        if(panelST === 2) {
-            return "ST" + zFill(stCount - 1, 2);
-        }
+}
 
-        return "ST" + zFill(stCount, 2);
-    
-    } else if(frameX >= 1674 && objectStyle.indexOf("National") !== -1) {
-        return "ST" + zFill(stCount, 2);
+function getSTLabel(frameX, frameY) {
+    // If there are 2 STs, the left one is always ST total - 1
+    // otherwise just return ST total
+    if(panelST === 2 && frameX < 1674) {
+        return "ST" + zFill(totalST - 1, 2);    
     }
 
-    // Tertiary
-    // if(frameX < 1392 && objectStyle.indexOf("Veterans") !== -1) {
-    //     if(panelCount[1] === 3) {
-    //         return "TT" + zFill(ttCount - 2, 2);
+    return "ST" + zFill(totalST, 2);
+}
+
+function getTTLabel(textFrame) {
+    if(panelTT === 3){
+        if(frameX < 1390 && objectStyle.indexOf("Veterans") !== -1) {
+            return "TT" + zFill(totalTT - 2, 2);
         
-    //     } else if(panelCount[1] === 2 && leftTT) {
-    //         return "TT" + zFill(ttCount - 1, 2);
-    //     }
+        } else if(frameX >= 1390 && frameX < 2507 && objectStyle.indexOf("Veterans") !== -1) {
+            return "TT" + zFill(totalTT - 1, 2);
 
-    // } else if() {
+        } else if(frameX >= 2507 && objectSTyle.indexOf("Veterans") !== -1) {
+            return "TT" + zFill(totalTT, 2);
+        }
+    
+    // Only 2 TTs but no middle
+    } else if(panelTT === 2 && !midTT){
+        if(frameX < 1940 && objectStyle.indexOf("Veterans") !== -1) {
+            return "TT" + zFill(totalTT - 1, 2);
+        
+        } else if(frameX >= 1940 && objectSTyle.indexOf("Veterans") !== -1) {
+            return "TT" + zFill(totalTT, 2);
+        }
 
-    // }
+    } else if(panelTT === 2 && midTT) {
+        if(leftTT) {
+            if(frameX < 1390 && objectStyle.indexOf("Veterans") !== -1) {
+                return "TT" + zFill(totalTT - 1, 2);
+                
+            } else if(frameX >= 1390 && objectSTyle.indexOf("Veterans") !== -1) {
+                return "TT" + zFill(totalTT, 2);
+            }
+        
+        } else {
 
+        }
+    }
+}
+    
 
     // if((frameX === 276 && frameY === 4977) || (frameX === 315 && frameY === 5046)) {
     //     return "TT01";
@@ -144,5 +181,5 @@ function getLabel(textFrame, stCount, ttCount) {
     //     return "TT03";
     // }
 
-    return "no label yet";
-}
+//     return "no label yet";
+// }
