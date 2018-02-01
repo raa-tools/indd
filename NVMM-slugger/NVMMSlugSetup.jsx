@@ -1,10 +1,17 @@
 ﻿/*
 Set up slug information for panel files.
-Currently, this script will add the following information:
+
+Currently, this script will add the following panel attributes:
     * Panel code -- (File name)
     * Dimensions -- (W x H)
     * Review ------ (Batch # - Review #)
     * Date -------- (Defaults to today's date)
+
+Would be great to let user add or remove attributes from a set list.
+Some extras might be:
+    * Graphic Technique
+    * Type of panel
+    * Gallery / Area
 
 As of 2/1/2018, this script only works on activeDocument.
 To process a batch of files, run this through RoadRunner.
