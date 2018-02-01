@@ -1,12 +1,26 @@
 ﻿#target "InDesign-8.0"
 
-var scriptToRun = File.openDialog("Select script to run");
+try {
+    selectFile();
 
-if(scriptToRun.name.slice(".")[1] !== ("js" || "jsx")) {
-    alert("Can't run that here");
+} catch(error) {}
 
-} else {
-    main();    
+
+// This seems really ugly...
+function selectFile(){
+    var scriptToRun = File.openDialog("Select script to run");
+
+    if(scriptToRun.name.split(".")[1] !== ("js" || "jsx")) {
+        alert("Can't run that here");
+    
+    } else {
+        try {
+            main();    
+    
+        } catch(error) {
+            alert("No folder selected");
+        }
+    }
 }
 
 function main() {
