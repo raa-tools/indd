@@ -1,6 +1,5 @@
 ﻿#target "InDesign-8.0"
 
-
 var scriptFolder = File("~/Library/Preferences/Adobe InDesign/Version 8.0/en_US/Scripts/Scripts Panel");    
 var scriptToRun = scriptFolder.openDlg("Select script to run", filter, false);
 
