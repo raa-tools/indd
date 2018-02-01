@@ -14,7 +14,7 @@ for(var i = 0; i < selectedObjects.length; i++) {
         var xMax = selectedObjects[i].geometricBounds[3];
 
         for(var j = 0; j < selectFiles.length; j++) {
-            if(j == 0) {
+            if(j === 0) {
                 var dupeObjects = selectedObjects[i];
             
             } else {    
