@@ -27,10 +27,28 @@ for(var j = 0; j < pages.length; j++) {
     
     for(var i = 0; i < pageItems.length; i++) {    
         if(pageItems[i].itemLayer === imageLayer && (pageItems[i] instanceof Rectangle || pageItems[i] instanceof Oval) && pageItems[i].images.length == 1) {
-            var imgY = pageItems[i].geometricBounds[0];
             var imgX = pageItems[i].geometricBounds[1];
+            var imgY = pageItems[i].geometricBounds[0];
+            var imgWidth = pageItems[i].geometricBounds[3] - imgX;
             
-            addGNumFrame(imgY, imgX);
+            // Some catches so labels don't appear outside of the artboard
+            if(imgX < 0) {
+                imgX = 0;
+            }
+
+            if(imgY < 0){
+                imgY = 0;
+            }
+
+            // Set width of text frame
+            if(imgWidth < 1836) {
+                var textWidth = imgWidth - gNumFrameOffset * 2;
+            
+            } else {
+                var textWidth = imgWidth / 2 - gNumFrameOffset * 2;
+            }
+
+            addGNumFrame(imgX + gNumFrameOffset, imgY + gNumFrameOffset, textWidth);
         }
     }
 }
@@ -53,8 +71,8 @@ function refreshGNumLayer() {
 }
 
 // Make text frames for gNum labels
-function addGNumFrame(yLoc, xLoc) {
-    gNumFrame = pages[j].textFrames.add({itemLayer: gNumLayer, geometricBounds: [yLoc + gNumFrameOffset, xLoc + gNumFrameOffset, yLoc + 100, xLoc + 750]});
+function addGNumFrame(xLoc, yLoc, width) {
+    gNumFrame = pages[j].textFrames.add({itemLayer: gNumLayer, geometricBounds: [yLoc, xLoc, yLoc + 100, xLoc + width]});
     gNumFrame.textVariableInstances.add({associatedTextVariable: varImgName});
     gNumFrame.appliedObjectStyle = doc.objectStyles.item("[None]");
 
@@ -66,8 +84,8 @@ function addGNumFrame(yLoc, xLoc) {
         // An incomplete catch for big TL panels
         // Otherwise the labels aren't legible in transmittal doc
         if(doc.name.split("_")[0] === "TL") {
-            pointSize = 72;
-            ruleAboveLineWeight = 48;
+            pointSize = 78;
+            ruleAboveLineWeight = 42;
         }
     }
 }
