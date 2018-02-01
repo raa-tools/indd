@@ -4,6 +4,8 @@ Duplicate a set of selected rectangles and replace content with selected files
 
 #target "InDesign-8.0"
 
+app.scriptPreferences.measurementUnit = MeasurementUnits.points;
+
 var selectedObjects = app.activeWindow.selection;
 var selectedFiles = File.openDialog("Select files", multiSelect = true);
 
@@ -19,8 +21,9 @@ for(var i = 0; i < selectedObjects.length; i++) {
                 var dupeObjects = selectedObjects[i];
             
             } else {
-                // Weird math to get the offset right?
-                dupeObjects = selectedObjects[i].duplicate(to = [xMax * j + xMax * (.10 / j), y]);
+                // Need to figure out this math...
+                // Duplicating by offset instead of location, but amount is still hardcoded (1000 pts)
+                dupeObjects = selectedObjects[i].duplicate(undefined, [j * 1000, 0]);
             }
             
             // Determine how to crop PDF... not very elegant
