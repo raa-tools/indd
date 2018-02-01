@@ -7,7 +7,6 @@ Duplicate a set of selected rectangles and replace content with selected files
 var doc = app.activeWindow;
 var selectedObjects = doc.selection;
 var selectFiles = File.openDialog("Select files", multiSelect = true);
-var divider = selectedObjects.length;
 
 for(var i = 0; i < selectedObjects.length; i++) {
     if(selectedObjects[i] instanceof Oval || selectedObjects[i] instanceof Rectangle || selectedObjects[i] instanceof Polygon) {
