@@ -1,13 +1,7 @@
 ﻿#target InDesign
 
-// Allow the user to select a folder of INDD layout files
-// and establish variables for the folder and each individual file
-var myFolder = Folder.selectDialog("*****     Please select a folder of panels     *****");
 
-// Use try/catch in case user cancels out of folder select dialog
 try{
-    var myInddFiles = myFolder.getFiles("*.indd");
-
     // These are declared here so they can be used by dialogSetup()
     var myWindow; var batchEditText; var reviewEditText; var dateEditText;
     var batchReviewCheck; var dateCheck;
@@ -24,9 +18,7 @@ try{
     }
     
 } catch(error) {
-    if(error instanceof TypeError) {
-        alert("No folder selected");
-    }
+    alert(error);
 }
 
 
@@ -89,59 +81,54 @@ function dialogSetup() {
 
 
 function main() {
-    var badFilesList = [];
-    // Make sure at least one checkbox is on
+    // var badFilesList = [];
     
-    //Establish a loop to deal with all the files:
-    for(k=0; k<myInddFiles.length; k++) {
 
-        var myDocument = app.open(myInddFiles[k]);
+        var myDocument = app.activeDocument;
         var codeInfoLayer = myDocument.layers.item("Code and info");
 
         // Log files that have missing "Code and info" layer
         // and continue to next file in the loop
         // (Better than breaking and losing progress)
         if(!codeInfoLayer.isValid) {
-            var missingLayer = true;
-            badFilesList.push(myDocument.name.split(".")[0]);
-            myDocument.close();
-            continue;
-        }
-        
-        codeInfoLayer.locked = false;
-        codeInfoLayer.move(LocationOptions.BEFORE, myDocument.layers[0]);
-        
-        var codeInfoFrames = codeInfoLayer.textFrames;
-
-        if(batchReviewCheck.value && dateCheck.value) {
-            for(var i = 0; i < codeInfoFrames.length; i++) {
-                updateBatchReview();
-                updateDate();
-            }
-        } else if(batchReviewCheck.value) {
-            for(var i = 0; i < codeInfoFrames.length; i++) {
-                updateBatchReview();
-            }
-        } else if(dateCheck.value) {
-            for(var i = 0; i < codeInfoFrames.length; i++) {
-                updateDate();
-            }
-        }
-
-        //Re-lock Code and info layer
-        myDocument.layers.item("Code and info").locked = true;
-
-        myDocument.save();
-        myDocument.close();
-    }
+            MISSINGLAYER = true;
+            // BADFILESLIST.push(myDocument.name.split(".")[0]);
+            // myDocument.close();
+            
+        } else {
+            codeInfoLayer.locked = false;
+            codeInfoLayer.move(LocationOptions.BEFORE, myDocument.layers[0]);
+            
+            var codeInfoFrames = codeInfoLayer.textFrames;
     
-    if(missingLayer) {
-        alert('"Code and info" layer missing from files\r See slugUpdateLog.txt on Desktop.');
-        writeLogFile(badFilesList);
+            if(batchReviewCheck.value && dateCheck.value) {
+                for(var i = 0; i < codeInfoFrames.length; i++) {
+                    updateBatchReview();
+                    updateDate();
+                }
+            } else if(batchReviewCheck.value) {
+                for(var i = 0; i < codeInfoFrames.length; i++) {
+                    updateBatchReview();
+                }
+            } else if(dateCheck.value) {
+                for(var i = 0; i < codeInfoFrames.length; i++) {
+                    updateDate();
+                }
+            }
+    
+            //Re-lock Code and info layer
+            myDocument.layers.item("Code and info").locked = true;
+
+        }
         
-    } else {
-        alert("Oh, did you just blink? \rYou missed a lot of fun.\r" + myInddFiles.length + " files processed.");
-    }
+
+    
+    
+    // if(missingLayer) {
+    //     // alert('"Code and info" layer missing from files\r See slugUpdateLog.txt on Desktop.');
+    //     writeLogFile(BADFILESLIST);
+        
+    // }
 
 
     function updateBatchReview(){
@@ -156,12 +143,12 @@ function main() {
         }
     }
 
-    function writeLogFile(filesList){
-        var logFile = new File("~/Desktop/slugUpdateLog.txt");
-        logFile.encoding = "UTF-8";
+    // function writeLogFile(filesList){
+    //     var logFile = new File("~/Desktop/slugUpdateLog.txt");
+    //     logFile.encoding = "UTF-8";
         
-        logFile.open("w");
-        logFile.write(filesList.join("\n"));
-        logFile.close();
-    }
+    //     logFile.open("w");
+    //     logFile.write(filesList.join("\n"));
+    //     logFile.close();
+    // }
 }
