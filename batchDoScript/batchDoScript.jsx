@@ -1,4 +1,14 @@
-﻿#target "InDesign-8.0"
+﻿/*
+Run a script to a folder of files
+
+THIS SCRIPT HAS BEEN DEPRECATED
+AS OF LAST UPDATE (2/1/2018)
+
+USE roadRunner INSTEAD,
+BUT KEEP THIS HERE FOR VCS HISTORY
+*/
+
+#target "InDesign-8.0"
 
 var scriptFolder = File("~/Library/Preferences/Adobe InDesign/Version 8.0/en_US/Scripts/Scripts Panel");    
 var scriptToRun = scriptFolder.openDlg("Select script to run", filter, false);
