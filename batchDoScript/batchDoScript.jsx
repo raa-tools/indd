@@ -1,25 +1,22 @@
 ﻿#target "InDesign-8.0"
 
 try {
-    selectFile();
+    selectScript();
 
+// Do nothing when user doesn't select a script
+// (instead of throwing an error)
 } catch(error) {}
 
-
 // This seems really ugly...
-function selectFile(){
-    var scriptToRun = File.openDialog("Select script to run");
+function selectScript(){
+    var scriptFolder = File("~/Library/Preferences/Adobe InDesign/Version 8.0/en_US/Scripts/Scripts Panel");    
+    var scriptToRun = scriptFolder.openDlg("Select script to run", filter);
 
-    if(scriptToRun.name.split(".")[1] !== ("js" || "jsx")) {
-        alert("Can't run that here");
-    
-    } else {
-        try {
-            main();    
-    
-        } catch(error) {
-            alert("No folder selected");
-        }
+    try {
+        main();    
+
+    } catch(error) {
+        alert("No folder selected");
     }
 }
 
@@ -34,4 +31,12 @@ function main() {
         batchDoc.save();
         batchDoc.close();
     }
+}
+
+function filter(file) {
+    if (file.name.slice(-3) === ".js" || file.name.slice(-3) === "jsx" ) {
+        return true;
+    }
+    
+    return false;
 }
