@@ -1,18 +1,13 @@
 ﻿#target "InDesign-8.0"
 
-try {
-    selectScript();
 
-// Do nothing when user doesn't select a script
-// (instead of throwing an error)
-} catch(error) {}
+var scriptFolder = File("~/Library/Preferences/Adobe InDesign/Version 8.0/en_US/Scripts/Scripts Panel");    
+var scriptToRun = scriptFolder.openDlg("Select script to run", filter, false);
 
-function selectScript(){
-    var scriptFolder = File("~/Library/Preferences/Adobe InDesign/Version 8.0/en_US/Scripts/Scripts Panel");    
-    var scriptToRun = scriptFolder.openDlg("Select script to run", filter);
-
+// Only run when user picks a script
+if(scriptToRun !== null) {
     try {
-        main();    
+        main();
 
     } catch(error) {
         alert("No folder selected");
@@ -33,7 +28,10 @@ function main() {
 }
 
 function filter(file) {
-    if (file.name.slice(-3) === ".js" || file.name.slice(-3) === "jsx" ) {
+    if (file.constructor.name == "Folder") {
+        return true
+    
+    } else if (file.name.slice(-3) === ".js" || file.name.slice(-3) === "jsx") {
         return true;
     }
     
