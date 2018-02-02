@@ -1,14 +1,21 @@
 ﻿/*
 Run a script to a folder of files
 
-THIS SCRIPT HAS BEEN DEPRECATED
-AS OF LAST UPDATE (2/1/2018)
+Previously known as batchDoScript
 
-USE roadRunner INSTEAD,
-BUT KEEP THIS HERE FOR VCS HISTORY
+Needs some UI...
 */
 
+
 #target "InDesign-8.0"
+
+// Some global variables that can be used by the script being run
+// Not sure if best practice, but right now it's one way to log stuff...
+BADFILESLIST = [];
+MISSINGLAYER = false;
+
+// For dev cycle, use this instead of having to pick a script to run
+// var scriptToRun = File("/Users/jesentanadi/Dropbox/3-Scripts/RAATools/1-inddScripts/NVMM-slugger/NVMMSlugSetup.jsx");
 
 var scriptFolder = File("~/Library/Preferences/Adobe InDesign/Version 8.0/en_US/Scripts/Scripts Panel");    
 var scriptToRun = scriptFolder.openDlg("Select script to run", filter, false);
@@ -19,7 +26,8 @@ if(scriptToRun !== null) {
         main();
 
     } catch(error) {
-        alert("No folder selected");
+        // alert("No folder selected");
+        $.writeln(error);
     }
 }
 
@@ -33,6 +41,11 @@ function main() {
     
         batchDoc.save();
         batchDoc.close();
+
+        if(MISSINGLAYER) {
+            alert('"Code and info" layer missing from files\r See roadRunnerLog.txt on Desktop.');
+            writeLogFile(BADFILESLIST);
+        }
     }
 }
 
@@ -45,4 +58,14 @@ function filter(file) {
     }
     
     return false;
+}
+
+function writeLogFile(listToOutput){
+    var logFile = new File("~/Desktop/roadRunnerLog.txt");
+    logFile.encoding = "UTF-8";
+    
+    logFile.open("w");
+    logFile.write("These panels didn't quite work out:\n");
+    logFile.write(listToOutput.join("\n"));
+    logFile.close();
 }

@@ -1,6 +1,24 @@
-﻿//Just in case this little script gets lost in the woods:
-#target InDesign
+﻿/*
+Set up slug information for panel files.
 
+Currently, this script will add the following panel attributes:
+    * Panel code -- (File name)
+    * Dimensions -- (W x H)
+    * Review ------ (Batch # - Review #)
+    * Date -------- (Defaults to today's date)
+
+Would be great to let user add or remove attributes from a set list.
+Some extras might be:
+    * Graphic Technique
+    * Type of panel
+    * Gallery / Area
+
+As of 2/1/2018, this script only works on activeDocument.
+To process a batch of files, run this through RoadRunner.
+*/
+
+//Just in case this little script gets lost in the woods:
+#target InDesign
 
 // GLOBAL VARIABLES – CHANGE PER PROJECT AS NECESSARY
 BLEEDDIM = 36;
@@ -13,36 +31,33 @@ FONT = {
     WEIGHT2 : "Bold"
 };
 
-////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
-////// ////// /////        —   What the file    —       ////// ////// //////
-////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
-
-//Allow the user to select a folder of INDD layout files
-//and establish variables for the folder and each individual file,
-var myFolder = Folder.selectDialog("*****     Please select a folder of panels     *****");
-
-// Use try/catch in case user cancels out of folder select dialog
 try{
-    var myInddFiles = myFolder.getFiles("*.indd");
-
     // These are declared here so they can be used by dialogSetup()
     var myWindow; var batchEditText; var reviewEditText; var dateEditText;
     var notesCheck; var notesEditText;
+    var alreadyRun;
+    
+    var myDocument = app.activeDocument;
+    
+    // Control flow to make sure UI window doesn't pop up for every
+    // panel file when this script is run by roadRunner
+    if(!alreadyRun) {
+        alreadyRun = true;
+        dialogSetup();
+    
+        if(myWindow.show() == true) {
+            main();
+            
+        } else {
+            app.dialogs.everyItem().destroy();
+        }
 
-    dialogSetup();
-
-    if(myWindow.show() == true) {
-        main();
-        
     } else {
-        app.dialogs.everyItem().destroy();
+        main();
     }
 
 } catch(error) {
-    $.writeln(error);
-    if(error instanceof TypeError) {
-        alert("No folder selected");
-    }
+    alert(error);
 }
 
 
@@ -106,16 +121,12 @@ function dialogSetup() {
 
 
 // Using a main() function so the entire try block above isn't super long...
-function main() {
-    //Establish a loop to deal with all the files:
-    for(k=0; k<myInddFiles.length; k++) {
-    
+function main() {    
         ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
         ////// ////// /////      —    Document  Business     —      ///// ////// //////
         ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
         
         //Doc setup
-        var myDocument = app.open(myInddFiles[k]);
         var myPage = app.activeWindow.activePage;
 
         app.scriptPreferences.measurementUnit = MeasurementUnits.inches;
@@ -366,14 +377,7 @@ function main() {
         //Re-lock Code and info layer
         codeInfoLayer.locked = true;
     
-        //save file
-        myDocument.save();
-    
-        //close file
-        myDocument.close();
-    }
-    
-    alert("Oh, did you just blink? \rYou missed a lot of fun.\r" + myInddFiles.length + " files processed.");
+    // alert("Oh, did you just blink? \rYou missed a lot of fun.\r" + myInddFiles.length + " files processed.");
 
 
 
