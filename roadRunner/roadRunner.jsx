@@ -9,10 +9,15 @@ Needs some UI...
 
 #target "InDesign-8.0"
 
-var BADFILESLIST = []; var MISSINGLAYER;
+// Some global variables that can be used by the script being run
+// Not sure if best practice, but right now it's one way to log stuff...
+BADFILESLIST = [];
+MISSINGLAYER = false;
 
-var scriptFolder = File("~/Library/Preferences/Adobe InDesign/Version 8.0/en_US/Scripts/Scripts Panel");    
-var scriptToRun = scriptFolder.openDlg("Select script to run", filter, false);
+// TEMP FOR DEV CYCLE
+var scriptToRun = File("/Users/jesentanadi/Dropbox/3-Scripts/RAATools/1-inddScripts/NVMM-slugger/NVMMSlugUpdate.jsx");
+// var scriptFolder = File("~/Library/Preferences/Adobe InDesign/Version 8.0/en_US/Scripts/Scripts Panel");    
+// var scriptToRun = scriptFolder.openDlg("Select script to run", filter, false);
 
 // Only run when user picks a script
 if(scriptToRun !== null) {
@@ -36,12 +41,9 @@ function main() {
         batchDoc.save();
         batchDoc.close();
 
-        $.writeln(MISSINGLAYER);
-
         if(MISSINGLAYER) {
-            // alert('"Code and info" layer missing from files\r See slugUpdateLog.txt on Desktop.');
+            alert('"Code and info" layer missing from files\r See slugUpdateLog.txt on Desktop.');
             writeLogFile(BADFILESLIST);
-            $.writeln("missing layer");
         }
     }
 }
@@ -57,11 +59,11 @@ function filter(file) {
     return false;
 }
 
-function writeLogFile(filesList){
+function writeLogFile(listToOutput){
     var logFile = new File("~/Desktop/slugUpdateLog.txt");
     logFile.encoding = "UTF-8";
     
     logFile.open("w");
-    logFile.write(filesList.join("\n"));
+    logFile.write(listToOutput.join("\n"));
     logFile.close();
 }
