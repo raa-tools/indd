@@ -14,10 +14,11 @@ Needs some UI...
 BADFILESLIST = [];
 MISSINGLAYER = false;
 
-// TEMP FOR DEV CYCLE
-var scriptToRun = File("/Users/jesentanadi/Dropbox/3-Scripts/RAATools/1-inddScripts/NVMM-slugger/NVMMSlugUpdate.jsx");
-// var scriptFolder = File("~/Library/Preferences/Adobe InDesign/Version 8.0/en_US/Scripts/Scripts Panel");    
-// var scriptToRun = scriptFolder.openDlg("Select script to run", filter, false);
+// For dev cycle, use this instead of having to pick a script to run
+// var scriptToRun = File("/Users/jesentanadi/Dropbox/3-Scripts/RAATools/1-inddScripts/NVMM-slugger/NVMMSlugSetup.jsx");
+
+var scriptFolder = File("~/Library/Preferences/Adobe InDesign/Version 8.0/en_US/Scripts/Scripts Panel");    
+var scriptToRun = scriptFolder.openDlg("Select script to run", filter, false);
 
 // Only run when user picks a script
 if(scriptToRun !== null) {
@@ -42,7 +43,7 @@ function main() {
         batchDoc.close();
 
         if(MISSINGLAYER) {
-            alert('"Code and info" layer missing from files\r See slugUpdateLog.txt on Desktop.');
+            alert('"Code and info" layer missing from files\r See roadRunnerLog.txt on Desktop.');
             writeLogFile(BADFILESLIST);
         }
     }
@@ -60,10 +61,11 @@ function filter(file) {
 }
 
 function writeLogFile(listToOutput){
-    var logFile = new File("~/Desktop/slugUpdateLog.txt");
+    var logFile = new File("~/Desktop/roadRunnerLog.txt");
     logFile.encoding = "UTF-8";
     
     logFile.open("w");
+    logFile.write("These panels didn't quite work out:\n");
     logFile.write(listToOutput.join("\n"));
     logFile.close();
 }
