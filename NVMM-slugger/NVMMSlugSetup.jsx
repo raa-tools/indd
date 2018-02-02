@@ -20,7 +20,6 @@ To process a batch of files, run this through RoadRunner.
 //Just in case this little script gets lost in the woods:
 #target InDesign
 
-
 // GLOBAL VARIABLES – CHANGE PER PROJECT AS NECESSARY
 BLEEDDIM = 36;
 SLUGDIM = 144;
@@ -36,14 +35,25 @@ try{
     // These are declared here so they can be used by dialogSetup()
     var myWindow; var batchEditText; var reviewEditText; var dateEditText;
     var notesCheck; var notesEditText;
+    var alreadyRun;
+    
+    var myDocument = app.activeDocument;
+    
+    // Control flow to make sure UI window doesn't pop up for every
+    // panel file when this script is run by roadRunner
+    if(!alreadyRun) {
+        alreadyRun = true;
+        dialogSetup();
+    
+        if(myWindow.show() == true) {
+            main();
+            
+        } else {
+            app.dialogs.everyItem().destroy();
+        }
 
-    dialogSetup();
-
-    if(myWindow.show() == true) {
-        main();
-        
     } else {
-        app.dialogs.everyItem().destroy();
+        main();
     }
 
 } catch(error) {
@@ -117,8 +127,6 @@ function main() {
         ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
         
         //Doc setup
-        var myDocument = app.activeDocument;
-        $.writeln(myDocument.name);
         var myPage = app.activeWindow.activePage;
 
         app.scriptPreferences.measurementUnit = MeasurementUnits.inches;
