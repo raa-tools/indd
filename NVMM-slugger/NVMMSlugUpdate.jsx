@@ -1,21 +1,30 @@
 ﻿#target InDesign
 
-
 try{
     // These are declared here so they can be used by dialogSetup()
     var myWindow; var batchEditText; var reviewEditText; var dateEditText;
     var batchReviewCheck; var dateCheck;
+    var alreadyRun;
 
-    dialogSetup();
+    // A little control flow to make sure the UI window doesn't pop up
+    // for every panel file when this script is run by roadRunner
+    if(!alreadyRun) {
+        alreadyRun = true;
+        dialogSetup();
+        
+        // Make sure at least one checkbox is true
+        if(myWindow.show() && (batchReviewCheck.value || dateCheck.value)) {
+            main();
     
-    // Make sure at least one checkbox is true
-    if(myWindow.show() && (batchReviewCheck.value || dateCheck.value)) {
-        main();
-
+        } else {
+            alert("No updates made!\r Select something to update.");
+            app.dialogs.everyItem().destroy()
+        }
+    
     } else {
-        alert("No updates made!\r Select something to update.");
-        app.dialogs.everyItem().destroy()
+        main();
     }
+    
     
 } catch(error) {
     alert(error);
@@ -81,55 +90,52 @@ function dialogSetup() {
 
 
 function main() {
-    // var badFilesList = [];
-    
+    var myDocument = app.activeDocument;
+    var codeInfoLayer = myDocument.layers.item("Code and info");
 
-        var myDocument = app.activeDocument;
-        var codeInfoLayer = myDocument.layers.item("Code and info");
-
-        // Log files that have missing "Code and info" layer
-        // and continue to next file in the loop
-        // (Better than breaking and losing progress)
-        if(!codeInfoLayer.isValid) {
+    // Log files that have missing "Code and info" layer
+    // and continue to next file in the loop
+    // (Better than breaking and losing progress)
+    if(!codeInfoLayer.isValid) {
+        try {
+            // Global variables from roadRunner
             MISSINGLAYER = true;
-            // BADFILESLIST.push(myDocument.name.split(".")[0]);
-            // myDocument.close();
-            
-        } else {
-            codeInfoLayer.locked = false;
-            codeInfoLayer.move(LocationOptions.BEFORE, myDocument.layers[0]);
-            
-            var codeInfoFrames = codeInfoLayer.textFrames;
-    
-            if(batchReviewCheck.value && dateCheck.value) {
-                for(var i = 0; i < codeInfoFrames.length; i++) {
-                    updateBatchReview();
-                    updateDate();
-                }
-            } else if(batchReviewCheck.value) {
-                for(var i = 0; i < codeInfoFrames.length; i++) {
-                    updateBatchReview();
-                }
-            } else if(dateCheck.value) {
-                for(var i = 0; i < codeInfoFrames.length; i++) {
-                    updateDate();
-                }
-            }
-    
-            //Re-lock Code and info layer
-            myDocument.layers.item("Code and info").locked = true;
+            BADFILESLIST.push(myDocument.name.split(".")[0]);
 
+        } catch(error) {
+            // The block above will throw a ReferenceError because 
+            // the global variables are declared in roadRuner
+            if(error.name === "ReferenceError") {
+                alert('"Code and info" layer missing');
+            }
         }
         
-
-    
-    
-    // if(missingLayer) {
-    //     // alert('"Code and info" layer missing from files\r See slugUpdateLog.txt on Desktop.');
-    //     writeLogFile(BADFILESLIST);
         
-    // }
+    } else {
+        codeInfoLayer.locked = false;
+        codeInfoLayer.move(LocationOptions.BEFORE, myDocument.layers[0]);
+        
+        var codeInfoFrames = codeInfoLayer.textFrames;
 
+        if(batchReviewCheck.value && dateCheck.value) {
+            for(var i = 0; i < codeInfoFrames.length; i++) {
+                updateBatchReview();
+                updateDate();
+            }
+        } else if(batchReviewCheck.value) {
+            for(var i = 0; i < codeInfoFrames.length; i++) {
+                updateBatchReview();
+            }
+        } else if(dateCheck.value) {
+            for(var i = 0; i < codeInfoFrames.length; i++) {
+                updateDate();
+            }
+        }
+
+        //Re-lock Code and info layer
+        myDocument.layers.item("Code and info").locked = true;
+
+    }
 
     function updateBatchReview(){
         if(codeInfoFrames[i].label === "batchReviewInput") {
@@ -142,13 +148,4 @@ function main() {
             codeInfoFrames[i].contents = dateEditText.text;
         }
     }
-
-    // function writeLogFile(filesList){
-    //     var logFile = new File("~/Desktop/slugUpdateLog.txt");
-    //     logFile.encoding = "UTF-8";
-        
-    //     logFile.open("w");
-    //     logFile.write(filesList.join("\n"));
-    //     logFile.close();
-    // }
 }
