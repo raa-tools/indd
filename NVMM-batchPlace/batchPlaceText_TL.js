@@ -10,8 +10,8 @@ if(panelFolder === null || scriptFolder === null) {
     alert("No folder selected", "Nope");
     
 } else {
-    var panelFiles = panelFolder.getFiles();
-    var scriptFiles = scriptFolder.getFiles();
+    var panelFiles = panelFolder.getFiles("*.indd");
+    var scriptFiles = scriptFolder.getFiles("*.txt");
     
     app.clearOverridesWhenApplyingStyle = true;
 
@@ -20,7 +20,6 @@ if(panelFolder === null || scriptFolder === null) {
 
     for(var j = 0; j < panelFiles.length; j ++) {
         var panelCode = getNameFromPath(panelFiles[j]).split(".")[0];
-        var fileExt = getNameFromPath(panelFiles[j]).split(".")[1];
 
         var panel = {
             exhibit : panelCode.split("_")[0],
@@ -28,29 +27,28 @@ if(panelFolder === null || scriptFolder === null) {
             panel   : panelCode.split("_")[2]
         };
 
-        if(fileExt === "indd") {
-            var doc = app.open(panelFiles[j], false);
+        var doc = app.open(panelFiles[j], false);
+    
+        var textBoxes = doc.textFrames;
         
-            var textBoxes = doc.textFrames;
+        for(var i = 0; i < textBoxes.length; i++) {    
+            var objectStyle = textBoxes[i].appliedObjectStyle;
+
+            var story = {
+                code : textBoxes[i].label,
+                ext  : getScriptExt(objectStyle.name)
+            };             
+
+            var scriptFile = panel.exhibit + "_" + panel.topic + "_" + story.code + story.ext;
             
-            for(var i = 0; i < textBoxes.length; i++) {    
-                var objectStyle = textBoxes[i].appliedObjectStyle;
-
-                var story = {
-                    code : textBoxes[i].label,
-                    ext  : getScriptExt(objectStyle.name)
-                };             
-
-                var scriptFile = panel.exhibit + "_" + panel.topic + "_" + story.code + story.ext;
-                
-                if(story.code !== undefined && story.ext !== undefined && story.code !== "" && story.ext !== ""){
-                    placeText(i, panel.topic, scriptFile, objectStyle);
-                }
+            if(story.code !== undefined && story.ext !== undefined && story.code !== "" && story.ext !== ""){
+                placeText(i, panel.topic, scriptFile, objectStyle);
             }
-        
-            doc.save();
-            doc.close();
         }
+    
+        doc.save();
+        doc.close();
+        
     }
 }
 
