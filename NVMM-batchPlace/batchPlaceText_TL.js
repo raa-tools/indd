@@ -60,7 +60,7 @@ function getScriptExt(scriptLabel, objectStyleName){
         return ".txt";
     }
     
-    if(objectStyleName.indexOf("Title") !== -1 || objectStyleName.indexOf("Subtitle") !== -1) {
+    if((objectStyleName.indexOf("Title") || objectStyleName.indexOf("TItle")) !== -1) {
         return "-T.txt";
 
     } else if(objectStyleName.indexOf("Body") !== -1) {
