@@ -19,7 +19,9 @@ if(panelFolder === null || scriptFolder === null) {
     app.textImportPreferences.stripReturnsBetweenLines = true;
 
     for(var j = 0; j < panelFiles.length; j ++) {
-        var panelCode = getNameFromPath(panelFiles[j]).split(".")[0];
+        var doc = app.open(panelFiles[j], false);
+        // var panelCode = getNameFromPath(panelFiles[j]).split(".")[0];
+        var panelCode = doc.name.split(".")[0];
 
         var panel = {
             exhibit : panelCode.split("_")[0],
@@ -27,22 +29,23 @@ if(panelFolder === null || scriptFolder === null) {
             panel   : panelCode.split("_")[2]
         };
 
-        var doc = app.open(panelFiles[j], false);
-    
-        var textBoxes = doc.textFrames;
+        var textBoxes = doc.layers.item("TEXT").textFrames;
         
         for(var i = 0; i < textBoxes.length; i++) {    
             var objectStyle = textBoxes[i].appliedObjectStyle;
 
             var story = {
                 code : textBoxes[i].label,
-                ext  : getScriptExt(objectStyle.name)
+                ext  : getScriptExt(textBoxes[i].label, objectStyle.name)
             };             
 
             var scriptFile = panel.exhibit + "_" + panel.topic + "_" + story.code + story.ext;
             
-            if(story.code !== undefined && story.ext !== undefined && story.code !== "" && story.ext !== ""){
-                placeText(i, panel.topic, scriptFile, objectStyle);
+            if(story.code !== (undefined || "" ) && (story.ext !== undefined  || "")) {
+                // Excluding TT & WS for now
+                if((story.code.indexOf("TT") && story.code.indexOf("WS")) === -1) {
+                    placeText(i, scriptFile, objectStyle);
+                }
             }
         }
     
@@ -52,17 +55,21 @@ if(panelFolder === null || scriptFolder === null) {
     }
 }
 
-function getScriptExt(objectStyleName){
-    if(objectStyleName.indexOf("Title") !== -1) {
-        return "-T.txt"
+function getScriptExt(scriptLabel, objectStyleName){
+    if(scriptLabel === "TI01") {
+        return ".txt";
+    }
+    
+    if(objectStyleName.indexOf("Title") !== -1 || objectStyleName.indexOf("Subtitle") !== -1) {
+        return "-T.txt";
 
     } else if(objectStyleName.indexOf("Body") !== -1) {
-        return "-B.txt"
+        return "-B.txt";
     }
 }
 
-function placeText(index, topicFolder, inputFile, objectStyle){
+function placeText(index, inputFile, objectStyle){
     textBoxes[index].contents = "";
-    textBoxes[index].place(File(scriptFolder + "/" + topicFolder + "/" + inputFile));
+    textBoxes[index].place(File(scriptFolder + "/" + inputFile));
     textBoxes[index].applyObjectStyle(objectStyle, true);
 }
