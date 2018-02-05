@@ -59,13 +59,14 @@ function getScriptExt(scriptLabel, objectStyleName){
     if(scriptLabel === "TI01") {
         return ".txt";
     }
-    
-    if((objectStyleName.indexOf("Title") || objectStyleName.indexOf("TItle")) !== -1) {
+
+    if(objectStyleName.indexOf("Title") !== -1 || objectStyleName.indexOf("TItle") !== -1) {
         return "-T.txt";
 
     } else if(objectStyleName.indexOf("Body") !== -1) {
         return "-B.txt";
     }
+    
 }
 
 function placeText(index, inputFile, objectStyle){
