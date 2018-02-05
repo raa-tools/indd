@@ -108,7 +108,7 @@ function countTexts(frameX, objectStyle) {
 
 function getOtherLabel(objectStyle) {
     // Primary title
-    if(objectStyle === "Conflict TItle") {
+    if(objectStyle === "Conflict Subtitle") {
         return "TI01";
     
     // Other primary texts
