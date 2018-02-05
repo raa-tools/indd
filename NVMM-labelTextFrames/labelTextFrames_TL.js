@@ -107,16 +107,20 @@ function countTexts(frameX, objectStyle) {
 }
 
 function getOtherLabel(objectStyle) {
-    // Primary; not labelling title's textframe right now
-    if(objectStyle.indexOf("Conflict") !== -1 && objectStyle !== "Conflict TItle") {
-        return "PT01";
+    // Primary title
+    if(objectStyle === "Conflict TItle") {
+        return "TI01";
     
+    // Other primary texts
+    } else if(objectStyle.indexOf("Conflict") !== -1){
+        return "PT01";
+
     // Who Serve
     } else if(objectStyle === "Who Served") {
-        return "WS01"
+        return "WS01";
     }
 
-    return "no label"
+    return "no label";
 }
 
 function getSTLabel(frameX) {
