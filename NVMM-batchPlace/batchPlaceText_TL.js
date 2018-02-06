@@ -74,7 +74,7 @@ function placeText(index, inputFile, objectStyle){
         contents = "";
         place(File(scriptFolder + "/" + inputFile));
         applyObjectStyle(objectStyle, true);
-        parentStory.appliedCharacterStyle = doc.charactStyles.item("[None]");
+        parentStory.appliedCharacterStyle = doc.characterStyles.item("[None]");
         parentStory.clearOverrides();
     }
 }
