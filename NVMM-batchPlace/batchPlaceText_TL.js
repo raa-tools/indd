@@ -70,7 +70,11 @@ function getScriptExt(scriptLabel, objectStyleName){
 }
 
 function placeText(index, inputFile, objectStyle){
-    textBoxes[index].contents = "";
-    textBoxes[index].place(File(scriptFolder + "/" + inputFile));
-    textBoxes[index].applyObjectStyle(objectStyle, true);
+    with(textBoxes[index]) {
+        contents = "";
+        place(File(scriptFolder + "/" + inputFile));
+        applyObjectStyle(objectStyle, true);
+        parentStory.appliedCharacterStyle = doc.charactStyles.item("[None]");
+        parentStory.clearOverrides();
+    }
 }
