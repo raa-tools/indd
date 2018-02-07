@@ -10,11 +10,11 @@ try {
     
     // Declaring some global variables so we don't have to pass them
     // from function to function later
-    var panelST; var panelTT;
-    var totalST; var totalTT;
+    var panelCAP; var topRowCAP;
+    var totalCAP;
     
     main();
-    
+
 } catch (error) {
     if (error.name === "IOError") {
         alert("zFill function missing from /_lib/");
@@ -44,7 +44,7 @@ function main() {
         // Excluding some panels that aren't full TL panels
         if(panel.panel === "GP01c") {
             doc.close();
-            continue
+            continue;
         } 
         
         // Check if panel is within the same panel topic
@@ -56,7 +56,7 @@ function main() {
         }
     
         // Reset panel counters per file
-        panelCAP = 0; topCAP = 0;
+        panelCAP = 0; topRowCAP = 0;
         
         var textFrames = doc.layers.item("TEXT").textFrames;
     
@@ -64,7 +64,7 @@ function main() {
         // Has to be separated because the script has to "understand"
         // the panel before applying labels
         for(var z = 0; z < textFrames.length; z++) {
-            var frameY = Math.round(textFrames[j].geometricBounds[0]);
+            var frameY = Math.round(textFrames[z].geometricBounds[0]);
             var objectStyle = textFrames[z].appliedObjectStyle.name;
 
             if(objectStyle.indexOf("Captions") !== -1) {
@@ -96,34 +96,16 @@ function countTexts(frameY) {
         panelCAP++;
 
     if(frameY < 3000) {
-        topCAP++;
+        topRowCAP++;
     }
 }
-
-function getOtherLabel(objectStyle) {
-    // Primary title
-    if(objectStyle === "Conflict Subtitle") {
-        return "TI01";
-    
-    // Other primary texts
-    } else if(objectStyle.indexOf("Conflict") !== -1){
-        return "PT01";
-
-    // Who Serve
-    } else if(objectStyle === "Who Served") {
-        return "WS01";
-    }
-
-    return "no label";
-}
-
 
 function getCAPLabel(panelCode, frameX, frameY) {
-    if(panelCode.slice(-1)[0] === "b" || paneClode === "GP01") {
+    if(panelCode.slice(-1)[0] === "b" || panelCode === "GP01") {
         if(panelCAP === 2 && frameX < 1400) {
             return "CG" + zFill(totalCAP -1, 2);
         }
-        return "CG" + zFill(totalCAP);
+        return "CG" + zFill(totalCAP, 2);
     }
 
     if(panelCAP === 5) {
@@ -165,7 +147,7 @@ function getCAPLabel(panelCode, frameX, frameY) {
             return "CG" + zFill(totalCAP, 2);
         }
 
-    } else if(panelCAP === 3 && topCAP === 2) {
+    } else if(panelCAP === 3 && topRowCAP === 2) {
         if(frameY < 3000) {
             if(frameX < 720) {
                 return "CG" + zFill(totalCAP - 2, 2);
@@ -176,7 +158,7 @@ function getCAPLabel(panelCode, frameX, frameY) {
 
         return "CG" + zFill(totalCAP, 2);
     
-    } else if(panelCAP === 3 && topCAP === 1) {
+    } else if(panelCAP === 3 && topRowCAP === 1) {
         if(frameY < 3000) {
             return "CG" + zFill(totalCAP - 2, 2);
         
