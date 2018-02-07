@@ -67,7 +67,9 @@ function main() {
             var frameY = Math.round(textFrames[j].geometricBounds[0]);
             var objectStyle = textFrames[z].appliedObjectStyle.name;
 
-            countTexts(frameY, objectStyle);
+            if(objectStyle.indexOf("Captions") !== -1) {
+                countTexts(frameY)
+            }
         }
 
         // Label
@@ -89,11 +91,9 @@ function main() {
 // Checks how many STs & TTs there are by counting titles
 // (there's always 1 title per group)
 // Tracking total count for sequencing; panel count for labeling
-function countTexts(frameY, objectStyle) {
-    if(objectStyle.indexOf("Captions") !== -1) {
+function countTexts(frameY) {
         totalCAP++;
         panelCAP++;
-    }
 
     if(frameY < 3000) {
         topCAP++;
