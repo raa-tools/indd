@@ -30,13 +30,17 @@ if(panelFolder === null || scriptFolder === null) {
         for(var i = 0; i < textBoxes.length; i++) {    
             var objectStyle = textBoxes[i].appliedObjectStyle;
             
-            if(textBoxes[i].label === "caption") {
+            if(objectStyle.name.indexOf("Captions") !== -1) {
     
                 var scriptFileName = panel.exhibit + "_" + panel.topic + "_" + textBoxes[i].label + ".txt";
                 
-                textBoxes[i].contents = "";
-                textBoxes[i].place(File(scriptFolder + "/" + scriptFileName));
-                textBoxes[i].applyObjectStyle(objectStyle, true);
+                with(textBoxes[i]) {
+                    contents = "";
+                    place(File(scriptFolder + "/" + scriptFileName));
+                    applyObjectStyle(objectStyle, true);
+                    parentStory.appliedCharacterStyle = doc.characterStyles.item("[None]");
+                    parentStory.clearOverrides();
+                }
             }
         }
     
