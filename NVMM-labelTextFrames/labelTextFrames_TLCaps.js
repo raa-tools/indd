@@ -12,6 +12,8 @@ try {
     // from function to function later
     var panelCAP; var topRowCAP;
     var totalCAP;
+
+    var captionsCodeList = [];
     
     main();
 
@@ -80,12 +82,14 @@ function main() {
             
             if (objectStyle.indexOf("Captions") !== -1) {
                 textFrames[j].label = getCAPLabel(panel.panel, frameX, frameY);
+                captionsCodeList.push(panel.exhibit + "_" + panel.topic + "_" + textFrames[j].label);
             } 
         }
     
         doc.save();
         doc.close();
     }
+    $.writeln(captionsCodeList);
 }
 
 // Checks how many STs & TTs there are by counting titles
