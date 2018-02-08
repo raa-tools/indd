@@ -42,8 +42,8 @@ if(panelFolder === null || scriptFolder === null) {
             var scriptFile = panel.exhibit + "_" + panel.topic + "_" + story.code + story.ext;
             
             if(story.code !== (undefined || "" ) && (story.ext !== undefined  || "")) {
-                // Excluding TT & WS for now
-                if((story.code.indexOf("TT") && story.code.indexOf("WS")) === -1) {
+                // Only doing Who Served
+                if(story.code.indexOf("WS") !== -1) {
                     placeText(i, scriptFile, objectStyle);
                 }
             }
@@ -58,6 +58,9 @@ if(panelFolder === null || scriptFolder === null) {
 function getScriptExt(scriptLabel, objectStyleName){
     if(scriptLabel === "TI01") {
         return ".txt";
+    
+    } else if(scriptLabel === "WS01") {
+        return "-B.txt"
     }
 
     if(objectStyleName.indexOf("Title") !== -1 || objectStyleName.indexOf("TItle") !== -1) {
