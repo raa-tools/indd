@@ -124,7 +124,7 @@ function dialogSetup() {
         }
     }
 
-    notesEditText = inputRow4.add("edittext", [0, 0, 155, 100], "", {multiline: true, scrolling: true});
+    notesEditText = inputRow4.add("edittext", [0, 0, 155, 100], "", {multiline: true, scrolling: true}); // Feat to add later: wantReturn: true
     notesEditText.enabled = false;
 
     // Buttons
