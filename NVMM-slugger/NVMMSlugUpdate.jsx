@@ -45,10 +45,13 @@ function dialogSetup() {
         if(batchReviewCheck.value) {
             batchEditText.enabled = true;
             reviewEditText.enabled = true;
+            fabCheck.enabled = true;
         
         } else {
             batchEditText.enabled = false;
             reviewEditText.enabled = false;
+            fabCheck.enabled = false;
+            fabCheck.value = false;
         }
     };
 
@@ -57,11 +60,36 @@ function dialogSetup() {
     var reviewStaticText = inputRow1.add('statictext {text: "Review:", size: [55, 25], alignment: "bottom", justify: "right"}');
     reviewEditText = inputRow1.add('edittext {text: "1", size: [40, 27], enabled: false}');
 
+
     // Row 2
-    var inputRow2 = myWindow.add('group {alignment: "left"}');
+    var inputRow2 = myWindow.add("group {alignment: 'left'}");
+
+    // TO FABRICATOR
+    fabCheck = inputRow2.add("checkbox {size: [65, 15], text: '\u00A0FAB:'}");
+    fabCheck.enabled = false;
+    fabCheck.onClick = function() {
+        if(fabCheck.value) {
+            fabEditText.enabled = true;
+            reviewEditText.enabled = false;
+            reviewEditText.text = "";
+        
+        } else {
+            fabEditText.enabled = false;
+            fabEditText.text = "";
+            reviewEditText.enabled = true;
+            reviewEditText.text = "1";
+        }
+    }
+
+    fabEditText = inputRow2.add("edittext {size: [155, 25]}");
+    fabEditText.enabled = false;    
+
+
+    // Row 3
+    var inputRow3 = myWindow.add('group {alignment: "left"}');
 
     // Date
-    dateCheck = inputRow2.add("checkbox {size: [60, 15], text: '\u00A0Date:'}");
+    dateCheck = inputRow3.add("checkbox {size: [60, 15], text: '\u00A0Date:'}");
     dateCheck.onClick = function() {
         if(dateCheck.value) {
             dateEditText.enabled = true;
@@ -71,7 +99,7 @@ function dialogSetup() {
         }
     }
 
-    dateEditText = inputRow2.add("edittext {size: [155, 27], enabled: false}");
+    dateEditText = inputRow3.add("edittext {size: [155, 27], enabled: false}");
     dateEditText.text = today;
     
     // Buttons
@@ -139,7 +167,12 @@ function main() {
 
     function updateBatchReview(){
         if(codeInfoFrames[i].label === "batchReviewInput") {
-            codeInfoFrames[i].contents = "Batch " + batchEditText.text + " - " + "Review " + reviewEditText.text;
+            if(!fabCheck.value) {
+                codeInfoFrames[i].contents = "Batch " + batchEditText.text + " - " + "Review " + reviewEditText.text;
+                
+            } else {
+                codeInfoFrames[i].contents = "Batch " + batchEditText.text + " - " + "TO " + fabEditText.text.toUpperCase();
+            }
         }
     }
 

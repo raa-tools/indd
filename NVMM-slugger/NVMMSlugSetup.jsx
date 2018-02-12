@@ -34,6 +34,7 @@ FONT = {
 try{
     // These are declared here so they can be used by dialogSetup()
     var myWindow; var batchEditText; var reviewEditText; var dateEditText;
+    var fabCheck;
     var notesCheck; var notesEditText;
     var alreadyRun;
     
@@ -78,19 +79,41 @@ function dialogSetup() {
 
 
     // Row 2
-    var inputRow2 = myWindow.add('group {alignment: "left"}');
+    var inputRow2 = myWindow.add("group {alignment: 'left'}");
 
-    // Date
-    var dateStaticText = inputRow2.add("statictext {text: 'Date:', size: [65, 24], alignment: 'bottom', justify: 'left'}");
-    dateEditText = inputRow2.add("edittext {size: [155, 25]}");
-    dateEditText.text = today;
-    
+    // TO FABRICATOR
+    fabCheck = inputRow2.add("checkbox {size: [65, 15], text: '\u00A0FAB:'}");
+    fabCheck.onClick = function() {
+        if(fabCheck.value) {
+            fabEditText.enabled = true;
+            reviewEditText.enabled = false;
+            reviewEditText.text = "";
+        
+        } else {
+            fabEditText.enabled = false;
+            fabEditText.text = "";
+            reviewEditText.enabled = true;
+            reviewEditText.text = "1";
+        }
+    }
+
+    fabEditText = inputRow2.add("edittext {size: [155, 25]}");
+    fabEditText.enabled = false;
 
     // Row 3
-    var inputRow3 = myWindow.add("group {alignment: 'left'}");
+    var inputRow3 = myWindow.add('group {alignment: "left"}');
+
+    // Date
+    var dateStaticText = inputRow3.add("statictext {text: 'Date:', size: [65, 24], alignment: 'bottom', justify: 'left'}");
+    dateEditText = inputRow3.add("edittext {size: [155, 25]}");
+    dateEditText.text = today;
+
+
+    // Row 4
+    var inputRow4 = myWindow.add("group {alignment: 'left'}");
 
     // Notes
-    notesCheck = inputRow3.add("checkbox {size: [65, 15], text: '\u00A0Notes:'}");
+    notesCheck = inputRow4.add("checkbox {size: [65, 15], text: '\u00A0Notes:'}");
     notesCheck.onClick = function() {
         if(notesCheck.value) {
             notesEditText.enabled = true;
@@ -101,7 +124,7 @@ function dialogSetup() {
         }
     }
 
-    notesEditText = inputRow3.add("edittext", [0, 0, 155, 100], "", {multiline: true, scrolling: true});
+    notesEditText = inputRow4.add("edittext", [0, 0, 155, 100], "", {multiline: true, scrolling: true});
     notesEditText.enabled = false;
 
     // Buttons
@@ -370,9 +393,9 @@ function main() {
         }
 
         
-        ////// ////// ////// ////// //////  ////// ////// ////// ////// ////// ////// 
-        ////// ////// ////// //// —  THE END IS NIGH   —  //// ////// ////// //////
-        ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
+        ////// ////// ////// ////// ////// /////// ////// ////// ////// ////// ////// 
+        ////// ////// ////// ////   —  THE END IS NIGH  —   //// ////// ////// //////
+        ////// ////// ////// ////// ////// /////// ////// ////// ////// ////// //////
     
         //Re-lock Code and info layer
         codeInfoLayer.locked = true;
@@ -397,7 +420,12 @@ function main() {
             textFrame.textVariableInstances.add({associatedTextVariable:varDims});
     
         } else if(labelName === "batchReviewInput"){
-            textFrame.contents = "Batch " + batchEditText.text + " - " + "Review " + reviewEditText.text;
+            if(!fabCheck.value) {
+                textFrame.contents = "Batch " + batchEditText.text + " - " + "Review " + reviewEditText.text;
+            
+            } else {
+                textFrame.contents = "Batch " + batchEditText.text + " - " + "TO " + fabEditText.text.toUpperCase();
+            }
         
         } else if(labelName === "dateInput"){
             textFrame.contents = dateEditText.text;
