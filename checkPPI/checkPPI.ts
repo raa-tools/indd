@@ -19,6 +19,7 @@ function getImages(allGraphics) {
     return imgArray;
 }
 
+
 function checkPPI(image, threshold: number, logFunc) {
     let xPPI = image.effectivePpi[0];
     let yPPI = image.effectivePpi[1];
