@@ -1,5 +1,8 @@
 #target "InDesign-8.0";
 
+var SPEEDFACTORTOGGLE = 1;
+var SPEEDFACTORSWITCH = 1;
+
 function setView(zoomFit, viewMode) {
   app.layoutWindows[0].zoom(zoomFit);
   app.layoutWindows[0].screenMode = viewMode;
@@ -18,9 +21,9 @@ function switchLayers(layerCollection) {
     if(layerCollection[i].visible) continue;
 
     layerCollection[i].visible = true;
-    $.sleep(1000);
+    $.sleep(1000 * SPEEDFACTORSWITCH);
     layerCollection[i].visible = false;
-    $.sleep(250);
+    $.sleep(250 * SPEEDFACTORSWITCH);
   }
 }
 
@@ -33,15 +36,15 @@ try {
     var layers = doc.layers;
 
     setView(ZoomOptions.FIT_PAGE, ScreenModeOptions.PREVIEW_TO_BLEED);
-    $.sleep(2000);
+    $.sleep(2000 * SPEEDFACTORTOGGLE);
     toggleLayerVisibility(layers, false);
-    $.sleep(500);
+    $.sleep(500 * SPEEDFACTORTOGGLE);
     switchLayers(layers);
-    $.sleep(250);
+    $.sleep(250 * SPEEDFACTORTOGGLE);
     toggleLayerVisibility(layers, true);
     
     setView(ZoomOptions.FIT_PAGE, ScreenModeOptions.PREVIEW_TO_PAGE);
-    $.sleep(2000);
+    $.sleep(2000 * SPEEDFACTORTOGGLE);
     doc.close(SaveOptions.NO);
   }  
 } catch (e) {
