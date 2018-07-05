@@ -132,7 +132,7 @@ function dialogSetup() {
     var inputRow5 = myWindow.add("group {alignment: 'left'}");
 
     var sizeStaticText = inputRow5.add("statictext {text: 'Panel size:', size: [65, 13], alignment: 'top', justify: 'left'}");
-    sizeRadioRegular = inputRow5.add("radiobutton{size: [65, 20], text: '\u00A0Regular'}");
+    sizeRadioRegular = inputRow5.add("radiobutton{size: [75, 20], text: '\u00A0Regular'}");
     sizeRadioSmall = inputRow5.add("radiobutton{size: [65, 20], text: '\u00A0Small'}");
 
     sizeRadioRegular.value = true;
@@ -444,7 +444,8 @@ function main() {
 
     function layoutTextSmall() {
         var pageHeight = myDocument.documentPreferences.pageHeight;
-        $.writeln(pageHeight)
+        var pageWidth = myDocument.documentPreferences.pageWidth;
+        
         var counter = 0;
         var maxRow = notesCheck.value ? 5 : 4;
 
@@ -462,7 +463,7 @@ function main() {
           var titleBox = myPage.textFrames.add({geometricBounds: [titleBoxY, titleBoxX, titleBoxY + titleBoxData.height, titleBoxX + titleBoxData.width]});
           titleBoxSetup(titleBox, titleBoxData[counter]);
 
-          var inputBox = myPage.textFrames.add({geometricBounds: [inputBoxY, inputBoxX, inputBoxY + inputBoxData.height, inputBoxX + inputBoxData.width]});
+          var inputBox = myPage.textFrames.add({geometricBounds: [inputBoxY, inputBoxX, inputBoxY + inputBoxData.height, inputBoxX + pageWidth - 77]});
           inputBoxSetup(inputBox, inputBoxData[counter]);
 
           counter++;
