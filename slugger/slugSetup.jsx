@@ -162,7 +162,7 @@ function main() {
         //Doc setup
         var myPage = app.activeWindow.activePage;
 
-        var bottomSlug = (sizeRadioSmall.value && notesCheck.value) ? SLUGDIM * 1.5 : SLUGDIM;
+        var bottomSlug = (sizeRadioSmall.value && notesCheck.value) ? SLUGDIM * 1.75 : SLUGDIM;
 
         app.scriptPreferences.measurementUnit = MeasurementUnits.inches;
         var pageWidth = Math.round(1000*myDocument.documentPreferences.pageWidth)/1000; 
@@ -341,7 +341,7 @@ function main() {
 
         for(var z = 0; z < codeInfoFrames.length; z++) {
             codeInfoFrames[z].appliedObjectStyle = myDocument.objectStyles.item("[None]");
-            codeInfoFrames[z].textFramePreferences.verticalJustification = VerticalJustification.BOTTOM_ALIGN;
+            codeInfoFrames[z].textFramePreferences.verticalJustification = VerticalJustification.TOP_ALIGN;
 
             if(codeInfoFrames[z].label === "codeInput") {
                 var frameStory = codeInfoFrames[z].parentStory;
@@ -415,10 +415,11 @@ function main() {
             var titleBoxX = 454 * col;
             var inputBoxX = titleBoxX + 113;
             
+            var titleBoxY; var inputBoxY
             if(col < 2) {
                 for(var row = 0; row < 2; row++) {
-                    titleBoxY = 54 * row - 125;
-                    inputBoxY = titleBoxY - 15;
+                    titleBoxY = 54 * row - 115;
+                    inputBoxY = titleBoxY - 14;
 
                     var titleBox = myPage.textFrames.add({geometricBounds: [titleBoxY, titleBoxX, titleBoxY + titleBoxData.height, titleBoxX + titleBoxData.width]});
                     titleBoxSetup(titleBox, titleBoxData[counter]);
@@ -430,8 +431,8 @@ function main() {
                 }
             
             } else {
-                var titleBoxY = -125;
-                var inputBoxY = titleBoxY - 15;
+                titleBoxY = -125;
+                inputBoxY = titleBoxY - 14;
 
                 var titleBox = myPage.textFrames.add({geometricBounds: [titleBoxY, titleBoxX, titleBoxY + titleBoxData.height, titleBoxX + titleBoxData.width]});
                 titleBoxSetup(titleBox, titleBoxData[counter]);
@@ -452,18 +453,26 @@ function main() {
         var titleBoxX = 0;
         var inputBoxX = titleBoxX + 113;
 
+        var titleBoxY; var inputBoxY;
+
         for(var row = 0; row < maxRow; row++) {
           if(row < 2) {
-            titleBoxY = 54 * row - 125;
-            inputBoxY = titleBoxY - 15;
+            titleBoxY = 54 * row - 115;
+            inputBoxY = titleBoxY - 14;
           } else {
             titleBoxY = pageHeight + (54 * row - 125) + 68;
-            inputBoxY = titleBoxY - 15;
+            inputBoxY = titleBoxY - 14;
           }
           var titleBox = myPage.textFrames.add({geometricBounds: [titleBoxY, titleBoxX, titleBoxY + titleBoxData.height, titleBoxX + titleBoxData.width]});
           titleBoxSetup(titleBox, titleBoxData[counter]);
 
-          var inputBox = myPage.textFrames.add({geometricBounds: [inputBoxY, inputBoxX, inputBoxY + inputBoxData.height, inputBoxX + pageWidth - 77]});
+          var inputBox;
+          if(row < 4) {
+            inputBox = myPage.textFrames.add({geometricBounds: [inputBoxY, inputBoxX, inputBoxY + inputBoxData.height, inputBoxX + pageWidth - 77]});
+          } else {
+            inputBox = myPage.textFrames.add({geometricBounds: [inputBoxY, inputBoxX, inputBoxY + inputBoxData.height * 2, inputBoxX + pageWidth - 77]});
+          }
+
           inputBoxSetup(inputBox, inputBoxData[counter]);
 
           counter++;
