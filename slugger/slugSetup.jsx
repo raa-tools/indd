@@ -125,7 +125,7 @@ function dialogSetup() {
         }
     }
 
-    notesEditText = inputRow4.add("edittext", [0, 0, 155, 100], "", {multiline: true, scrolling: true}); // Feat to add later: wantReturn: true
+    notesEditText = inputRow4.add("edittext", [0, 0, 155, 100], "", {multiline: true, scrolling: true, wantReturn: true});
     notesEditText.enabled = false;
 
     // Row 5
@@ -174,6 +174,10 @@ function main() {
         //Reset the Zero Point/Ruler to top left corner
         myDocument.zeroPoint = [0,0];
     
+        myDocument.documentPreferences.properties = {
+          documentSlugUniformSize : false
+        };
+
         //Set bleed and slug dims
         myDocument.documentPreferences.properties = {
             documentBleedBottomOffset : BLEEDDIM ,
@@ -254,6 +258,7 @@ function main() {
             appliedFont = app.fonts.itemByName(FONT.FAMILY);
             fontStyle = FONT.WEIGHT1;
             pointSize = 32;
+            leading = 33;
             tracking = 0;
             capitalization = Capitalization.normal;
             fillTint = 100;
@@ -283,6 +288,7 @@ function main() {
             appliedFont = app.fonts.itemByName(FONT.FAMILY);
             fontStyle = FONT.WEIGHT2;
             pointSize = 32;
+            leading = 33;
             fillColor = myDocument.colors.item("Black");
             capitalization = Capitalization.allCaps;
     
@@ -431,15 +437,15 @@ function main() {
                 }
             
             } else {
-                titleBoxY = -125;
+                titleBoxY = -115;
                 inputBoxY = titleBoxY - 14;
 
                 var titleBox = myPage.textFrames.add({geometricBounds: [titleBoxY, titleBoxX, titleBoxY + titleBoxData.height, titleBoxX + titleBoxData.width]});
                 titleBoxSetup(titleBox, titleBoxData[counter]);
 
-                var inputBox = myPage.textFrames.add({geometricBounds: [inputBoxY, inputBoxX, inputBoxY + inputBoxData.height, myDocument.documentPreferences.pageWidth]});
+                var inputBox = myPage.textFrames.add({geometricBounds: [inputBoxY, inputBoxX, inputBoxY + 89, myDocument.documentPreferences.pageWidth]});
                 inputBoxSetup(inputBox, inputBoxData[counter]);
-            }
+            } 
         }    
     }
 
@@ -470,7 +476,7 @@ function main() {
           if(row < 4) {
             inputBox = myPage.textFrames.add({geometricBounds: [inputBoxY, inputBoxX, inputBoxY + inputBoxData.height, inputBoxX + pageWidth - 77]});
           } else {
-            inputBox = myPage.textFrames.add({geometricBounds: [inputBoxY, inputBoxX, inputBoxY + inputBoxData.height * 2, inputBoxX + pageWidth - 77]});
+            inputBox = myPage.textFrames.add({geometricBounds: [inputBoxY, inputBoxX, inputBoxY + 89, inputBoxX + pageWidth - 77]});
           }
 
           inputBoxSetup(inputBox, inputBoxData[counter]);
