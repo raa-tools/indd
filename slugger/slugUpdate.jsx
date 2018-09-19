@@ -128,7 +128,9 @@ function main() {
         try {
             // Global variables from roadRunner
             MISSINGLAYER = true;
-            BADFILESLIST.push(myDocument.name.split(".")[0]);
+            BADFILESLIST.push(myDocument.name.split(".")
+              .pop()
+              .join("."));
 
         } catch(error) {
             // The block above will throw a ReferenceError because 
