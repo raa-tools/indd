@@ -128,16 +128,14 @@ function main() {
         try {
             // Global variables from roadRunner
             MISSINGLAYER = true;
-            BADFILESLIST.push(myDocument.name.split(".")
-              .pop()
-              .join("."));
+            BADFILESLIST.push(myDocument.name.replace(".indd", ""));
 
         } catch(error) {
             // The block above will throw a ReferenceError because 
             // the global variables are declared in roadRuner
-            if(error.name === "ReferenceError") {
-                alert('"Code and info" layer missing');
-            }
+            // if(error.name === "ReferenceError") {
+            //     alert('"Code and info" layer missing');
+            // }
         }
         
         
