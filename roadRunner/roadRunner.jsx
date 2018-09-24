@@ -45,7 +45,7 @@ function main() {
       if(MISSINGLAYER) writeLogFile(BADFILESLIST);
     }
 
-    if(BADFILESLIST) {
+    if(BADFILESLIST.length > 0) {
       alert('"Code and info" layer missing from files\r See roadRunnerLog.txt on Desktop.');
     }
 }
