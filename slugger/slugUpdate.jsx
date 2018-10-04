@@ -1,30 +1,45 @@
 ﻿#target InDesign
 
 try{
-    // These are declared here so they can be used by dialogSetup()
-    var myWindow; var batchEditText; var reviewEditText; var dateEditText;
-    var batchReviewCheck; var dateCheck;
-    var alreadyRun;
+  // These are declared here so they can be used by dialogSetup()
+  var myWindow; var batchEditText; var reviewEditText; var dateEditText;
+  var batchReviewCheck; var dateCheck;
+  var alreadyRun;
 
-    // A little control flow to make sure the UI window doesn't pop up
-    // for every panel file when this script is run by roadRunner
-    if(!alreadyRun) {
-        alreadyRun = true;
-        dialogSetup();
-        
-        // Make sure at least one checkbox is true
-        if(myWindow.show() && (batchReviewCheck.value || dateCheck.value)) {
-            main();
-    
-        } else {
-            alert("No updates made!\r Select something to update.");
-            app.dialogs.everyItem().destroy()
-        }
-    
+  // Run on open file
+  if(app.documents.length !== 0) {
+    var singleDoc = app.activeDocument;
+    dialogSetup();
+
+    // Make sure at least one checkbox is true
+    if(myWindow.show() && (batchReviewCheck.value || dateCheck.value)) {
+      main(singleDoc);
     } else {
-        main();
+        alert("No updates made!\r Select something to update.");
+        app.dialogs.everyItem().destroy()
     }
-    
+
+  // or pick a folder
+  } else {
+    var panelFolder = Folder.selectDialog("Pick panels");
+    var panelFiles = panelFolder.getFiles("*.indd");
+
+    dialogSetup();
+
+    if(myWindow.show() && (batchReviewCheck.value || dateCheck.value)) {
+      for(var i = 0; i < panelFiles.length; i++) {
+        var panelFile = app.open(panelFiles[i])
+        
+        main(panelFile);
+        panelFile.save();
+        panelFile.close();
+      }
+    } else {
+        alert("No updates made!\r Select something to update.");
+        app.dialogs.everyItem().destroy()
+    }
+
+  }
     
 } catch(error) {
     alert(error);
@@ -117,9 +132,9 @@ function dialogSetup() {
 }
 
 
-function main() {
-    var myDocument = app.activeDocument;
-    var codeInfoLayer = myDocument.layers.item("Code and info");
+function main(docToUpdate) {
+        
+    var codeInfoLayer = docToUpdate.layers.item("Code and info");
 
     // Log files that have missing "Code and info" layer
     // and continue to next file in the loop
@@ -128,7 +143,7 @@ function main() {
         try {
             // Global variables from roadRunner
             MISSINGLAYER = true;
-            BADFILESLIST.push(myDocument.name.replace(".indd", ""));
+            BADFILESLIST.push(docToUpdate.name.replace(".indd", ""));
 
         } catch(error) {
             // The block above will throw a ReferenceError because 
@@ -141,7 +156,7 @@ function main() {
         
     } else {
         codeInfoLayer.locked = false;
-        codeInfoLayer.move(LocationOptions.BEFORE, myDocument.layers[0]);
+        codeInfoLayer.move(LocationOptions.BEFORE, docToUpdate.layers[0]);
         
         var codeInfoFrames = codeInfoLayer.textFrames;
 
@@ -161,7 +176,7 @@ function main() {
         }
 
         //Re-lock Code and info layer
-        myDocument.layers.item("Code and info").locked = true;
+        docToUpdate.layers.item("Code and info").locked = true;
 
     }
 
