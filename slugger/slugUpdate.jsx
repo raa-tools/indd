@@ -49,13 +49,10 @@ try{
         alert("No updates made!\r Select something to update.");
         app.dialogs.everyItem().destroy()
     }
-
   }
-    
 } catch(error) {
     alert(error);
 }
-
 
 function dialogSetup() {
     var today = getTodaysDate();
@@ -141,7 +138,6 @@ function dialogSetup() {
         return monthNames[timeStamp.getMonth()] + " " + timeStamp.getDate() + ", " + timeStamp.getFullYear();
     }
 }
-
 
 function main(docToUpdate) {
   var codeInfoLayer = docToUpdate.layers.item("Code and info");
