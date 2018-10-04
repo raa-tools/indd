@@ -55,88 +55,86 @@ try{
 }
 
 function dialogSetup() {
-    var today = getTodaysDate();
+  var today = getTodaysDate();
 
-    myWindow = new Window("dialog", "Panels are CHILL");
-    
-    // Row 1
-    var inputRow1 = myWindow.add("group {alignment: 'left'}");
-    
-    // Batch & Review
-    batchReviewCheck = inputRow1.add("checkbox {size: [60, 15], text: '\u00A0Batch:'}");
-    batchReviewCheck.onClick = function() {
-        if(batchReviewCheck.value) {
-            batchEditText.enabled = true;
-            reviewEditText.enabled = true;
-            fabCheck.enabled = true;
-        
-        } else {
-            batchEditText.enabled = false;
-            reviewEditText.enabled = false;
-            fabCheck.enabled = false;
-            fabCheck.value = false;
-        }
-    };
-
-    batchEditText = inputRow1.add('edittext {text: "1", size: [40, 27], enabled: false}');
-    
-    var reviewStaticText = inputRow1.add('statictext {text: "Review:", size: [55, 25], alignment: "bottom", justify: "right"}');
-    reviewEditText = inputRow1.add('edittext {text: "1", size: [40, 27], enabled: false}');
-
-
-    // Row 2
-    var inputRow2 = myWindow.add("group {alignment: 'left'}");
-
-    // TO FABRICATOR
-    fabCheck = inputRow2.add("checkbox {size: [65, 15], text: '\u00A0FAB:'}");
-    fabCheck.enabled = false;
-    fabCheck.onClick = function() {
-        if(fabCheck.value) {
-            fabEditText.enabled = true;
-            reviewEditText.enabled = false;
-            reviewEditText.text = "";
-        
-        } else {
-            fabEditText.enabled = false;
-            fabEditText.text = "";
-            reviewEditText.enabled = true;
-            reviewEditText.text = "1";
-        }
+  myWindow = new Window("dialog", "Panels are CHILL");
+  
+  // Row 1
+  var inputRow1 = myWindow.add("group {alignment: 'left'}");
+  
+  // Batch & Review
+  batchReviewCheck = inputRow1.add("checkbox {size: [60, 15], text: '\u00A0Batch:'}");
+  batchReviewCheck.onClick = function() {
+    if(batchReviewCheck.value) {
+      batchEditText.enabled = true;
+      reviewEditText.enabled = true;
+      fabCheck.enabled = true;
+    } else {
+      batchEditText.enabled = false;
+      reviewEditText.enabled = false;
+      fabCheck.enabled = false;
+      fabCheck.value = false;
     }
+  };
 
-    fabEditText = inputRow2.add("edittext {size: [155, 25]}");
-    fabEditText.enabled = false;    
+  batchEditText = inputRow1.add('edittext {text: "1", size: [40, 27], enabled: false}');
+  
+  var reviewStaticText = inputRow1.add('statictext {text: "Review:", size: [55, 25], alignment: "bottom", justify: "right"}');
+  reviewEditText = inputRow1.add('edittext {text: "1", size: [40, 27], enabled: false}');
 
 
-    // Row 3
-    var inputRow3 = myWindow.add('group {alignment: "left"}');
+  // Row 2
+  var inputRow2 = myWindow.add("group {alignment: 'left'}");
 
-    // Date
-    dateCheck = inputRow3.add("checkbox {size: [60, 15], text: '\u00A0Date:'}");
-    dateCheck.onClick = function() {
-        if(dateCheck.value) {
-            dateEditText.enabled = true;
-        
-        } else {
-            dateEditText.enabled = false;
-        }
+  // TO FABRICATOR
+  fabCheck = inputRow2.add("checkbox {size: [65, 15], text: '\u00A0FAB:'}");
+  fabCheck.enabled = false;
+  fabCheck.onClick = function() {
+    if(fabCheck.value) {
+      fabEditText.enabled = true;
+      reviewEditText.enabled = false;
+      reviewEditText.text = "";
+    } else {
+      fabEditText.enabled = false;
+      fabEditText.text = "";
+      reviewEditText.enabled = true;
+      reviewEditText.text = "1";
     }
+  }
 
-    dateEditText = inputRow3.add("edittext {size: [155, 27], enabled: false}");
-    dateEditText.text = today;
+  fabEditText = inputRow2.add("edittext {size: [155, 25]}");
+  fabEditText.enabled = false;    
+
+
+  // Row 3
+  var inputRow3 = myWindow.add('group {alignment: "left"}');
+
+  // Date
+  dateCheck = inputRow3.add("checkbox {size: [60, 15], text: '\u00A0Date:'}");
+  dateCheck.onClick = function() {
+    if(dateCheck.value) {
+      dateEditText.enabled = true;
     
-    // Buttons
-    var buttonGroup = myWindow.add("group {alignment: 'right'}");
-    buttonGroup.add ("button", undefined, "OK");
-    buttonGroup.add ("button", undefined, "Cancel");
-
-
-    function getTodaysDate() {
-        var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];    
-        var timeStamp = new Date();
-    
-        return monthNames[timeStamp.getMonth()] + " " + timeStamp.getDate() + ", " + timeStamp.getFullYear();
+    } else {
+      dateEditText.enabled = false;
     }
+  }
+
+  dateEditText = inputRow3.add("edittext {size: [155, 27], enabled: false}");
+  dateEditText.text = today;
+  
+  // Buttons
+  var buttonGroup = myWindow.add("group {alignment: 'right'}");
+  buttonGroup.add ("button", undefined, "OK");
+  buttonGroup.add ("button", undefined, "Cancel");
+
+
+  function getTodaysDate() {
+    var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];    
+    var timeStamp = new Date();
+
+    return monthNames[timeStamp.getMonth()] + " " + timeStamp.getDate() + ", " + timeStamp.getFullYear();
+  }
 }
 
 function main(docToUpdate) {
