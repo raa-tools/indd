@@ -17,8 +17,8 @@ try{
     if(myWindow.show() && (batchReviewCheck.value || dateCheck.value)) {
       main(singleDoc);
     } else {
-        alert("No updates made!\r Select something to update.");
-        app.dialogs.everyItem().destroy()
+      alert("No updates made!\r Select something to update.");
+      app.dialogs.everyItem().destroy()
     }
 
   // or pick a folder
