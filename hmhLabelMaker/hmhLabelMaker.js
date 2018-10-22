@@ -181,8 +181,6 @@ function fillContent(contentFrame) {
     }
     contentFrame.textColumns[0].duplicate(LocationOptions.AT_END);
   }
-
-  // Remove last col break (unnecessary)
 }
 
 function extendTextFrame(containingDoc) {
@@ -191,6 +189,11 @@ function extendTextFrame(containingDoc) {
 
   fillContent(frameToDupe)
   frameToDupe.textFramePreferences.textColumnCount = LABEL.cols
+
+  // Delete last col break
+  if(frameToDupe.characters.lastItem().contents === SpecialCharacters.COLUMN_BREAK) {
+    frameToDupe.characters.lastItem().remove();
+  }
 }
 
 function resizeBackground(containingDoc) {
