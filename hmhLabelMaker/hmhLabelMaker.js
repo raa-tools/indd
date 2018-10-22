@@ -128,14 +128,6 @@ function findFrameWithLabel(allFrames, labelToMatch) {
 function getNumberOfCurrentCols(textFrame) {
   return textFrame.textColumns.length
 }
-
-function duplicateContent(contentFrame) {
-  var contentCopy = contentFrame.contents
-  for(var col = getNumberOfCurrentCols(contentFrame); col < LABEL.cols; col++) {
-    contentFrame.parentStory.insertionPoints.item(-1).contents = SpecialCharacters.COLUMN_BREAK
-    contentFrame.parentStory.insertionPoints.item(-1).contents = contentCopy
-  }
-}
 // END HELPERS
 
 // MAIN FUNCTIONS
@@ -172,15 +164,37 @@ function duplicateTextFrame(containingDoc) {
   }
 }
 
+function fillContent(contentFrame) {
+  var numOfCurrentCols = getNumberOfCurrentCols(contentFrame)
+  
+  // Clear all cols but the first one, starting from the back
+  // otherwise indexing doesn't work properly
+  for(var i = numOfCurrentCols - 1; i > 0; i--) {
+    contentFrame.textColumns[i].remove();
+  }
+
+  // Check if the last character of the first column is a col break
+  // and remove that character (so we're back to a single)
+  if(contentFrame.textColumns[0].characters.lastItem().contents === SpecialCharacters.COLUMN_BREAK) {
+    contentFrame.textColumns[0].characters.lastItem().remove();
+  }
+
+  var contentCopy = contentFrame.textColumns[0].contents // Save now so it's without col break
+
+  // Refill all cols with col break + copied content (from 1st col)
+  for(var col = 1; col < LABEL.cols; col++) {
+    contentFrame.parentStory.insertionPoints.item(-1).contents = SpecialCharacters.COLUMN_BREAK
+    contentFrame.parentStory.insertionPoints.item(-1).contents = contentCopy
+  }
+}
+
 function extendTextFrame(containingDoc) {
   var textboxes = containingDoc.textFrames
   var frameToDupe = findFrameWithLabel(textboxes, "labelColumn")
 
+  fillContent(frameToDupe)
   frameToDupe.textFramePreferences.textColumnCount = LABEL.cols
-  duplicateContent(frameToDupe)
 }
-
-
 
 function resizeBackground(containingDoc) {
   var rects = containingDoc.rectangles
