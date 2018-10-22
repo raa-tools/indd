@@ -173,19 +173,16 @@ function fillContent(contentFrame) {
     contentFrame.textColumns[i].remove();
   }
 
-  // Check if the last character of the first column is a col break
-  // and remove that character (so we're back to a single)
-  if(contentFrame.textColumns[0].characters.lastItem().contents === SpecialCharacters.COLUMN_BREAK) {
-    contentFrame.textColumns[0].characters.lastItem().remove();
-  }
-
-  var contentCopy = contentFrame.textColumns[0].contents // Save now so it's without col break
-
-  // Refill all cols with col break + copied content (from 1st col)
+  // Refill columns by adding col break and duplicating first col
   for(var col = 1; col < LABEL.cols; col++) {
-    contentFrame.parentStory.insertionPoints.item(-1).contents = SpecialCharacters.COLUMN_BREAK
-    contentFrame.parentStory.insertionPoints.item(-1).contents = contentCopy
+    // If last char of first col isn't a col break, add it
+    if(contentFrame.textColumns[0].characters.lastItem().contents !== SpecialCharacters.COLUMN_BREAK) {
+      contentFrame.parentStory.insertionPoints.item(-1).contents = SpecialCharacters.COLUMN_BREAK
+    }
+    contentFrame.textColumns[0].duplicate(LocationOptions.AT_END);
   }
+
+  // Remove last col break (unnecessary)
 }
 
 function extendTextFrame(containingDoc) {
