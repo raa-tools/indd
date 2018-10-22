@@ -27,40 +27,6 @@ var LABEL = {
   height: 9,
 }
 
-// HELPERS
-function calculateWidth(numOfCols, colWidth, margin) {
-  var marginToUse = margin || LEFTMARGIN
-  return numOfCols * colWidth + marginToUse
-}
-
-function updateSlug(varText, width, height) {
-  // Check if variable text item exists and is the right type
-  // If not, add one
-  if(!varText.isValid || varText.variableType !== VariableTypes.CUSTOM_TEXT_TYPE) {
-      varText = doc.textVariables.add();
-      varText.variableType = VariableTypes.CUSTOM_TEXT_TYPE;
-      varText.name = "Dimensions";
-  }
-  
-  // Either way, insert content here
-  varText.variableOptions.contents =
-    Math.round(1000*width)/1000 +
-    " × " +
-    Math.round(1000*height)/1000 +
-    " in.";
-}
-
-function findFrameWithLabel(allFrames, labelToMatch) {
-  // Finds the first instance of frame.label === labelToMatch
-  for(var i = 0; i < allFrames.length; i ++) {
-    // Exclude Code and info bc that's always not part of anything
-    if(allFrames[i].itemLayer.name !== "Code and info" && allFrames[i].label === labelToMatch) {
-      return allFrames[i]
-    } 
-  }
-}
-// END HELPERS
-
 // UI STUFF
 function uiSetup() {
   uiWindow = new Window("dialog", "HMH LabelMaker");
@@ -92,18 +58,18 @@ function uiSetup() {
 
   // UI event listeners
   colEditText.onChanging = function() {
-    LABEL.cols = colEditText.text // Update global object property
+    LABEL.cols = parseInt(colEditText.text) // Update global object property
     if(widthEditableCheck.value) return // Don't calculate width if editing width manually
     LABEL.totalWidth = calculateWidth(colEditText.text, LABEL.colWidth)
     widthEditText.text = LABEL.totalWidth
   }
 
   widthEditText.onChanging = function() {
-    LABEL.totalWidth = widthEditText.text // Update global object property
+    LABEL.totalWidth = parseFloat(widthEditText.text) // Update global object property
   }
 
   heightEditText.onChanging = function() {
-    LABEL.height = heightEditText.text // Update global object property
+    LABEL.height = parseFloat(heightEditText.text) // Update global object property
   }
 
   widthEditableCheck.onClick = function() {
@@ -125,6 +91,52 @@ function uiSetup() {
   }
 }
 // END UI STUFF
+
+// HELPERS
+function calculateWidth(numOfCols, colWidth, margin) {
+  var marginToUse = margin || LEFTMARGIN
+  return parseFloat(numOfCols * colWidth + marginToUse)
+}
+
+function updateSlug(varText, width, height) {
+  // Check if variable text item exists and is the right type
+  // If not, add one
+  if(!varText.isValid || varText.variableType !== VariableTypes.CUSTOM_TEXT_TYPE) {
+      varText = doc.textVariables.add();
+      varText.variableType = VariableTypes.CUSTOM_TEXT_TYPE;
+      varText.name = "Dimensions";
+  }
+  
+  // Either way, insert content here
+  varText.variableOptions.contents =
+    Math.round(1000*width)/1000 +
+    " × " +
+    Math.round(1000*height)/1000 +
+    " in.";
+}
+
+function findFrameWithLabel(allFrames, labelToMatch) {
+  // Finds the first instance of frame.label === labelToMatch
+  for(var i = 0; i < allFrames.length; i ++) {
+    // Exclude Code and info bc that's always not part of anything
+    if(allFrames[i].itemLayer.name !== "Code and info" && allFrames[i].label === labelToMatch) {
+      return allFrames[i]
+    } 
+  }
+}
+
+function getNumberOfCurrentCols(textFrame) {
+  return textFrame.textColumns.length
+}
+
+function duplicateContent(contentFrame) {
+  var contentCopy = contentFrame.contents
+  for(var col = getNumberOfCurrentCols(contentFrame); col < LABEL.cols; col++) {
+    contentFrame.parentStory.insertionPoints.item(-1).contents = SpecialCharacters.COLUMN_BREAK
+    contentFrame.parentStory.insertionPoints.item(-1).contents = contentCopy
+  }
+}
+// END HELPERS
 
 // MAIN FUNCTIONS
 function resizePage() {
@@ -160,6 +172,16 @@ function duplicateTextFrame(containingDoc) {
   }
 }
 
+function extendTextFrame(containingDoc) {
+  var textboxes = containingDoc.textFrames
+  var frameToDupe = findFrameWithLabel(textboxes, "labelColumn")
+
+  frameToDupe.textFramePreferences.textColumnCount = LABEL.cols
+  duplicateContent(frameToDupe)
+}
+
+
+
 function resizeBackground(containingDoc) {
   var rects = containingDoc.rectangles
   var rectToResize
@@ -185,7 +207,7 @@ uiSetup()
 if(uiWindow.show() == true) {
     resizePage()
     resizeDocument(DOC)
-    duplicateTextFrame(DOC)
+    extendTextFrame(DOC)
     resizeBackground(DOC)
 } else {
     exit();
