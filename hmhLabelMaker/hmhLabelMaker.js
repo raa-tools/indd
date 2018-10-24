@@ -23,7 +23,7 @@ app.scriptPreferences.measurementUnit = MeasurementUnits.inches;
 // Defaults
 var LABEL = {
   cols: 1,
-  colWidth: 7.25,
+  colWidth: 7,
   gutterWidth: 0.625,
   totalWidth: calculateWidth(1, 7, 0.625),
   height: 10.5,
