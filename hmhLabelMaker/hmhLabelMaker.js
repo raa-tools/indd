@@ -16,15 +16,17 @@ try {
 // GLOBALS
 var uiWindow
 var LEFTMARGIN = 0.5 // in inches
+var RIGHTMARGIN = 0.75 // inches
 var PPI = 72 // for co-ordinate space
 app.scriptPreferences.measurementUnit = MeasurementUnits.inches;
 
 // Defaults
 var LABEL = {
   cols: 1,
-  colWidth: 7,
-  totalWidth: calculateWidth(1, 7),
-  height: 9,
+  colWidth: 7.25,
+  gutterWidth: 0.625,
+  totalWidth: calculateWidth(1, 7, 0.625),
+  height: 10.5,
 }
 
 // UI STUFF
@@ -41,7 +43,7 @@ function uiSetup() {
   var row2 = uiWindow.add("group {alignment: 'left'}")
   // Width
   var widthStatic = row2.add('statictext {text: "Width (in.):", size: [65, 24], alignment: "bottom", justify: "left"}');
-  var widthEditText = row2.add('edittext {text: "' + calculateWidth(colEditText.text, LABEL.colWidth) + '", size: [80, 25], active: false, enabled: false}');
+  var widthEditText = row2.add('edittext {text: "' + calculateWidth(colEditText.text, LABEL.colWidth, LABEL.gutterWidth) + '", size: [80, 25], active: false, enabled: false}');
   var widthEditableCheck = row2.add("checkbox {size: [65, 15], text: 'Edit'}")
   
   // Row 3
@@ -60,7 +62,7 @@ function uiSetup() {
   colEditText.onChanging = function() {
     LABEL.cols = parseInt(colEditText.text) // Update global object property
     if(widthEditableCheck.value) return // Don't calculate width if editing width manually
-    LABEL.totalWidth = calculateWidth(colEditText.text, LABEL.colWidth)
+    LABEL.totalWidth = calculateWidth(colEditText.text, LABEL.colWidth, LABEL.gutterWidth)
     widthEditText.text = LABEL.totalWidth
   }
 
@@ -76,7 +78,7 @@ function uiSetup() {
     if(widthEditableCheck.value) {
       widthEditText.enabled = true;
     } else {
-      widthEditText.text = calculateWidth(colEditText.text, LABEL.colWidth)
+      widthEditText.text = calculateWidth(colEditText.text, LABEL.colWidth, LABEL.gutterWidth)
       widthEditText.enabled = false;
     }
   }
@@ -93,9 +95,11 @@ function uiSetup() {
 // END UI STUFF
 
 // HELPERS
-function calculateWidth(numOfCols, colWidth, margin) {
-  var marginToUse = margin || LEFTMARGIN
-  return parseFloat(numOfCols * colWidth + marginToUse)
+function calculateWidth(numOfCols, colWidth, gutterWidth, leftMargin, rightMargin) {
+  var lMarginToUse = leftMargin || LEFTMARGIN
+  var rMarginToUse = rightMargin || lMarginToUse
+  var numOfGutters = numOfCols - 1
+  return parseFloat((numOfCols * colWidth) + (numOfGutters * gutterWidth) + lMarginToUse + rMarginToUse)
 }
 
 function updateSlug(varText, width, height) {
