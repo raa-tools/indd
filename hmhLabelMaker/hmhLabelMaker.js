@@ -97,7 +97,7 @@ function uiSetup() {
 // HELPERS
 function calculateWidth(numOfCols, colWidth, gutterWidth, leftMargin, rightMargin) {
   var lMarginToUse = leftMargin || LEFTMARGIN
-  var rMarginToUse = rightMargin || lMarginToUse
+  var rMarginToUse = rightMargin || RIGHTMARGIN
   var numOfGutters = numOfCols - 1
   return parseFloat((numOfCols * colWidth) + (numOfGutters * gutterWidth) + lMarginToUse + rMarginToUse)
 }
