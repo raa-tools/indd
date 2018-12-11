@@ -29,8 +29,23 @@ var lockLayer = function(layers, layerName) {
   }
 }
 
-var layers = app.activeDocument.layers;
+if(app.documents.length !== 0) {
+  var layers = app.activeDocument.layers;
 
-unlockLayers(layers);
-outlineText();
-lockLayer(layers, "Code and info");
+  unlockLayers(layers);
+  outlineText();
+  lockLayer(layers, "Code and info");
+
+} else {
+  var panelFolder = Folder.selectDialog("Pick panels");
+  var panelFiles = panelFolder.getFiles("*.indd");
+
+  for(var i = 0; i < panelFiles.length; i++) {
+    var panelFile = app.open(panelFiles[i])
+    var layers = app.activeDocument.layers;
+
+    unlockLayers(layers);
+    outlineText();
+    lockLayer(layers, "Code and info");
+  }
+}
