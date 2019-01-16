@@ -47,5 +47,8 @@ if(app.documents.length !== 0) {
     unlockLayers(layers);
     outlineText();
     lockLayer(layers, "Code and info");
+
+    panelFile.save();
+    panelFile.close();
   }
 }
