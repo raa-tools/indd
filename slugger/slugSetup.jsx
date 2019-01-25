@@ -466,7 +466,7 @@ function main() {
             titleBoxY = 54 * row - 115;
             inputBoxY = titleBoxY - 14;
           } else {
-            titleBoxY = pageHeight + (54 * row - 125) + 68;
+            titleBoxY = pageHeight + (54 * row - 125) + 75;
             inputBoxY = titleBoxY - 14;
           }
           var titleBox = myPage.textFrames.add({geometricBounds: [titleBoxY, titleBoxX, titleBoxY + titleBoxData.height, titleBoxX + titleBoxData.width]});
