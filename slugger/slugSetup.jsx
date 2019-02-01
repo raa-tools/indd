@@ -12,9 +12,6 @@ Some extras might be:
     * Graphic Technique
     * Type of panel
     * Gallery / Area
-
-As of 2/1/2018, this script only works on activeDocument.
-To process a batch of files, run this through RoadRunner.
 */
 
 //Just in case this little script gets lost in the woods:
@@ -24,44 +21,66 @@ To process a batch of files, run this through RoadRunner.
 BLEEDDIM = 36;
 SLUGDIM = 144;
 
-// Maybe this should just be a system font...
+// Set some breakpoints (in in.) to determine how
+// the slug "reflows" textboxes
+BREAKPOINT = {
+    1 : 612, // 8.5 in.
+    2 : 324 // 4.5 in., about the width of 1 row of info
+};
+
 FONT = {
     FAMILY  : "Helvetica",
     WEIGHT1 : "Light",
-    WEIGHT2 : "Bold"
+    WEIGHT2 : "Bold",
+    SIZE1   : 22,
+    SIZE2   : 14,
+    LEADING : 24,
 };
 
 try{
     // These are declared here so they can be used by dialogSetup()
-    var myWindow; var batchEditText; var reviewEditText; var dateEditText;
-    var fabCheck;
-    var notesCheck; var notesEditText;
-    var sizeRadioRegular; var sizeRadioSmall;
+    var myWindow, batchEditText, reviewEditText, dateEditText;
+    var sampleCheck, fabCheck; 
+    var notesCheck, notesEditText;
     var alreadyRun;
     
-    var myDocument = app.activeDocument;
-    
-    // Control flow to make sure UI window doesn't pop up for every
-    // panel file when this script is run by roadRunner
-    if(!alreadyRun) {
-        alreadyRun = true;
+    // If there are files open, set up slug for active document
+    if(app.documents.length !== 0) {
+        var singleDoc = app.activeDocument;
         dialogSetup();
-    
-        if(myWindow.show() == true) {
-            main();
-            
+
+        if(myWindow.show()) {
+            main(singleDoc);
         } else {
             app.dialogs.everyItem().destroy();
         }
 
+    // Else pick a folder of files
     } else {
-        main();
+        var panelFolder = Folder.selectDialog("Pick panels");
+        var panelFiles = panelFolder.getFiles("*.indd");
+
+        dialogSetup();
+
+        if(myWindow.show()) {
+            for(var i = 0; i < panelFiles.length; i++) {
+                var panelFile = app.open(panelFiles[i]);
+
+                main(panelFile);
+                panelFile.save();
+                panelFile.close();
+            }
+
+            // Add some error logging here at some point...
+
+        } else {
+            app.dialogs.everyItem().destroy();
+        }
     }
 
 } catch(error) {
     alert(error);
 }
-
 
 function dialogSetup() {
     var today = getTodaysDate();
@@ -78,6 +97,23 @@ function dialogSetup() {
     var reviewStaticText = inputRow1.add('statictext {text: "Review:", size: [55, 24], alignment: "bottom", justify: "right"}');
     reviewEditText = inputRow1.add('edittext {text: "1", size: [40, 25]}');
 
+    // Row 1.5
+    var inputRow1_5 = myWindow.add("group {alignment: 'left'}");
+
+    // SAMPLE
+    sampleCheck = inputRow1_5.add("checkbox {size: [80, 15], text: '\u00A0SAMPLE'}");
+    sampleCheck.onClick = function() {
+        if(sampleCheck.value) {
+            batchEditText.enabled = false;
+            batchEditText.text = "";
+            fabCheck.enabled = false;
+        
+        } else {
+            fabCheck.enabled = true;
+            batchEditText.enabled = true;
+            batchEditText.text = "1";
+        }
+    }
 
     // Row 2
     var inputRow2 = myWindow.add("group {alignment: 'left'}");
@@ -86,11 +122,13 @@ function dialogSetup() {
     fabCheck = inputRow2.add("checkbox {size: [65, 15], text: '\u00A0FAB:'}");
     fabCheck.onClick = function() {
         if(fabCheck.value) {
+            sampleCheck.enabled = false;
             fabEditText.enabled = true;
             reviewEditText.enabled = false;
             reviewEditText.text = "";
         
         } else {
+            sampleCheck.enabled = true;
             fabEditText.enabled = false;
             fabEditText.text = "";
             reviewEditText.enabled = true;
@@ -128,15 +166,6 @@ function dialogSetup() {
     notesEditText = inputRow4.add("edittext", [0, 0, 155, 100], "", {multiline: true, scrolling: true, wantReturn: true});
     notesEditText.enabled = false;
 
-    // Row 5
-    var inputRow5 = myWindow.add("group {alignment: 'left'}");
-
-    var sizeStaticText = inputRow5.add("statictext {text: 'Panel size:', size: [65, 13], alignment: 'top', justify: 'left'}");
-    sizeRadioRegular = inputRow5.add("radiobutton{size: [75, 20], text: '\u00A0Regular'}");
-    sizeRadioSmall = inputRow5.add("radiobutton{size: [65, 20], text: '\u00A0Small'}");
-
-    sizeRadioRegular.value = true;
-
     // Buttons
     var buttonGroup = myWindow.add("group {alignment: 'right'}");
     buttonGroup.add ("button", undefined, "OK");
@@ -151,337 +180,420 @@ function dialogSetup() {
     }
 }
 
-
-
 // Using a main() function so the entire try block above isn't super long...
-function main() {    
-        ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
-        ////// ////// /////      —    Document  Business     —      ///// ////// //////
-        ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
-        
-        //Doc setup
-        var myPage = app.activeWindow.activePage;
-
-        var bottomSlug = (sizeRadioSmall.value && notesCheck.value) ? SLUGDIM * 1.75 : SLUGDIM;
-
-        app.scriptPreferences.measurementUnit = MeasurementUnits.inches;
-        var pageWidth = Math.round(1000*myDocument.documentPreferences.pageWidth)/1000; 
-        var pageHeight = Math.round(1000*myDocument.documentPreferences.pageHeight)/1000;
-        var pageDims =  pageWidth + " × " + pageHeight + " in.";
-        
-        app.scriptPreferences.measurementUnit = MeasurementUnits.points;
-
-        //Reset the Zero Point/Ruler to top left corner
-        myDocument.zeroPoint = [0,0];
+function main(docToSetup) {    
+    ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
+    ////// ////// /////      —    Document  Business     —      ///// ////// //////
+    ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
     
-        myDocument.documentPreferences.properties = {
-          documentSlugUniformSize : false
-        };
+    // Doc setup
+    var myPage = app.activeWindow.activePage;
 
-        //Set bleed and slug dims
-        myDocument.documentPreferences.properties = {
-            documentBleedBottomOffset : BLEEDDIM ,
-            documentBleedTopOffset : BLEEDDIM ,
-            documentBleedInsideOrLeftOffset : BLEEDDIM ,
-            documentBleedOutsideOrRightOffset : BLEEDDIM,
-            slugBottomOffset : bottomSlug,
-            slugTopOffset : SLUGDIM,
-            slugInsideOrLeftOffset : SLUGDIM,
-            slugRightOrOutsideOffset : SLUGDIM,
-        };
-
-        // Add text variables for File Name & Dimensions
-        var varFileName = myDocument.textVariables.item("File Name");
-        var varDims = myDocument.textVariables.item("Dimensions");
-
-        // Check if variable text item exists and is the right type
-        // If not, add one
-        if(!varDims.isValid || varDims.variableType !== VariableTypes.CUSTOM_TEXT_TYPE) {
-            varDims = myDocument.textVariables.add();
-            varDims.variableType = VariableTypes.CUSTOM_TEXT_TYPE;
-            varDims.name = "Dimensions";
-        }
-        
-        // Either way, insert content here
-        varDims.variableOptions.contents = pageDims;
-
+    // Grab dims in inches real quick...
+    app.scriptPreferences.measurementUnit = MeasurementUnits.inches;
+    var pageWidth = Math.round(1000*docToSetup.documentPreferences.pageWidth)/1000; 
+    var pageHeight = Math.round(1000*docToSetup.documentPreferences.pageHeight)/1000;
+    var pageDims =  pageWidth + " × " + pageHeight + " in.";
     
-        ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
-        ////// //////   —   Code and info layer set up    —   ////// //////
-        ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
-        
-        var codeInfoLayer = myDocument.layers.item("Code and info");
+    // Grab dims one more time, in pts
+    app.scriptPreferences.measurementUnit = MeasurementUnits.points;
+    pageWidth = docToSetup.documentPreferences.pageWidth;
+    pageHeight = docToSetup.documentPreferences.pageHeight;
 
-        if(codeInfoLayer.isValid) {
-            codeInfoLayer.remove();
-        }
+    //Reset the Zero Point/Ruler to top left corner
+    docToSetup.zeroPoint = [0,0];
 
-        codeInfoLayer = myDocument.layers.add({name: "Code and info"});
-        codeInfoLayer.move(LocationOptions.BEFORE, myDocument.layers[0]);    
+    var bottomSlug = (notesCheck.value && pageWidth <= BREAKPOINT.2) ? SLUGDIM * 1.75 : SLUGDIM;
+
+    docToSetup.documentPreferences.properties = {
+      documentSlugUniformSize : false
+    };
+
+    //Set bleed and slug dims
+    docToSetup.documentPreferences.properties = {
+        documentBleedBottomOffset         : BLEEDDIM ,
+        documentBleedTopOffset            : BLEEDDIM ,
+        documentBleedInsideOrLeftOffset   : BLEEDDIM ,
+        documentBleedOutsideOrRightOffset : BLEEDDIM,
+        slugBottomOffset                  : bottomSlug,
+        slugTopOffset                     : SLUGDIM,
+        slugInsideOrLeftOffset            : SLUGDIM,
+        slugRightOrOutsideOffset          : SLUGDIM
+    };
+
+    // Add text variables for File Name & Dimensions
+    var varFileName = docToSetup.textVariables.item("File Name");
+    var varDims = docToSetup.textVariables.item("Dimensions");
+
+/////// maybe check if dims in page tool === dims in page setup
+/// if not, use page tools' dims?
+
+    // Check if variable text item exists and is the right type
+    // If not, add one
+    if(!varDims.isValid || varDims.variableType !== VariableTypes.CUSTOM_TEXT_TYPE) {
+        varDims = docToSetup.textVariables.add();
+        varDims.variableType = VariableTypes.CUSTOM_TEXT_TYPE;
+        varDims.name = "Dimensions";
+    }
     
+    // Either way, insert content here
+    varDims.variableOptions.contents = pageDims;
+
+
+    ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
+    ////// //////   —   Code and info layer set up    —   ////// //////
+    ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
     
-        ////// ////// ////// ////// //////  ////// ////// ////// ////// ////// ////// 
-        //   —   Establish Paragraph and Character Styles needed for Slug   —    //
-        ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
-    
-        var my_CODE_NOTE_characterStyle = myDocument.characterStyles.item("New Code Note");
+    var codeInfoLayer = docToSetup.layers.item("Code and info");
 
-        if(my_CODE_NOTE_characterStyle.isValid) {
-            my_CODE_NOTE_characterStyle.remove();
-        }
+    if(codeInfoLayer.isValid) {
+        codeInfoLayer.remove();
+    }
 
-        my_CODE_NOTE_characterStyle = myDocument.characterStyles.add({name:"New Code Note"});
-
-        with(my_CODE_NOTE_characterStyle){
-            //Formatting the Character text style
-            basedOn = "None";
-            appliedFont = app.fonts.itemByName(FONT.FAMILY);
-            fontStyle = FONT.WEIGHT1;
-            pointSize = 14;
-            tracking = 25;
-            capitalization = Capitalization.allCaps;
-            fillTint = 50;
-        }
-    
-        //Set up "New Code Light" Character Style
-        var my_CODE_LIGHT_characterStyle = myDocument.characterStyles.item("New Code Light");
-
-        if(my_CODE_LIGHT_characterStyle.isValid) {
-            my_CODE_LIGHT_characterStyle.remove();
-        }
-
-        my_CODE_LIGHT_characterStyle = myDocument.characterStyles.add({name:"New Code Light"});
-
-        with(my_CODE_LIGHT_characterStyle){
-            //Formatting the Character text style
-            basedOn = "None";
-            appliedFont = app.fonts.itemByName(FONT.FAMILY);
-            fontStyle = FONT.WEIGHT1;
-            pointSize = 32;
-            leading = 33;
-            tracking = 0;
-            capitalization = Capitalization.normal;
-            fillTint = 100;
-        }
-
-    
-        //Set up "New Code Bold" Paragraph Style
-        var my_CODE_BOLD_paragraphStyle = myDocument.paragraphStyles.item("New Code Bold");
-
-        if(my_CODE_BOLD_paragraphStyle.isValid) {
-            my_CODE_BOLD_paragraphStyle.remove();
-        }
-        
-        my_CODE_BOLD_paragraphStyle = myDocument.paragraphStyles.add({name:"New Code Bold"});
-        
-        //Set up New "Yellow Highlight" Swatch Color
-        var myColor = myDocument.colors.item("Yellow Highlight")
-
-        if(!myColor.isValid) {
-            myColor = myDocument.colors.add({name:"Yellow Highlight", model:ColorModel.process, colorValue:[0,0,100,0]});
-
-        }
-        
-        with(my_CODE_BOLD_paragraphStyle){
-            //Formatting the paragraph text style
-            nextParagraphStyle = "None";
-            appliedFont = app.fonts.itemByName(FONT.FAMILY);
-            fontStyle = FONT.WEIGHT2;
-            pointSize = 32;
-            leading = 33;
-            fillColor = myDocument.colors.item("Black");
-            capitalization = Capitalization.allCaps;
-    
-            //Paragraph Rule Settings
-            ruleAbove = true;
-            ruleAboveLineWeight = "24pt";
-    
-            ruleAboveColor = myDocument.colors.item("Yellow Highlight");
-            ruleAboveOverprint = false;
-            ruleAboveGapColor = myDocument.swatches.item("None");
-            ruleAboveGapOverprint = false;
-            ruleAboveWidth = RuleWidth.textWidth;
-            ruleAboveLeftIndent = 0;
-    
-            ruleAboveType = myDocument.strokeStyles.item("Solid");
-            ruleAboveTint = 100;
-            ruleAboveGapTint = 100;
-            ruleAboveOffset = -1;
-            ruleAboveRightIndent = 0;
-        }
+    codeInfoLayer = docToSetup.layers.add({name: "Code and info"});
+    codeInfoLayer.move(LocationOptions.BEFORE, docToSetup.layers[0]);    
 
 
-        ////// ////// ////// ////// //////  ////// ////// ////// ////// ////// ////// 
-        ////// //////   —   Set Up Text Boxes   —    ////// //////
-        ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
+    ////// ////// ////// ////// //////  ////// ////// ////// ////// ////// ////// 
+    //   —   Establish Paragraph and Character Styles needed for Slug   —    //
+    ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
 
-        var titleBoxData = {
-            width  : 100, 
-            height : 20,
-
-            0 : "Code",
-            1 : "w × h",
-            2 : "Review",
-            3 : "Date",
-            4 : "Notes",
-        };
-
-        var inputBoxData = {
-            width  : 326,
-            height : 35,
-
-            0 : "codeInput",
-            1 : "dimsInput",
-            2 : "batchReviewInput",
-            3 : "dateInput",
-            4 : "notesInput",
-        };
-
-        sizeRadioRegular.value ? layoutTextRegular() : layoutTextSmall();
-
-        ////// ////// ////// ////// //////  ////// ////// ////// ////// ////// ////// 
-        ////// ////// ////// //// —  Apply all the things  —  //// ////// ////// ////
-        ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
-    
-        var codeInfoFrames = codeInfoLayer.textFrames;
-
-        for(var z = 0; z < codeInfoFrames.length; z++) {
-            codeInfoFrames[z].appliedObjectStyle = myDocument.objectStyles.item("[None]");
-            codeInfoFrames[z].textFramePreferences.verticalJustification = VerticalJustification.TOP_ALIGN;
-
-            if(codeInfoFrames[z].label === "codeInput") {
-                var frameStory = codeInfoFrames[z].parentStory;
-
-                frameStory.appliedCharacterStyle = myDocument.characterStyles.item("[None]");
-                frameStory.appliedParagraphStyle = my_CODE_BOLD_paragraphStyle;
-                frameStory.justification = Justification.LEFT_ALIGN;
-            
-            } else if(codeInfoFrames[z].label.indexOf("Input") !== -1 && codeInfoFrames[z].label.indexOf("code") === -1) {
-                var frameStory = codeInfoFrames[z].parentStory;
-
-                frameStory.appliedCharacterStyle = my_CODE_LIGHT_characterStyle;
-                frameStory.appliedParagraphStyle = myDocument.paragraphStyles.item("[Basic Paragraph]");
-                frameStory.justification = Justification.LEFT_ALIGN;
-            
-            } else {
-                var frameStory = codeInfoFrames[z].parentStory;
-
-                frameStory.appliedCharacterStyle = my_CODE_NOTE_characterStyle;
-                frameStory.appliedParagraphStyle = myDocument.paragraphStyles.item("[Basic Paragraph]");
-                frameStory.justification = Justification.RIGHT_ALIGN;
+    // Object style
+    // If "SLUG TEXTBOXES" style doesn't exist, make one
+    if(!docToSetup.objectStyles.itemByName("SLUG TEXTBOXES").isValid) {
+        var slugObjectStyle = docToSetup.objectStyles.add();
+        slugObjectStyle.properties =  {
+            name: "SLUG TEXTBOXES",
+            enableFill: false,
+            enableStroke: false,
+            enableTextFrameBaselineOptions: true,
+            textFramePreferences: {
+                firstBaselineOffset : FirstBaseline.LEADING_OFFSET
             }
         }
+    }
 
-        
-        ////// ////// ////// ////// ////// /////// ////// ////// ////// ////// ////// 
-        ////// ////// ////// ////   —  THE END IS NIGH  —   //// ////// ////// //////
-        ////// ////// ////// ////// ////// /////// ////// ////// ////// ////// //////
+    var my_CODE_NOTE_characterStyle = docToSetup.characterStyles.item("New Code Note");
+
+    if(my_CODE_NOTE_characterStyle.isValid) {
+        my_CODE_NOTE_characterStyle.remove();
+    }
+
+    my_CODE_NOTE_characterStyle = docToSetup.characterStyles.add({name:"New Code Note"});
+
+    with(my_CODE_NOTE_characterStyle){
+        //Formatting the Character text style
+        basedOn = "None";
+        appliedFont = app.fonts.itemByName(FONT.FAMILY);
+        fontStyle = FONT.WEIGHT1;
+        pointSize = FONT.SIZE2;
+        leading = FONT.LEADING;
+        tracking = 25;
+        capitalization = Capitalization.allCaps;
+        fillTint = 50;
+    }
+
+    //Set up "New Code Light" Character Style
+    var my_CODE_LIGHT_characterStyle = docToSetup.characterStyles.item("New Code Light");
+
+    if(my_CODE_LIGHT_characterStyle.isValid) {
+        my_CODE_LIGHT_characterStyle.remove();
+    }
+
+    my_CODE_LIGHT_characterStyle = docToSetup.characterStyles.add({name:"New Code Light"});
+
+    with(my_CODE_LIGHT_characterStyle){
+        //Formatting the Character text style
+        basedOn = "None";
+        appliedFont = app.fonts.itemByName(FONT.FAMILY);
+        fontStyle = FONT.WEIGHT1;
+        pointSize = FONT.SIZE1;
+        leading = FONT.LEADING;
+        tracking = 0;
+        capitalization = Capitalization.normal;
+        fillTint = 100;
+    }
+
+
+    //Set up "New Code Bold" Paragraph Style
+    var my_CODE_BOLD_paragraphStyle = docToSetup.paragraphStyles.item("New Code Bold");
+
+    if(my_CODE_BOLD_paragraphStyle.isValid) {
+        my_CODE_BOLD_paragraphStyle.remove();
+    }
     
-        //Re-lock Code and info layer
-        codeInfoLayer.locked = true;
+    my_CODE_BOLD_paragraphStyle = docToSetup.paragraphStyles.add({name:"New Code Bold"});
+    
+    //Set up New "Yellow Highlight" Swatch Color
+    var myColor = docToSetup.colors.item("Yellow Highlight")
+
+    if(!myColor.isValid) {
+        myColor = docToSetup.colors.add({name:"Yellow Highlight", model:ColorModel.process, colorValue:[0,0,100,0]});
+
+    }
+    
+    with(my_CODE_BOLD_paragraphStyle){
+        //Formatting the paragraph text style
+        nextParagraphStyle = "None";
+        appliedFont = app.fonts.itemByName(FONT.FAMILY);
+        fontStyle = FONT.WEIGHT2;
+        pointSize = FONT.SIZE1;
+        leading = FONT.LEADING;
+        fillColor = docToSetup.colors.item("Black");
+        capitalization = Capitalization.allCaps;
+
+        //Paragraph Rule Settings
+        ruleAbove = true;
+        ruleAboveLineWeight = FONT.SIZE1 + " pt";
+
+        ruleAboveColor = docToSetup.colors.item("Yellow Highlight");
+        ruleAboveOverprint = false;
+        ruleAboveGapColor = docToSetup.swatches.item("None");
+        ruleAboveGapOverprint = false;
+        ruleAboveWidth = RuleWidth.textWidth;
+        ruleAboveLeftIndent = 0;
+
+        ruleAboveType = docToSetup.strokeStyles.item("Solid");
+        ruleAboveTint = 100;
+        ruleAboveGapTint = 100;
+        ruleAboveOffset = -3;
+        ruleAboveRightIndent = 0;
+    }
+
+
+    ////// ////// ////// ////// //////  ////// ////// ////// ////// ////// ////// 
+    ////// //////   —   Set Up Text Boxes   —    ////// //////
+    ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
+
+    var titleBoxData = {
+        width  : 60, 
+        height : FONT.LEADING,
+
+        0 : "Code",
+        1 : "w × h",
+        2 : "Review",
+        3 : "Date",
+        4 : "Notes",
+    };
+
+    var inputBoxData = {
+        width1 : 200,
+        width2 : 260,
+        width3 : 550,
+        height : FONT.LEADING,
+
+        0 : "codeInput",
+        1 : "dimsInput",
+        2 : "batchReviewInput",
+        3 : "dateInput",
+        4 : "notesInput",
+    };
+
+    ////// ////// ////// ////// //////  ////// ////// ////// ////// ////// ////// 
+    ////// ////// ////// //// —  Apply all the things  —  //// ////// ////// ////
+    ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
+
+    var codeInfoFrames = codeInfoLayer.textFrames;
+
+    for(var z = 0; z < codeInfoFrames.length; z++) {
+        codeInfoFrames[z].textFramePreferences.verticalJustification = VerticalJustification.TOP_ALIGN;
+
+        if(codeInfoFrames[z].label === "codeInput") {
+            var frameStory = codeInfoFrames[z].parentStory;
+
+            frameStory.appliedCharacterStyle = docToSetup.characterStyles.item("[None]");
+            frameStory.appliedParagraphStyle = my_CODE_BOLD_paragraphStyle;
+            frameStory.justification = Justification.LEFT_ALIGN;
+        
+        } else if(codeInfoFrames[z].label.indexOf("Input") !== -1 && codeInfoFrames[z].label.indexOf("code") === -1) {
+            var frameStory = codeInfoFrames[z].parentStory;
+
+            frameStory.appliedCharacterStyle = my_CODE_LIGHT_characterStyle;
+            frameStory.appliedParagraphStyle = docToSetup.paragraphStyles.item("[Basic Paragraph]");
+            frameStory.justification = Justification.LEFT_ALIGN;
+        
+        } else {
+            var frameStory = codeInfoFrames[z].parentStory;
+
+            frameStory.appliedCharacterStyle = my_CODE_NOTE_characterStyle;
+            frameStory.appliedParagraphStyle = docToSetup.paragraphStyles.item("[Basic Paragraph]");
+            frameStory.justification = Justification.RIGHT_ALIGN;
+        }
+    }
+
+    
+    ////// ////// ////// ////// ////// /////// ////// ////// ////// ////// ////// 
+    ////// ////// ////// ////   —  THE END IS NIGH  —   //// ////// ////// //////
+    ////// ////// ////// ////// ////// /////// ////// ////// ////// ////// //////
+
+    //Re-lock Code and info layer
+    codeInfoLayer.locked = true;
 
     // Set up title boxes
-    function titleBoxSetup(textFrame, content) {
-        // textFrame is an object, content is a string
-        textFrame.contents = content;
+    function titleBoxSetup(x, y, width, height, content) {
+        var titleBox = myPage.textFrames.add({
+            geometricBounds    : [y, x, y + height, x + width],
+            appliedObjectStyle : docToSetup.objectStyles.itemByName("SLUG TEXTBOXES")
+        });
+
+        titleBox.contents = content;
     }
     
     // Set up input boxes
-    function inputBoxSetup(textFrame, labelName) {
+    function inputBoxSetup(x, y, width, height, labelName) {
+        var inputBox = myPage.textFrames.add({
+            geometricBounds    : [y, x, y + height, x + width],
+            appliedObjectStyle : docToSetup.objectStyles.itemByName("SLUG TEXTBOXES")
+        })
+
         // textFrame is an object, labelName is a string
         if(labelName === "codeInput") {
-            textFrame.textVariableInstances.add({associatedTextVariable:varFileName});
+            inputBox.textVariableInstances.add({associatedTextVariable:varFileName});
         
         } else if(labelName === "dimsInput") {
-            textFrame.textVariableInstances.add({associatedTextVariable:varDims});
+            inputBox.textVariableInstances.add({associatedTextVariable:varDims});
     
         } else if(labelName === "batchReviewInput"){
-            if(!fabCheck.value) {
-                textFrame.contents = "Batch " + batchEditText.text + " - " + "Review " + reviewEditText.text;
-            
-            } else {
-                textFrame.contents = "Batch " + batchEditText.text + " - " + "TO " + fabEditText.text.toUpperCase();
+            if(sampleCheck.value) {
+                inputBox.contents = "SAMPLE - Review " + reviewEditText.text;
+            } else if(fabCheck.value) {
+                inputBox.contents = "Batch " + batchEditText.text + " - " + "TO " + fabEditText.text.toUpperCase();
+            } else { 
+                inputBox.contents = "Batch " + batchEditText.text + " - " + "Review " + reviewEditText.text;
             }
         
         } else if(labelName === "dateInput"){
-            textFrame.contents = dateEditText.text;
+            inputBox.contents = dateEditText.text;
         
         } else {
-            textFrame.contents = notesEditText.text;
+            inputBox.contents = notesEditText.text;
         }
     
-        textFrame.label = labelName;
+        inputBox.label = labelName;
     }
 
     function layoutTextRegular() {
-        var counter = 0;
-        var maxCol = notesCheck.value ? 3 : 2;
+        var addNotes = notesCheck.value;
 
-        for(var col = 0; col < maxCol; col++) {
-            var titleBoxX = 454 * col;
-            var inputBoxX = titleBoxX + 113;
-            
-            var titleBoxY; var inputBoxY
-            if(col < 2) {
-                for(var row = 0; row < 2; row++) {
-                    titleBoxY = 54 * row - 115;
-                    inputBoxY = titleBoxY - 14;
-
-                    var titleBox = myPage.textFrames.add({geometricBounds: [titleBoxY, titleBoxX, titleBoxY + titleBoxData.height, titleBoxX + titleBoxData.width]});
-                    titleBoxSetup(titleBox, titleBoxData[counter]);
-
-                    var inputBox = myPage.textFrames.add({geometricBounds: [inputBoxY, inputBoxX, inputBoxY + inputBoxData.height, inputBoxX + inputBoxData.width]});
-                    inputBoxSetup(inputBox, inputBoxData[counter]);
-
-                    counter++;
-                }
-            
-            } else {
-                titleBoxY = -115;
-                inputBoxY = titleBoxY - 14;
-
-                var titleBox = myPage.textFrames.add({geometricBounds: [titleBoxY, titleBoxX, titleBoxY + titleBoxData.height, titleBoxX + titleBoxData.width]});
-                titleBoxSetup(titleBox, titleBoxData[counter]);
-
-                var inputBox = myPage.textFrames.add({geometricBounds: [inputBoxY, inputBoxX, inputBoxY + 89, myDocument.documentPreferences.pageWidth]});
-                inputBoxSetup(inputBox, inputBoxData[counter]);
-            } 
-        }    
-    }
-
-    function layoutTextSmall() {
-        var pageHeight = myDocument.documentPreferences.pageHeight;
-        var pageWidth = myDocument.documentPreferences.pageWidth;
+        // Decide on how to setup
+        var maxCol, maxRow;
+        if (pageWidth <= BREAKPOINT.2) {
+            // stack everything
+            maxCol = 1;
+            maxRow = addNotes ? 5 : 4;
+        } else if (pageWidth <= BREAKPOINT.1) {
+            // add notes to the bottom
+            maxCol = 2;
+            maxRow = 2;
+        } else {
+            // really wide panel, so keep everything as is
+            maxCol addNotes ? 3 : 2;
+            maxRow = 2;
+        }
         
         var counter = 0;
-        var maxRow = notesCheck.value ? 5 : 4;
+        var titleX = 0;
+        var inputX = titleX + 80;
 
-        var titleBoxX = 0;
-        var inputBoxX = titleBoxX + 113;
+        for (var col = 0; col < maxCol; col++) {
+            var y = -144;
 
-        var titleBoxY; var inputBoxY;
+            var inputWidth;
+            if (maxCol === 1) {
+                inputWidth = inputX - 
+            }
 
-        for(var row = 0; row < maxRow; row++) {
-          if(row < 2) {
-            titleBoxY = 54 * row - 115;
-            inputBoxY = titleBoxY - 14;
-          } else {
-            titleBoxY = pageHeight + (54 * row - 125) + 75;
-            inputBoxY = titleBoxY - 14;
-          }
-          var titleBox = myPage.textFrames.add({geometricBounds: [titleBoxY, titleBoxX, titleBoxY + titleBoxData.height, titleBoxX + titleBoxData.width]});
-          titleBoxSetup(titleBox, titleBoxData[counter]);
+            for (var row = 0; row < maxRow; row++) {
+                titleBoxSetup(titleX, y, titleBoxData.height, titleBoxData.width, titleBoxData.counter);
+                inputBoxSetup(inputX, y, inputHeight, inputWidth, inputBoxData.counter);
 
-          var inputBox;
-          if(row < 4) {
-            inputBox = myPage.textFrames.add({geometricBounds: [inputBoxY, inputBoxX, inputBoxY + inputBoxData.height, inputBoxX + pageWidth - 77]});
-          } else {
-            inputBox = myPage.textFrames.add({geometricBounds: [inputBoxY, inputBoxX, inputBoxY + 89, inputBoxX + pageWidth - 77]});
-          }
+                counter++;
 
-          inputBoxSetup(inputBox, inputBoxData[counter]);
+                if (maxCol === 1) {
+                    y += (counter === 3) ? pageHeight + 3 : 54;
+                } else if (maxCol === 2) {
+                    y += (counter === 5) ? 
+                } else {
+                    y += 54 ;
+                }
+            }
 
-          counter++;
-        }    
+            if (maxCol > 1) {
+                titleX += (col < 1) ? 330 : 390;
+                // HERE
+            }
+        }
+
+        /* for (var col = 0; col < maxCol; col++) { */
+        /*     // Notes column (col = 2) gets 1 row */
+        /*     /1* var rows = (col < 2) ? 2 : 1; *1/ */
+
+        /*     /1* if max col 1: *1/ */
+        /*     /1*     row < 2: *1/ */
+        /*     /1*         add up top *1/ */
+        /*     /1*     else: *1/ */
+        /*     /1*         add below *1/ */
+        /*     /1*     if add notes: *1/ */
+        /*     /1*         add below *1/ */
+
+        /*     /1* else if max col 2: *1/ */
+        /*     /1*     col < 2: *1/ */
+        /*     /1*         maxrows =2 *1/ */
+        /*     /1*         add col *1/ */
+                
+        /*     /1*     if add notes: *1/ */
+        /*     /1*         maxrows = 1 *1/ */
+        /*     /1*         add 3rd col below *1/ */
+
+        /*     /1* else: *1/ */
+        /*     /1*     col < 2: *1/ */
+        /*     /1*         maxrows = 2 *1/ */
+        /*     /1*         add col *1/ */
+        /*     /1*     if add notes: *1/ */
+        /*     /1*         maxrows = 1 *1/ */
+        /*     /1*         add 3rd col *1/ */
+
+        /*     var inputX = titleX + 80; */
+        /*     var y = -144; */
+
+        /*     var inputWidth; */
+        /*     if (col < 1) { */
+        /*         inputWidth = inputX + inputBoxData.width1; */
+        /*     } else if (col < 2) { */
+        /*         var maxWidth = inputX + inputBoxData.width2; */
+        /*         inputWidth = (pageWidth < maxWidth) ? pageWidth + BLEEDDIM : maxWidth; */
+        /*     } else { */
+        /*         // Use narrower value: pageWidth or maxWidth (650pt) */
+        /*         // This will "clip" the inputWidth to the edge of page if 650pt exceeds the page */
+        /*         var maxWidth = inputX + inputBoxData.width3; */
+        /*         inputWidth = (pageWidth < maxWidth) ? pageWidth : maxWidth; */
+        /*     } */
+
+        /*     for (var row = 0; row < maxRow; row++) { */
+        /*         // Notes column has taller input box */
+        /*         var inputHeight = (col < 2) ? y + inputBoxData.height : y + inputBoxData.height * 4; */
+
+        /*         var titleBox = myPage.textFrames.add({ */
+        /*             geometricBounds: [y, titleX, y + titleBoxData.height, titleX + titleBoxData.width], */
+        /*             appliedObjectStyle: docToSetup.objectStyles.itemByName("SLUG TEXTBOXES") */
+        /*         }); */
+
+        /*         var inputBox = myPage.textFrames.add({ */
+        /*             geometricBounds: [y, inputX, inputHeight, inputWidth], */
+        /*             appliedObjectStyle: docToSetup.objectStyles.itemByName("SLUG TEXTBOXES") */
+        /*         }); */
+
+        /*         titleBoxSetup(titleBox, titleBoxData[counter]); */
+        /*         inputBoxSetup(inputBox, inputBoxData[counter]); */
+                
+        /*         // Next row is has 54pts offset */
+        /*         y += 48; */
+        /*         counter++; */
+        /*     } */
+
+        /*     // Notes column has 410pt offset from previous column */
+        /*     titleX += (col < 1) ? 330 : 390; */
+        /* } */
     }
 }
+
