@@ -24,8 +24,8 @@ SLUGDIM = 144;
 // Set some breakpoints (in in.) to determine how
 // the slug "reflows" textboxes
 BREAKPOINT = {
-    1 : 612, // 8.5 in.
-    2 : 324 // 4.5 in., about the width of 1 row of info
+    one : 612, // 8.5 in.
+    two : 324 // 4.5 in., about the width of 1 row of info
 };
 
 FONT = {
@@ -203,7 +203,7 @@ function main(docToSetup) {
     //Reset the Zero Point/Ruler to top left corner
     docToSetup.zeroPoint = [0,0];
 
-    var bottomSlug = (notesCheck.value && pageWidth <= BREAKPOINT.2) ? SLUGDIM * 1.75 : SLUGDIM;
+    var bottomSlug = (notesCheck.value && pageWidth <= BREAKPOINT.two) ? SLUGDIM * 1.75 : SLUGDIM;
 
     docToSetup.documentPreferences.properties = {
       documentSlugUniformSize : false
@@ -329,7 +329,6 @@ function main(docToSetup) {
 
     if(!myColor.isValid) {
         myColor = docToSetup.colors.add({name:"Yellow Highlight", model:ColorModel.process, colorValue:[0,0,100,0]});
-
     }
     
     with(my_CODE_BOLD_paragraphStyle){
@@ -477,11 +476,11 @@ function main(docToSetup) {
 
         // Decide on how to setup
         var maxCol, maxRow;
-        if (pageWidth <= BREAKPOINT.2) {
+        if (pageWidth <= BREAKPOINT.two) {
             // stack everything
             maxRow = addNotes ? 5 : 4;
             makeSmallLayout(maxRow);
-        } else if (pageWidth <= BREAKPOINT.1) {
+        } else if (pageWidth <= BREAKPOINT.one) {
             // add notes to the bottom
             maxCol = 2;
             maxRow = 2;
@@ -533,15 +532,19 @@ function main(docToSetup) {
                 y += 54;
             }
 
-            titleX += //HERE 
+            titleX += 330;
+            inputX = titleX + 80;
         }
 
         if (addNotes) {
+            titleX = 0;
+            inputX = titleX + 80;
+            y = pageHeight + 3;
             inputHeight *= 4;
+
             titleBoxSetup(titleX, y, titleBoxData.height, titleBoxData.width, titleBoxData.counter);
             inputBoxSetup(inputX, y, inputHeight, inputWidth, inputBoxData.counter);
         }
     }
-
 }
 
