@@ -432,12 +432,13 @@ function main(docToSetup) {
 
     // Set up title boxes
     function titleBoxSetup(x, y, width, height, content) {
+        $.writeln(content);
         var titleBox = myPage.textFrames.add({
             geometricBounds    : [y, x, y + height, x + width],
             appliedObjectStyle : docToSetup.objectStyles.itemByName("SLUG TEXTBOXES")
         });
 
-        titleBox.label = content;
+        titleBox.contents = content;
     }
     
     // Set up input boxes
@@ -523,10 +524,13 @@ function main(docToSetup) {
         var inputHeight = inputBoxData.height;
 
         var counter = 0;
+
         for (var col = 0; col < maxCol; row++) {
             y = -144;
 
             for (var row = 0; row < maxRow; col++) {
+                $.writeln(titleBoxData.counter);
+                $.writeln(counter);
                 titleBoxSetup(titleX, y, titleBoxData.height, titleBoxData.width, titleBoxData.counter);
                 inputBoxSetup(inputX, y, inputHeight, inputWidth, inputBoxData.counter);
                 
