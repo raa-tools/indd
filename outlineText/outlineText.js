@@ -12,12 +12,12 @@ var outlineText = function() {
   var pages = app.activeDocument.pages;
 
   for(var i = 0; i < pages.length; i++) {
-    var pageItems = pages[i].allPageItems;
-
-    for(var j = 0; j < pageItems.length; j++) {
-      if(!(pageItems[j] instanceof TextFrame)) continue;
-      pageItems[j].createOutlines();
-    }
+    var textFrames = pages[i].textFrames.everyItem();
+    try {
+      textFrames.createOutlines();
+    } catch(e) {
+      $.writeln(e);
+    };
   }
 }
 
