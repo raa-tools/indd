@@ -24,8 +24,8 @@ SLUGDIM = 144;
 // Set some breakpoints (in in.) to determine how
 // the slug "reflows" textboxes
 BREAKPOINT = {
-    one : 612, // 8.5 in.
-    two : 324 // 4.5 in., about the width of 1 row of info
+    one : 1152, // 16in.
+    two : 612 // 8.5in.
 };
 
 FONT = {
@@ -199,6 +199,8 @@ function main(docToSetup) {
     app.scriptPreferences.measurementUnit = MeasurementUnits.points;
     pageWidth = docToSetup.documentPreferences.pageWidth;
     pageHeight = docToSetup.documentPreferences.pageHeight;
+
+    var bottomWithMargin = pageHeight + BLEEDDIM + 3;
 
     //Reset the Zero Point/Ruler to top left corner
     docToSetup.zeroPoint = [0,0];
@@ -378,7 +380,7 @@ function main(docToSetup) {
     var inputBoxData = {
         width1 : 200,
         width2 : 260,
-        width3 : 550,
+        width3 : 590,
         height : FONT.LEADING,
 
         0 : "codeInput",
@@ -432,7 +434,6 @@ function main(docToSetup) {
 
     // Set up title boxes
     function titleBoxSetup(x, y, width, height, content) {
-        $.writeln(content);
         var titleBox = myPage.textFrames.add({
             geometricBounds    : [y, x, y + height, x + width],
             appliedObjectStyle : docToSetup.objectStyles.itemByName("SLUG TEXTBOXES")
@@ -488,15 +489,26 @@ function main(docToSetup) {
             maxCol = 2;
             maxRow = 2;
             makeMediumLayout(maxCol, maxRow, addNotes);
+
+            // TODO:
+            // fix redundancy
+            // makeMediumLayout is the same as makeLargeLayout but
+            // with a different way of adding notes (to the bottom)
         } else {
             // really wide panel, so keep everything as is
-            maxCol = addNotes ? 3 : 2;
+            maxCol = 2;
             maxRow = 2;
-            makeLargeLayout(maxCol, maxRow);
+            makeLargeLayout(maxCol, maxRow, addNotes);
+
+            // TODO:
+            // fix redundancy
+            // makeMediumLayout is the same as makeLargeLayout but
+            // with a different way of adding notes (to the bottom)
         }
     }
         
     function makeSmallLayout(maxRow) {
+        $.writeln("small");
         var titleX = 0;
         var inputX = titleX + 80;
         var y = -144;
@@ -507,11 +519,11 @@ function main(docToSetup) {
         for (var row = 0; row < maxRow; row++) {
             inputHeight = (row != 4) ? inputBoxData.height : inputBoxData.height * 4;
 
-            titleBoxSetup(titleX, y, titleBoxData.height, titleBoxData.width, titleBoxData.row);
-            inputBoxSetup(inputX, y, inputHeight, inputWidth, inputBoxData.row);
+            titleBoxSetup(titleX, y, titleBoxData.width, titleBoxData.height, titleBoxData[row]);
+            inputBoxSetup(inputX, y, inputWidth, inputHeight, inputBoxData[row]);
 
             // Jump to bottom of page after 2nd row
-            y += (row === 1) ? pageHeight + 3 : 54;
+            y = (row === 1) ? bottomWithMargin : y +  54;
         }
     }
 
@@ -520,21 +532,25 @@ function main(docToSetup) {
         var inputX = titleX + 80;
         var y;
 
-        var inputWidth = pageWidth - inputX;
+        var inputWidth, leftoverWidth;
         var inputHeight = inputBoxData.height;
 
         var counter = 0;
-
-        for (var col = 0; col < maxCol; row++) {
+        for (var col = 0; col < maxCol; col++) {
             y = -144;
 
-            for (var row = 0; row < maxRow; col++) {
-                $.writeln(titleBoxData.counter);
-                $.writeln(counter);
-                titleBoxSetup(titleX, y, titleBoxData.height, titleBoxData.width, titleBoxData.counter);
-                inputBoxSetup(inputX, y, inputHeight, inputWidth, inputBoxData.counter);
+            if (col < 1) {
+                inputWidth = inputBoxData.width1;
+            } else {
+                leftoverWidth = pageWidth - inputX;
+                inputWidth =  (leftoverWidth < inputBoxData.width2) ? leftoverWidth : inputBoxData.width2;
+            }
+
+            for (var row = 0; row < maxRow; row++) {
+                titleBoxSetup(titleX, y, titleBoxData.width, titleBoxData.height, titleBoxData[counter]);
+                inputBoxSetup(inputX, y, inputWidth, inputHeight, inputBoxData[counter]);
                 
-                counter++;
+                if (counter < 4) counter++;
                 y += 54;
             }
 
@@ -545,12 +561,61 @@ function main(docToSetup) {
         if (addNotes) {
             titleX = 0;
             inputX = titleX + 80;
-            y = pageHeight + 3;
+            y = bottomWithMargin;
+
+            leftoverWidth = pageWidth - inputX;
+            inputWidth =  (leftoverWidth < inputBoxData.width3) ? leftoverWidth : inputBoxData.width3;
             inputHeight *= 4;
 
-            titleBoxSetup(titleX, y, titleBoxData.height, titleBoxData.width, titleBoxData.counter);
-            inputBoxSetup(inputX, y, inputHeight, inputWidth, inputBoxData.counter);
+            titleBoxSetup(titleX, y, titleBoxData.width, titleBoxData.height, titleBoxData[counter]);
+            inputBoxSetup(inputX, y, inputWidth, inputHeight, inputBoxData[counter]);
+        }
+    }
+
+    function makeLargeLayout(maxCol, maxRow, addNotes) {
+        var titleX = 0;
+        var inputX = titleX + 80;
+        var y;
+
+        var inputWidth, leftoverWidth;
+        var inputHeight = inputBoxData.height;
+
+        var counter = 0;
+        for (var col = 0; col < maxCol; col++) {
+            y = -144;
+
+            if (col < 1) {
+                inputWidth = inputBoxData.width1;
+            } else {
+                leftoverWidth = pageWidth - inputX;
+                inputWidth =  (leftoverWidth < inputBoxData.width2) ? leftoverWidth : inputBoxData.width2;
+            }
+
+            for (var row = 0; row < maxRow; row++) {
+                titleBoxSetup(titleX, y, titleBoxData.width, titleBoxData.height, titleBoxData[counter]);
+                inputBoxSetup(inputX, y, inputWidth, inputHeight, inputBoxData[counter]);
+                
+                if (counter < 4) counter++;
+                y += 54;
+            }
+
+            titleX += 330;
+            inputX = titleX + 80;
+        }
+
+        if (addNotes) {
+            titleX += 60;
+            inputX = titleX + 80;
+            y = -144;
+
+            leftoverWidth = pageWidth - inputX;
+            inputWidth =  (leftoverWidth < inputBoxData.width3) ? leftoverWidth : inputBoxData.width3;
+            inputHeight *= 4;
+
+            titleBoxSetup(titleX, y, titleBoxData.width, titleBoxData.height, titleBoxData[counter]);
+            inputBoxSetup(inputX, y, inputWidth, inputHeight, inputBoxData[counter]);
         }
     }
 }
+
 
