@@ -479,121 +479,69 @@ function main(docToSetup) {
         var maxCol, maxRow;
         if (pageWidth <= BREAKPOINT.2) {
             // stack everything
-            maxCol = 1;
             maxRow = addNotes ? 5 : 4;
+            makeSmallLayout(maxRow);
         } else if (pageWidth <= BREAKPOINT.1) {
             // add notes to the bottom
             maxCol = 2;
             maxRow = 2;
+            makeMediumLayout(maxCol, maxRow, addNotes);
         } else {
             // really wide panel, so keep everything as is
-            maxCol addNotes ? 3 : 2;
+            maxCol = addNotes ? 3 : 2;
             maxRow = 2;
+            makeLargeLayout(maxCol, maxRow);
         }
+    }
         
-        var counter = 0;
+    function makeSmallLayout(maxRow) {
         var titleX = 0;
         var inputX = titleX + 80;
+        var y = -144;
 
-        for (var col = 0; col < maxCol; col++) {
-            var y = -144;
+        var inputWidth = pageWidth - inputX;
+        var inputHeight;
 
-            var inputWidth;
-            if (maxCol === 1) {
-                inputWidth = inputX - 
-            }
+        for (var row = 0; row < maxRow; row++) {
+            inputHeight = (row != 4) ? inputBoxData.height : inputBoxData.height * 4;
 
-            for (var row = 0; row < maxRow; row++) {
+            titleBoxSetup(titleX, y, titleBoxData.height, titleBoxData.width, titleBoxData.row);
+            inputBoxSetup(inputX, y, inputHeight, inputWidth, inputBoxData.row);
+
+            // Jump to bottom of page after 2nd row
+            y += (row === 1) ? pageHeight + 3 : 54;
+        }
+    }
+
+    function makeMediumLayout(maxCol, maxRow, addNotes) {
+        var titleX = 0;
+        var inputX = titleX + 80;
+        var y;
+
+        var inputWidth = pageWidth - inputX;
+        var inputHeight = inputBoxData.height;
+
+        var counter = 0;
+        for (var col = 0; col < maxCol; row++) {
+            y = -144;
+
+            for (var row = 0; row < maxRow; col++) {
                 titleBoxSetup(titleX, y, titleBoxData.height, titleBoxData.width, titleBoxData.counter);
                 inputBoxSetup(inputX, y, inputHeight, inputWidth, inputBoxData.counter);
-
+                
                 counter++;
-
-                if (maxCol === 1) {
-                    y += (counter === 3) ? pageHeight + 3 : 54;
-                } else if (maxCol === 2) {
-                    y += (counter === 5) ? 
-                } else {
-                    y += 54 ;
-                }
+                y += 54;
             }
 
-            if (maxCol > 1) {
-                titleX += (col < 1) ? 330 : 390;
-                // HERE
-            }
+            titleX += //HERE 
         }
 
-        /* for (var col = 0; col < maxCol; col++) { */
-        /*     // Notes column (col = 2) gets 1 row */
-        /*     /1* var rows = (col < 2) ? 2 : 1; *1/ */
-
-        /*     /1* if max col 1: *1/ */
-        /*     /1*     row < 2: *1/ */
-        /*     /1*         add up top *1/ */
-        /*     /1*     else: *1/ */
-        /*     /1*         add below *1/ */
-        /*     /1*     if add notes: *1/ */
-        /*     /1*         add below *1/ */
-
-        /*     /1* else if max col 2: *1/ */
-        /*     /1*     col < 2: *1/ */
-        /*     /1*         maxrows =2 *1/ */
-        /*     /1*         add col *1/ */
-                
-        /*     /1*     if add notes: *1/ */
-        /*     /1*         maxrows = 1 *1/ */
-        /*     /1*         add 3rd col below *1/ */
-
-        /*     /1* else: *1/ */
-        /*     /1*     col < 2: *1/ */
-        /*     /1*         maxrows = 2 *1/ */
-        /*     /1*         add col *1/ */
-        /*     /1*     if add notes: *1/ */
-        /*     /1*         maxrows = 1 *1/ */
-        /*     /1*         add 3rd col *1/ */
-
-        /*     var inputX = titleX + 80; */
-        /*     var y = -144; */
-
-        /*     var inputWidth; */
-        /*     if (col < 1) { */
-        /*         inputWidth = inputX + inputBoxData.width1; */
-        /*     } else if (col < 2) { */
-        /*         var maxWidth = inputX + inputBoxData.width2; */
-        /*         inputWidth = (pageWidth < maxWidth) ? pageWidth + BLEEDDIM : maxWidth; */
-        /*     } else { */
-        /*         // Use narrower value: pageWidth or maxWidth (650pt) */
-        /*         // This will "clip" the inputWidth to the edge of page if 650pt exceeds the page */
-        /*         var maxWidth = inputX + inputBoxData.width3; */
-        /*         inputWidth = (pageWidth < maxWidth) ? pageWidth : maxWidth; */
-        /*     } */
-
-        /*     for (var row = 0; row < maxRow; row++) { */
-        /*         // Notes column has taller input box */
-        /*         var inputHeight = (col < 2) ? y + inputBoxData.height : y + inputBoxData.height * 4; */
-
-        /*         var titleBox = myPage.textFrames.add({ */
-        /*             geometricBounds: [y, titleX, y + titleBoxData.height, titleX + titleBoxData.width], */
-        /*             appliedObjectStyle: docToSetup.objectStyles.itemByName("SLUG TEXTBOXES") */
-        /*         }); */
-
-        /*         var inputBox = myPage.textFrames.add({ */
-        /*             geometricBounds: [y, inputX, inputHeight, inputWidth], */
-        /*             appliedObjectStyle: docToSetup.objectStyles.itemByName("SLUG TEXTBOXES") */
-        /*         }); */
-
-        /*         titleBoxSetup(titleBox, titleBoxData[counter]); */
-        /*         inputBoxSetup(inputBox, inputBoxData[counter]); */
-                
-        /*         // Next row is has 54pts offset */
-        /*         y += 48; */
-        /*         counter++; */
-        /*     } */
-
-        /*     // Notes column has 410pt offset from previous column */
-        /*     titleX += (col < 1) ? 330 : 390; */
-        /* } */
+        if (addNotes) {
+            inputHeight *= 4;
+            titleBoxSetup(titleX, y, titleBoxData.height, titleBoxData.width, titleBoxData.counter);
+            inputBoxSetup(inputX, y, inputHeight, inputWidth, inputBoxData.counter);
+        }
     }
+
 }
 
