@@ -388,6 +388,8 @@ function main(docToSetup) {
         4 : "notesInput",
     };
 
+    layoutTextRegular();
+
     ////// ////// ////// ////// //////  ////// ////// ////// ////// ////// ////// 
     ////// ////// ////// //// —  Apply all the things  —  //// ////// ////// ////
     ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
@@ -435,7 +437,7 @@ function main(docToSetup) {
             appliedObjectStyle : docToSetup.objectStyles.itemByName("SLUG TEXTBOXES")
         });
 
-        titleBox.contents = content;
+        titleBox.label = content;
     }
     
     // Set up input boxes
