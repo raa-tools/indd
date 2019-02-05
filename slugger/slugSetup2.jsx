@@ -6,6 +6,7 @@ Currently, this script will add the following panel attributes:
     * Dimensions -- (W x H)
     * Review ------ (Batch # - Review #)
     * Date -------- (Defaults to today's date)
+    * Notes ------- (Optional)
 
 Would be great to let user add or remove attributes from a set list.
 Some extras might be:
@@ -48,10 +49,10 @@ try{
         var singleDoc = app.activeDocument;
         dialogSetup();
 
-        if(slugSetupWindow.show()) {
+        if(slugSetupWindow.show() == 1) {
             main(singleDoc);
         } else {
-            app.dialogs.everyItem().destroy();
+            exit();
         }
 
     // Else pick a folder of files
@@ -467,7 +468,7 @@ function main(docToSetup) {
 function dialogSetup() {
     var today = getTodaysDate();
 
-    slugSetupWindow = new Window("dialog", "Panels are CHILL");
+    slugSetupWindow = new Window("dialog", "Panels are CHILL 2.0");
 
     // Row 1
     var inputRow1 = slugSetupWindow.add("group {alignment: 'left'}");
