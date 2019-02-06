@@ -575,7 +575,6 @@ function setupDialog() {
     // Disable OK button when bleed value is invalid
     bleedEditText.onChanging = function() {
         bleedValue = Number(bleedEditText.text) * 72; // convert to points right away
-        $.writeln(bleedValue);
         okButton.enabled = (isNaN(bleedValue) || bleedValue < 0) ? false : true;
     }
 
