@@ -5,6 +5,8 @@ Currently, this script will add the following panel attributes:
     * Panel code -- (File name)
     * Dimensions -- (W x H)
     * Review ------ (Batch # - Review #)
+    * SAMPLE ------ (Whether panel is for sampling or not)
+    * FAB --------- (Insert fabricator name)
     * Date -------- (Defaults to today's date)
     * Notes ------- (Optional)
 
@@ -21,7 +23,6 @@ Some extras might be:
 GLOBALS = {
     SLUGDIM : 144,
 
-    // Add breakpoint so slug can "reflow"
     BREAKPOINT : {
         small  : 612, // 8.5in.
         medium : 1152 // 16in.
@@ -84,17 +85,11 @@ try{
 
 /* Main function; all other document-level functions nested in here */
 function main(docToSetup) {    
-    var pages = docToSetup.pages;
-
-    // Grab dims in pts
+    // Work in pts, it's easier
     app.scriptPreferences.measurementUnit = MeasurementUnits.points;
-    var pageWidth = docToSetup.documentPreferences.pageWidth;
-    var pageHeight = docToSetup.documentPreferences.pageHeight;
-    var bottomWithMargin = pageHeight + bleedValue + 3;
 
     // Some document-level globals
     var codeInfoLayer;
-    var varDims = setupDimsVariable();
     var slugObjectStyle, CODE_NOTE_charStyle, CODE_LIGHT_charStyle, CODE_BOLD_paraStyle;
 
     var titleBoxData = {
@@ -121,13 +116,20 @@ function main(docToSetup) {
         4 : "notesInput",
     };
     
+
     // Begin function calls
-    prepDocument();
+    var pages = docToSetup.pages;
+
+    // Find narrowest width for slugBottom calculation
+    var narrowestWidth = (pages.length === 1) ? calcPageDims(pages[0]).width : findNarrowestWidth(pages);
+
+    prepDocument(narrowestWidth);
     setupStyles();
 
     // Make layouts for all pages
     for(var i = 0; i < pages.length; i++) {
-        makeLayout(pages[i]);
+        var pageDims = calcPageDims(pages[i]);
+        makeLayout(pages[i], pageDims);
         applyStyles();
     }
 
@@ -142,11 +144,11 @@ function main(docToSetup) {
     //////////////////////////////////////
 
     /* Setup bleed and slug area */
-    function prepDocument() {
+    function prepDocument(widthToUse) {
         // Reset the Zero Point/Ruler to top left corner
         docToSetup.zeroPoint = [0,0];
 
-        var bottomSlug = (notesCheck.value && pageWidth <= GLOBALS.BREAKPOINT.small) ? GLOBALS.SLUGDIM * 1.75 : GLOBALS.SLUGDIM;
+        var bottomSlug = (notesCheck.value && widthToUse <= GLOBALS.BREAKPOINT.small) ? GLOBALS.SLUGDIM * 1.75 : GLOBALS.SLUGDIM;
 
         docToSetup.documentPreferences.properties = {
           documentSlugUniformSize : false
@@ -172,24 +174,6 @@ function main(docToSetup) {
 
         codeInfoLayer = docToSetup.layers.add({name: "Code and info"});
         codeInfoLayer.move(LocationOptions.BEFORE, docToSetup.layers[0]);    
-    }
-
-    /* Setup dims text variable text variable obj is returned */
-    function setupDimsVariable() {
-        varDims = docToSetup.textVariables.item("Dimensions");
-
-        // Check if variable text item exists and is the right type
-        // If not, add one
-        if(!varDims.isValid || varDims.variableType !== VariableTypes.CUSTOM_TEXT_TYPE) {
-            varDims = docToSetup.textVariables.add();
-            varDims.variableType = VariableTypes.CUSTOM_TEXT_TYPE;
-            varDims.name = "Dimensions";
-        }
-        
-        // Either way, insert content here
-        // But add to slug in inches (72pts = 1 in.)
-        varDims.variableOptions.contents = (pageWidth / 72) + " × " + (pageHeight / 72) + " in.";
-        return varDims;
     }
 
     /* Setup object style, char styles, paragraph style */
@@ -290,9 +274,37 @@ function main(docToSetup) {
         }
     }
 
+    /*
+    Calculate page dimensions (width, height) by using a page's bounds
+    A dims object is returned {dims.width, dims.height}
+    */
+    function calcPageDims(page) {
+        var dims = {};
+    
+        // bounds format: [y1, x1, y2, x2]
+        dims.width  = page.bounds[3] - page.bounds[1];
+        dims.height = page.bounds[2] - page.bounds[0];
+
+        return dims;
+    }
+
+    /* Find narrowest width to be used to calculate bottom slug */
+    function findNarrowestWidth(allPages) {
+        var narrowest = calcPageDims(allPages[0]).width;
+        for (var i = 1; i < allPages.length; i++) {
+            var newWidth = calcPageDims(allPages[i]).width;
+            narrowest = (newWidth < narrowest) ? newWidth : narrowest;
+        }
+        return narrowest;
+    }
+
     /* Determine which kind of layout to make & make it */
-    function makeLayout(page) {
-        var page = page;
+    function makeLayout(page, pageDims) {
+        var currentPage = page;
+        var pageWidth = pageDims.width;
+        var pageHeight = pageDims.height;
+        var bottomWithMargin = pageHeight + bleedValue + 3;
+
         var maxCol, maxRow;
 
         if (pageWidth <= GLOBALS.BREAKPOINT.small) {
@@ -390,7 +402,7 @@ function main(docToSetup) {
         // Title & input box setup
 
         function titleBoxSetup(x, y, width, height, content) {
-            var titleBox = page.textFrames.add({
+            var titleBox = currentPage.textFrames.add({
                 geometricBounds    : [y, x, y + height, x + width],
                 appliedObjectStyle : docToSetup.objectStyles.itemByName("SLUG TEXTBOXES")
             });
@@ -399,7 +411,7 @@ function main(docToSetup) {
         }
         
         function inputBoxSetup(x, y, width, height, labelName) {
-            var inputBox = page.textFrames.add({
+            var inputBox = currentPage.textFrames.add({
                 geometricBounds    : [y, x, y + height, x + width],
                 appliedObjectStyle : docToSetup.objectStyles.itemByName("SLUG TEXTBOXES")
             })
@@ -410,7 +422,7 @@ function main(docToSetup) {
                 inputBox.textVariableInstances.add({associatedTextVariable:varFileName});
             
             } else if(labelName === "dimsInput") {
-                inputBox.textVariableInstances.add({associatedTextVariable:varDims});
+                inputBox.contents = (pageWidth / 72) + " × " + (pageHeight / 72) + " in.";
         
             } else if(labelName === "batchReviewInput"){
                 if(sampleCheck.value) {
