@@ -18,36 +18,36 @@ Some extras might be:
 //Just in case this little script gets lost in the woods:
 #target InDesign
 
-// GLOBAL VARIABLES – CHANGE PER PROJECT AS NECESSARY
-BLEEDDIM = 36;
-SLUGDIM = 144;
+GLOBALS = {
+    SLUGDIM : 144,
 
-// Set some breakpoints (in in.) to determine how
-// the slug "reflows" textboxes
-BREAKPOINT = {
-    small  : 612, // 8.5in.
-    medium : 1152 // 16in.
-};
+    // Add breakpoint so slug can "reflow"
+    BREAKPOINT : {
+        small  : 612, // 8.5in.
+        medium : 1152 // 16in.
+    },
 
-FONT = {
-    FAMILY  : "Helvetica",
-    WEIGHT1 : "Light",
-    WEIGHT2 : "Bold",
-    SIZE1   : 22,
-    SIZE2   : 14,
-    LEADING : 24,
+    FONT : {
+        family  : "Helvetica",
+        weight1 : "Light",
+        weight2 : "Bold",
+        size1   : 22,
+        size2   : 14,
+        leading : 24,
+    }
 };
 
 try{
-    // Semi-global variables, shared between main() and dialogSetup()
+    // Semi-global variables, shared between main() and setupDialog()
     var slugSetupWindow, batchEditText, reviewEditText, dateEditText;
     var sampleCheck, fabCheck; 
     var notesCheck, notesEditText;
-    
+    var bleedValue;
+
     // If there are files open, set up slug for active document
     if(app.documents.length !== 0) {
         var singleDoc = app.activeDocument;
-        dialogSetup();
+        setupDialog();
 
         if(slugSetupWindow.show() == 1) {
             main(singleDoc);
@@ -60,9 +60,9 @@ try{
         var panelFolder = Folder.selectDialog("Pick panels");
         var panelFiles = panelFolder.getFiles("*.indd");
 
-        dialogSetup();
+        setupDialog();
 
-        if(slugSetupWindow.show()) {
+       if(slugSetupWindow.show() == 1) {
             for(var i = 0; i < panelFiles.length; i++) {
                 var panelFile = app.open(panelFiles[i]);
 
@@ -74,7 +74,7 @@ try{
             // Add some error logging here at some point...
 
         } else {
-            app.dialogs.everyItem().destroy();
+            exit();
         }
     }
 
@@ -90,7 +90,7 @@ function main(docToSetup) {
     app.scriptPreferences.measurementUnit = MeasurementUnits.points;
     var pageWidth = docToSetup.documentPreferences.pageWidth;
     var pageHeight = docToSetup.documentPreferences.pageHeight;
-    var bottomWithMargin = pageHeight + BLEEDDIM + 3;
+    var bottomWithMargin = pageHeight + bleedValue + 3;
 
     // Some document-level globals
     var codeInfoLayer;
@@ -99,7 +99,7 @@ function main(docToSetup) {
 
     var titleBoxData = {
         width  : 60, 
-        height : FONT.LEADING,
+        height : GLOBALS.FONT.leading,
 
         0 : "Code",
         1 : "w × h",
@@ -112,7 +112,7 @@ function main(docToSetup) {
         width1 : 200,
         width2 : 260,
         width3 : 590,
-        height : FONT.LEADING,
+        height : GLOBALS.FONT.leading,
 
         0 : "codeInput",
         1 : "dimsInput",
@@ -146,7 +146,7 @@ function main(docToSetup) {
         // Reset the Zero Point/Ruler to top left corner
         docToSetup.zeroPoint = [0,0];
 
-        var bottomSlug = (notesCheck.value && pageWidth <= BREAKPOINT.small) ? SLUGDIM * 1.75 : SLUGDIM;
+        var bottomSlug = (notesCheck.value && pageWidth <= GLOBALS.BREAKPOINT.small) ? GLOBALS.SLUGDIM * 1.75 : GLOBALS.SLUGDIM;
 
         docToSetup.documentPreferences.properties = {
           documentSlugUniformSize : false
@@ -154,14 +154,14 @@ function main(docToSetup) {
 
         //Set bleed and slug dims
         docToSetup.documentPreferences.properties = {
-            documentBleedBottomOffset         : BLEEDDIM ,
-            documentBleedTopOffset            : BLEEDDIM ,
-            documentBleedInsideOrLeftOffset   : BLEEDDIM ,
-            documentBleedOutsideOrRightOffset : BLEEDDIM,
+            documentBleedBottomOffset         : bleedValue ,
+            documentBleedTopOffset            : bleedValue ,
+            documentBleedInsideOrLeftOffset   : bleedValue ,
+            documentBleedOutsideOrRightOffset : bleedValue,
             slugBottomOffset                  : bottomSlug,
-            slugTopOffset                     : SLUGDIM,
-            slugInsideOrLeftOffset            : SLUGDIM,
-            slugRightOrOutsideOffset          : SLUGDIM
+            slugTopOffset                     : GLOBALS.SLUGDIM,
+            slugInsideOrLeftOffset            : GLOBALS.SLUGDIM,
+            slugRightOrOutsideOffset          : GLOBALS.SLUGDIM
         };
 
         // Set up "Code and info" layer
@@ -225,10 +225,10 @@ function main(docToSetup) {
         with(CODE_NOTE_charStyle){
             //Formatting the Character text style
             basedOn = "None";
-            appliedFont = app.fonts.itemByName(FONT.FAMILY);
-            fontStyle = FONT.WEIGHT1;
-            pointSize = FONT.SIZE2;
-            leading = FONT.LEADING;
+            appliedFont = app.fonts.itemByName(GLOBALS.FONT.family);
+            fontStyle = GLOBALS.FONT.weight1;
+            pointSize = GLOBALS.FONT.size2;
+            leading = GLOBALS.FONT.leading;
             tracking = 25;
             capitalization = Capitalization.allCaps;
             fillTint = 50;
@@ -244,10 +244,10 @@ function main(docToSetup) {
         with(CODE_LIGHT_charStyle){
             //Formatting the Character text style
             basedOn = "None";
-            appliedFont = app.fonts.itemByName(FONT.FAMILY);
-            fontStyle = FONT.WEIGHT1;
-            pointSize = FONT.SIZE1;
-            leading = FONT.LEADING;
+            appliedFont = app.fonts.itemByName(GLOBALS.FONT.family);
+            fontStyle = GLOBALS.FONT.weight1;
+            pointSize = GLOBALS.FONT.size1;
+            leading = GLOBALS.FONT.leading;
             tracking = 0;
             capitalization = Capitalization.normal;
             fillTint = 100;
@@ -264,16 +264,16 @@ function main(docToSetup) {
         with(CODE_BOLD_paraStyle){
             //Formatting the paragraph text style
             nextParagraphStyle = "None";
-            appliedFont = app.fonts.itemByName(FONT.FAMILY);
-            fontStyle = FONT.WEIGHT2;
-            pointSize = FONT.SIZE1;
-            leading = FONT.LEADING;
+            appliedFont = app.fonts.itemByName(GLOBALS.FONT.family);
+            fontStyle = GLOBALS.FONT.weight2;
+            pointSize = GLOBALS.FONT.size1;
+            leading = GLOBALS.FONT.leading;
             fillColor = docToSetup.colors.item("Black");
             capitalization = Capitalization.allCaps;
 
             //Paragraph Rule Settings
             ruleAbove = true;
-            ruleAboveLineWeight = FONT.SIZE1 + " pt";
+            ruleAboveLineWeight = GLOBALS.FONT.size1 + " pt";
 
             ruleAboveColor = docToSetup.colors.item("Yellow Highlight");
             ruleAboveOverprint = false;
@@ -295,11 +295,11 @@ function main(docToSetup) {
         var page = page;
         var maxCol, maxRow;
 
-        if (pageWidth <= BREAKPOINT.small) {
+        if (pageWidth <= GLOBALS.BREAKPOINT.small) {
             makeSmallLayout();
             if(notesCheck.value) addNotes("bottom_row");
 
-        } else if (pageWidth <= BREAKPOINT.medium) {
+        } else if (pageWidth <= GLOBALS.BREAKPOINT.medium) {
             makeRegularLayout();
             if(notesCheck.value) addNotes("bottom");
 
@@ -465,7 +465,7 @@ function main(docToSetup) {
 }
 
 /* Set up interface dialog */
-function dialogSetup() {
+function setupDialog() {
     var today = getTodaysDate();
 
     slugSetupWindow = new Window("dialog", "Panels are CHILL 2.0");
@@ -530,7 +530,6 @@ function dialogSetup() {
     dateEditText = inputRow3.add("edittext {size: [155, 25]}");
     dateEditText.text = today;
 
-
     // Row 4
     var inputRow4 = slugSetupWindow.add("group {alignment: 'left'}");
 
@@ -549,10 +548,24 @@ function dialogSetup() {
     notesEditText = inputRow4.add("edittext", [0, 0, 155, 100], "", {multiline: true, scrolling: true, wantReturn: true});
     notesEditText.enabled = false;
 
+    // Row 5
+    var inputRow5 = slugSetupWindow.add("group {alignment: 'left'}");
+    var bleedStaticText = inputRow5.add("statictext {text: 'Bleed:', size: [65, 24], alignment: 'bottom', justify: 'left'}");
+    var bleedEditText = inputRow5.add("edittext {text: '0.5', size: [65, 25]}");
+    var inchStaticText = inputRow5.add("statictext {text: 'in.', size: [65, 24], alignment: 'bottom', justify: 'left'}");
+    bleedValue = Number(bleedEditText.text) * 72;
+
     // Buttons
     var buttonGroup = slugSetupWindow.add("group {alignment: 'right'}");
-    buttonGroup.add ("button", undefined, "OK");
-    buttonGroup.add ("button", undefined, "Cancel");
+    var okButton = buttonGroup.add ("button", undefined, "OK");
+    var cancelButton = buttonGroup.add ("button", undefined, "Cancel");
+
+    // Disable OK button when bleed value is invalid
+    bleedEditText.onChanging = function() {
+        bleedValue = Number(bleedEditText.text) * 72; // convert to points right away
+        $.writeln(bleedValue);
+        okButton.enabled = (isNaN(bleedValue) || bleedValue < 0) ? false : true;
+    }
 
     function getTodaysDate() {
         var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];    
