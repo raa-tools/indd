@@ -482,6 +482,11 @@ function setupDialog() {
 
     slugSetupWindow = new Window("dialog", "Panels are CHILL 2.0");
 
+    // Prevent user from pressing "Enter" when OK button is disabled
+    slugSetupWindow.addEventListener("keydown", function(event) {
+        if (!okButton.enabled && event.keyName === "Enter") event.preventDefault();
+    });
+
     // Row 1
     var inputRow1 = slugSetupWindow.add("group {alignment: 'left'}");
     
