@@ -8,37 +8,54 @@ var oldInteractionPref = app.scriptPreferences.userInteractionLevel;
 // Don't see any popups
 app.scriptPreferences.userInteractionLevel=UserInteractionLevels.NEVER_INTERACT;
 
-var sourceFolder = Folder.selectDialog("Pick source folder");
-var targetFolder = Folder.selectDialog("Pick target folder");
+var COUNT = 0;
+var SOURCE_FOLDER = Folder.selectDialog("Pick source folder");
+var TARGET_FOLDER = Folder.selectDialog("Pick target folder");
 
-recursive_package(sourceFolder);
+// For progress bar: go through folders and count number of panels
+recurseTraverse(SOURCE_FOLDER, countFiles);
+
+// Then use count to build progress bar
+// buildProgressBar();
+
+// Then actually do the work...
+// Using anonymous callback bc we want to inject packaging mode here
+recurseTraverse(SOURCE_FOLDER, function(file) {
+  packageFile(file, "test");
+});
+
 app.scriptPreferences.userInteractionLevel = oldInteractionPref; // reset to old pref
 
-function recursive_package(directory) {
+// Primary recursive function. Takes in root directory and a callback (action)
+// This is a depth-first recursive function
+function recurseTraverse(directory, callbackFunc) {
   var files = directory.getFiles("*");
 
   for (var i = 0; i < files.length; i++) {
     // If file is actually dir, then recurse
     if (typeof files[i].type == "undefined") {
       var folder = new Folder(files[i].relativeURI);
-      recursive_package(folder);
+      recurseTraverse(folder, callbackFunc)
     }
 
     // Only do stuff to indd files
     if (files[i].name.split(".").pop() === "indd") {
-      // A little convoluted, but essentially used to copy folder structure in target folder
-      var destPath = targetFolder + files[i].absoluteURI
-        .replace(sourceFolder.absoluteURI, "")
-        .replace(files[i].name, "");
-
-      var file = new File(files[i]);
-      package_file(file, destPath);
+      /* $.writeln(typeof files[i]); */
+      callbackFunc(files[i]);
     }
   }
 }
 
-function package_file(file, destination) {
-  var destFolder = new Folder(destination);
+// Main packaging function
+function packageFile(file, mode) {
+  $.writeln(mode);
+  // A little convoluted, but essentially used to grab relative paths
+  // so we can copy folder structure in target folder
+  var destPath = TARGET_FOLDER + file.absoluteURI
+    .replace(SOURCE_FOLDER.absoluteURI, "")
+    .replace(file.name, "");
+
+  var destFolder = new Folder(destPath);
   if (!destFolder.exists) {
     destFolder.create();
   }
@@ -48,5 +65,22 @@ function package_file(file, destination) {
   // For more info on args: http://jongware.mit.edu/idcs6js/pc_Document.html#packageForPrint
   docToPackage.packageForPrint(destFolder, true, true, false, true, true, true, false);
   docToPackage.close();
+  logCount();
+}
+
+// Quick log for now
+function logCount() {
+  COUNT--;
+  $.writeln(COUNT);
+}
+
+// Increment COUNT for progress bar
+function countFiles(file) {
+  COUNT++;
+}
+
+// Print funciton for convenience...
+function printFileName(file) {
+  $.writeln(file.name);
 }
 
