@@ -21,6 +21,7 @@ Some extras might be:
 #target InDesign
 
 GLOBALS = {
+    MEASUREMENT : "imperial",
     SLUGDIM : 144,
 
     BREAKPOINT : {
@@ -422,7 +423,9 @@ function main(docToSetup) {
                 inputBox.textVariableInstances.add({associatedTextVariable:varFileName});
             
             } else if(labelName === "dimsInput") {
-                inputBox.contents = (pageWidth / 72) + " × " + (pageHeight / 72) + " in.";
+                var multiplier = (GLOBALS.MEASUREMENT === "imperial") ? 72 : 28.3465;
+                var unit = (GLOBALS.MEASUREMENT === "imperial") ? " in. " : " cm";
+                inputBox.contents = Math.round(pageWidth / multiplier * 100) / 100 + " × " + Math.round(pageHeight / multiplier * 100) / 100 + unit;
         
             } else if(labelName === "batchReviewInput"){
                 if(sampleCheck.value) {
@@ -569,8 +572,17 @@ function setupDialog() {
     var inputRow5 = slugSetupWindow.add("group {alignment: 'left'}");
     var bleedStaticText = inputRow5.add("statictext {text: 'Bleed:', size: [65, 24], alignment: 'bottom', justify: 'left'}");
     var bleedEditText = inputRow5.add("edittext {text: '0.5', size: [65, 25]}");
-    var inchStaticText = inputRow5.add("statictext {text: 'in.', size: [65, 24], alignment: 'bottom', justify: 'left'}");
+    var unitStaticText = inputRow5.add("statictext {text: 'in.', size: [65, 24], alignment: 'bottom', justify: 'left'}");
     bleedValue = Number(bleedEditText.text) * 72;
+
+    // Row 6
+    var inputRow6 = slugSetupWindow.add("group {alignment: 'left'}");
+    var inchRadio = inputRow6.add("radiobutton", undefined, "Imperial");
+    var metricsRadio = inputRow6.add("radiobutton", undefined, "Metrics");
+
+    inchRadio.value = true;
+    inchRadio.onClick = listenToRadio;
+    metricsRadio.onClick = listenToRadio;
 
     // Buttons
     var buttonGroup = slugSetupWindow.add("group {alignment: 'right'}");
@@ -579,8 +591,21 @@ function setupDialog() {
 
     // Disable OK button when bleed value is invalid
     bleedEditText.onChanging = function() {
-        bleedValue = Number(bleedEditText.text) * 72; // convert to points right away
+        var multiplier = inchRadio.value ? 72 : 28.3465;  // 72pt in an inch, 28.3465pt in a cm
+        bleedValue = Number(bleedEditText.text) * multiplier;
         okButton.enabled = (isNaN(bleedValue) || bleedValue < 0) ? false : true;
+    }
+
+    function listenToRadio() {
+      if (inchRadio.value == true) {
+        bleedEditText.text = Number(bleedEditText.text) / 2.54; // 1in = 2.54cm
+        unitStaticText.text = "in.";
+        GLOBALS.MEASUREMENT = "imperial";
+      } else {
+        bleedEditText.text = Number(bleedEditText.text) * 2.54; // 1in = 2.54cm
+        unitStaticText.text = "cm";
+        GLOBALS.MEASUREMENT = "metric";
+      }
     }
 
     function getTodaysDate() {
