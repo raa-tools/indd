@@ -16,7 +16,10 @@ var TARGET_FOLDER = Folder.selectDialog("Pick target folder");
 recurseTraverse(SOURCE_FOLDER, countFiles);
 
 // Then use count to build progress bar
-// buildProgressBar();
+var w = new Window("palette");
+pbar = w.add("progressbar", undefined, 0, COUNT);
+pbar.preferredSize.width = 300;
+w.show();
 
 // Then actually do the work...
 // Using anonymous callback bc we want to inject packaging mode here
@@ -71,7 +74,7 @@ function packageFile(file, mode) {
 // Quick log for now
 function logCount() {
   COUNT--;
-  $.writeln(COUNT);
+  pbar.value += 1;
 }
 
 // Increment COUNT for progress bar
