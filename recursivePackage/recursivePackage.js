@@ -27,6 +27,9 @@ recurseTraverse(SOURCE_FOLDER, function(file) {
   packageFile(file, "test");
 });
 
+recurseTraverse(SOURCE_FOLDER, packageFile);
+
+
 app.scriptPreferences.userInteractionLevel = oldInteractionPref; // reset to old pref
 
 // Primary recursive function. Takes in root directory and a callback (action)
@@ -50,8 +53,7 @@ function recurseTraverse(directory, callbackFunc) {
 }
 
 // Main packaging function
-function packageFile(file, mode) {
-  $.writeln(mode);
+function packageFile(file) {
   // A little convoluted, but essentially used to grab relative paths
   // so we can copy folder structure in target folder
   var destPath = TARGET_FOLDER + file.absoluteURI
