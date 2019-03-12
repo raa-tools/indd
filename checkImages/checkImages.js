@@ -50,12 +50,15 @@ function checkImages(fileToCheck) {
   // Check all images against THRESHOLD
   var images = getImages(doc.allGraphics);
   for (var j = 0; j < images.length; j++) {
-    var report = checkSize(images[j], THRESHOLD);
-    squishedList.push(report[0]);
-    lowResList.push(report[1]);
+    var report = analyzeImage(images[j], THRESHOLD);
+
+    // Only add to list if obj property exists
+    if (report.squished) squishedList.push(report.squished);
+    if (report.lowRes) lowResList.push(report.lowRes);
   }
 
-  if(squishedList.length > 1 || lowResList.length > 1) {
+
+  if(squishedList.length || lowResList.length ) {
     LOG_ARRAY.push(doc.name + ":");
     if(squishedList.length) {
       LOG_ARRAY.push("squished:");
@@ -86,7 +89,7 @@ function getImages(allGraphics) {
   return imgArray;
 }
 
-function checkSize(image, threshold) {
+function analyzeImage(image, threshold) {
   /*
   Check if image is squished or is below threshold
   and returns report as an array:
@@ -94,19 +97,23 @@ function checkSize(image, threshold) {
   */
   var xPPI = image.effectivePpi[0];
   var yPPI = image.effectivePpi[1];
-  var info = [undefined, undefined];
+  var report = {
+    squished: undefined,
+    lowRes: undefined
+  };
   
   // Check if squished
   if (xPPI !== yPPI) {
-    info[0] =  image.itemLink.name.split(".")[0];
+    report.squished =  image.itemLink.name.split(".")[0];
+  } 
 
   // Check if below threshold
-  } else if (xPPI < threshold || yPPI < threshold) {
+  if (xPPI < threshold || yPPI < threshold) {
     var scaleBy = Math.ceil(threshold / xPPI * 100);
-    info[1] = image.itemLink.name.split(".")[0] + " - upres by " + scaleBy + "%";
+    report.lowRes = image.itemLink.name.split(".")[0] + " - upres by " + scaleBy + "%";
   }
 
-  return info;
+  return report;
 }
 
 function writeLogFile(logTitle, itemsToLog) {
