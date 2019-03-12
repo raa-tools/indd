@@ -22,14 +22,7 @@ pbar.preferredSize.width = 300;
 w.show();
 
 // Then actually do the work...
-// Using anonymous callback bc we want to inject packaging mode here
-recurseTraverse(SOURCE_FOLDER, function(file) {
-  packageFile(file, "test");
-});
-
 recurseTraverse(SOURCE_FOLDER, packageFile);
-
-
 app.scriptPreferences.userInteractionLevel = oldInteractionPref; // reset to old pref
 
 // Primary recursive function. Takes in root directory and a callback (action)
