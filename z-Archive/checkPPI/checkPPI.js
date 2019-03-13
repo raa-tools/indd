@@ -1,3 +1,7 @@
+/*
+THIS SCRIPT HAS BEEN REPLACED BY checkImages.js
+as of 190313
+*/
 #target "InDesign-8.0"
 var THRESHOLD = 150;
 
