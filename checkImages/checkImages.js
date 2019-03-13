@@ -1,8 +1,10 @@
-// Check every image in every file in a folder, recursively
-// Currently checks the following:
-// - If link is broken or not
-// - If images are below THRESHOLD
-// - If images are squished
+/*
+Check every image in every file in a folder, recursively
+Currently checks the following:
+  - If link is broken or not
+  - If images are below THRESHOLD
+  - If images are squished
+*/
 
 #target "InDesign-8.0"
 THRESHOLD = 150;
@@ -73,7 +75,9 @@ function analyzeFile(fileToCheck) {
   }
 
   if(missingLinks.length || squishedImages.length || lowResImages.length) {
-    LOG_ARRAY.push(folderName + "/" + doc.name + "\n----------------------------");
+    var dashSeparator = "------------------------------";
+    var header = folderName + "/" + doc.name;
+    LOG_ARRAY.push(dashSeparator + "\n" + header + "\n" + dashSeparator);
 
     if (missingLinks.length) {
       addSection("missing", missingLinks);
@@ -130,8 +134,15 @@ function checkRes(image) {
 }
 
 function addSection(name, contents) {
+  var indent = "    ";
+  var indentedContents = [];
+
+  for (var contentsIndex = 0; contentsIndex < contents.length; contentsIndex++) {
+    indentedContents.push(indent + contents[contentsIndex]);
+  }
+
   LOG_ARRAY.push(name + ":");
-  LOG_ARRAY = LOG_ARRAY.concat(contents);
+  LOG_ARRAY = LOG_ARRAY.concat(indentedContents);
   LOG_ARRAY.push("");
 }
 
