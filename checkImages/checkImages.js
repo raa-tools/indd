@@ -60,7 +60,16 @@ function recurseTraverse(directory, callbackFunc) {
 }
 
 function analyzeFile(fileToCheck) {
-  var doc = app.open(fileToCheck);
+  try {
+    var doc = app.open(fileToCheck);
+  } catch (e) {
+    var fileFolder = fileToCheck.path
+      .split("/")
+      .pop();
+    LOG_ARRAY.push("Can't open " + fileFolder + "/" + fileToCheck.name);
+    LOG_ARRAY.push("\n");
+    return;
+  }
   var folderName = doc.filePath
     .absoluteURI
     .split("/")
