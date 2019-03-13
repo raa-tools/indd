@@ -17,6 +17,11 @@ function main() {
 
   var rootFolder = Folder.selectDialog("Pick root folder");
 
+  // In case user cancels
+  if (!rootFolder) {
+    return 1;
+  }
+
   recurseTraverse(rootFolder, function() {
     COUNT++;
   });
