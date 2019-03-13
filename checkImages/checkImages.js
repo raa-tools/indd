@@ -135,14 +135,12 @@ function checkRes(image) {
 
 function addSection(name, contents) {
   var indent = "    ";
-  var indentedContents = [];
-
   for (var contentsIndex = 0; contentsIndex < contents.length; contentsIndex++) {
-    indentedContents.push(indent + contents[contentsIndex]);
+    contents[contentsIndex] = indent + contents[contentsIndex];
   }
 
   LOG_ARRAY.push(name + ":");
-  LOG_ARRAY = LOG_ARRAY.concat(indentedContents);
+  LOG_ARRAY = LOG_ARRAY.concat(contents);
   LOG_ARRAY.push("");
 }
 
