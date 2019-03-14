@@ -32,9 +32,7 @@ function main() {
   w.show();
 
   recurseTraverse(rootFolder, analyzeFile);
-  if (LOG_ARRAY.length) {
-    writeLogFile("checkImages", LOG_ARRAY);
-  }
+  writeLogFile("checkImages", LOG_ARRAY);
 
   app.scriptPreferences.userInteractionLevel = oldInteractionPref; // reset to old pref
 }
@@ -169,7 +167,13 @@ function writeLogFile(logTitle, itemsToLog) {
   var logFile = new File("~/Desktop/" + logTitle + ".txt");
   logFile.encoding = "UTF-8";
   logFile.open("w");
-  logFile.write(itemsToLog.join("\n"));
+
+  if (itemsToLog.length) {
+    logFile.write(itemsToLog.join("\n"));
+  } else {
+    logFile.write("All images OK");
+  }
+
   logFile.close();
 }
 
