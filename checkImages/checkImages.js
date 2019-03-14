@@ -32,7 +32,9 @@ function main() {
   w.show();
 
   recurseTraverse(rootFolder, analyzeFile);
-  writeLogFile("checkImages", LOG_ARRAY);
+  if (LOG_ARRAY.length) {
+    writeLogFile("checkImages", LOG_ARRAY);
+  }
 
   app.scriptPreferences.userInteractionLevel = oldInteractionPref; // reset to old pref
 }
