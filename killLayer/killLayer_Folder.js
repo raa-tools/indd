@@ -1,13 +1,11 @@
 ﻿//Just in case this little script gets lost in the woods:
 #target InDesign
 
-
 //Establish variables for a folder of INDD layout files and each individual files,
 //and allow the user to select the folder
 var myFolder = Folder.selectDialog("Select Indesign Folder");  
 var myInddFiles = myFolder.getFiles("*.indd"); 
  
-
 ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
 ////// ////// /////  —   D i a l o g   B u s i n e s s    —     ///// ////// //////
 ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// ////// 
@@ -36,42 +34,24 @@ myButtonGroup.add ("button", undefined, "Cancel");
 
 //Capture text input
 if (myWindow.show () == true) {
-var myString1 = myTextEditField1.text;
-
+  var myString1 = myTextEditField1.text;
+  if (myString1[myString1.length - 1] === " ") {
+    myString1 = myString1.slice(0, myString1.length);
+  }
+} else {
+  app.dialogs.everyItem().destroy();
 }
-else{
-app.dialogs.everyItem().destroy()
-}
-
-
 
 ////// — MAIN Script — //////
+for(k=0; k<myInddFiles.length; k++) {  
+  app.open(myInddFiles[k]);
 
-//Establish a loop to deal with all the files.
-//For each file:
-
-for(k=0; k<myInddFiles.length; k++)  
-{  
-
-    //Open the file
-    app.open(myInddFiles[k]);
-
-    //Check if myString1” layer exists, and if it does, delete it
-    try {
+  if(app.activeDocument.layers.item(myString1)) {
     app.activeDocument.layers.item(myString1).remove();
-    }
+  }
 
-    catch (whatWeWantIsNotActuallyAnErrorButHeyWeWillTakeIt){
-      continue;
-    }
-
-    //save file
-    app.activeDocument.save();
-
-    //close file
-    app.activeDocument.close();
-
-
+  app.activeDocument.save();
+  app.activeDocument.close();
 }
 
 var myString = "typeBoss, you just processed " + myInddFiles.length + " files in about 2 seconds. \rNice.";
