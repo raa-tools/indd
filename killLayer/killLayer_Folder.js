@@ -36,7 +36,7 @@ myButtonGroup.add ("button", undefined, "Cancel");
 if (myWindow.show () == true) {
   var myString1 = myTextEditField1.text;
   if (myString1[myString1.length - 1] === " ") {
-    myString1 = myString1.slice(0, myString1.length);
+    myString1 = myString1.slice(0, myString1.length - 1);
   }
 } else {
   app.dialogs.everyItem().destroy();
@@ -46,13 +46,12 @@ if (myWindow.show () == true) {
 for(k=0; k<myInddFiles.length; k++) {  
   app.open(myInddFiles[k]);
 
-  if(app.activeDocument.layers.item(myString1)) {
-    app.activeDocument.layers.item(myString1).remove();
-  }
+  try {
+    app.activeDocument.layers.item(myString1).remove()
+    app.activeDocument.save();
+  } catch (e) {}
 
-  app.activeDocument.save();
   app.activeDocument.close();
 }
 
-var myString = "typeBoss, you just processed " + myInddFiles.length + " files in about 2 seconds. \rNice.";
-alert(myString);
+alert("Done");
