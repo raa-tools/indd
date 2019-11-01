@@ -3,6 +3,8 @@
 // Targetting Indd CS6
 #target "InDesign-8.0"
 
+var NUM_OF_PAGE = 98;
+
 try{
     var doc = app.activeDocument;
 
@@ -27,13 +29,10 @@ dupePageDialog.destroy();
 
 // Main function below
 function dupePages(pageToDupe){
-    var pdfFolder = Folder.selectDialog("Select PDF Folder");
-    var pdfFiles = pdfFolder.getFiles("*.pdf");
+    var newPDF = File.openDialog("Select PDF")
     
-    for(var i = 1; i < 32; i ++){    
-    
+    for(var i = 1; i < NUM_OF_PAGE; i ++){    
         try {
-            var newPDF = pdfFiles[0];
             dupePages(pageToDupe, newPDF);
     
         } catch (error) {
@@ -63,7 +62,7 @@ function dupePages(pageToDupe){
                 app.pdfPlacePreferences.pageNumber = pdfPage;
     
             } else {
-                app.pdfPlacePreferences.pdfCrop = PDFCrop.CROP_ART;
+                app.pdfPlacePreferences.pdfCrop = PDFCrop.CROP_BLEED;
                 app.pdfPlacePreferences.pageNumber = pdfPage;
             }
             
