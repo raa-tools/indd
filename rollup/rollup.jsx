@@ -2,24 +2,29 @@
 
 function main() {
   var bookFile = File.openDialog("Select .indb file", function(file) {
-    return file.name.match(/\.indb/i)
+    // TODO:
+    // extension checker that works with folders
+    // for now, every file type is accepted
+    // return file.name.match(/\/|\.indb/i)
+    return true
   })
 
-  var destinationFile = new File(bookFile.parent.fullName + "/Untitled.indd")
-  destinationFile.saveDlg("Select destination")
+  if (!bookFile) return
 
-  if (bookFile && destinationFile) {
-    var book = app.open(bookFile)
+  var tempDestinationFile = new File(bookFile.parent.fullName + "/Untitled.indd")
+  var destinationFile = tempDestinationFile.saveDlg("Select destination")
 
-    var compiledDoc = compile(book.bookContents)
-    compiledDoc.save(destinationFile)
-    compiledDoc.close(SaveOptions.NO)
+  if (!destinationFile) return
 
-    book.close(SaveOptions.NO)
-  }
+  var book = app.open(bookFile)
+
+  var compiledDoc = compile(book.bookContents, destinationFile)
+  compiledDoc.close(SaveOptions.YES)
+
+  book.close(SaveOptions.NO)
 }
 
-function compile(contents) {
+function compile(contents, targetFile) {
   var targetDoc;
   for (var i = 0; i < contents.length; i++) {
     var fileName = contents[i].fullName
@@ -27,6 +32,7 @@ function compile(contents) {
 
     if (i === 0) {
       targetDoc = app.open(docFile)
+      targetDoc.save(targetFile)
     } else {
       var sourceDoc = app.open(docFile)
 
