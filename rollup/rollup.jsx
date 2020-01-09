@@ -2,10 +2,11 @@
 
 function main() {
   var bookFile = File.openDialog("Select .indb file", function(file) {
-    // TODO:
-    // extension checker that works with folders
-    // for now, every file type is accepted
-    // return file.name.match(/\/|\.indb/i)
+    // Folders have a file type of undefined,
+    // so if file is a real file, only allow .indb
+    if (file.type !== undefined) {
+      return file.name.match(/\/|\.indb/i)
+    }
     return true
   })
 
