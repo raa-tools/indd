@@ -1,4 +1,4 @@
-#target "InDesign-8.0"
+#target "InDesign"
 
 COLOUR_LAYER_NAME = "KELURE"
 PAGE_STEP = 2
