@@ -47,8 +47,8 @@ function main(start, end, step) {
   var pageStep = parseInt(step)
 
   var pages = doc.pages
-  var startColor = getGradientColor(pages, startPageNum)
-  var endColor = getGradientColor(pages, endPageNum)
+  var startGradient = getGradientColorAndTransparency(pages, startPageNum)
+  var endGradient = getGradientColorAndTransparency(pages, endPageNum)
   var rectBounds = getBounds(pages, startPageNum)
 
   var endIdx = endPageNum - startPageNum
@@ -56,7 +56,9 @@ function main(start, end, step) {
   for (var i = 1; i < endIdx - 1; i += pageStep) {
     // clear shapes in COLOUR layer for these pages
     var step = i / endIdx
-    var colorValue = blendColors(startColor, endColor, step)
+    var colorValue = blendGradients(startGradient.color, endGradient.color, step)
+    var opacityValue = blendOpacity(startGradient.opacity, endGradient.opacity, step)
+
     var color = doc.colors.add()
     color.colorValue = colorValue
 
@@ -65,7 +67,16 @@ function main(start, end, step) {
     gradient.gradientStops.add({location: 50, stopColor: color})
     gradient.gradientStops[2].stopColor = "Paper"
 
-    pages[startPageNum + i].rectangles.add(colLayer, {geometricBounds: rectBounds, fillColor: gradient, strokeColor: "None" })
+    pages[startPageNum + i].rectangles.add(colLayer, {
+      geometricBounds: rectBounds,
+      fillColor: gradient,
+      strokeColor: "None",
+      transparencySettings: {
+        blendingSettings: {
+          opacity: opacityValue
+        }
+      }
+    })
   }
 }
 
@@ -93,7 +104,7 @@ function getBounds(docPages, startPage) {
     }
 }
 
-function getGradientColor(docPages, pageNum) {
+function getGradientColorAndTransparency(docPages, pageNum) {
   // pageNum is pageIdx + 1
   var rects = docPages[pageNum - 1].rectangles
 
@@ -102,26 +113,30 @@ function getGradientColor(docPages, pageNum) {
     exit()
   }
 
-  var firstGradientColor
+  var firstGradientColor, opacity
   for (var i = 0; i < rects.length; i++) {
     var rect = rects[i]
 
     var gradientColor
     if (rect.itemLayer.name === COLOUR_LAYER_NAME) {
+      if (!opacity) {
+        opacity = rect.transparencySettings.blendingSettings.opacity
+      }
       gradientColor = rect.fillColor.gradientStops[1].stopColor.colorValue
     }
 
-    if (i === 0) {
+    if (!firstGradientColor) {
       firstGradientColor = gradientColor
     } else if (!checkColors(firstGradientColor, gradientColor)){
       alert("Multiple gradients on page " + pageNum + ".")
       exit()
     }
   }
-  return firstGradientColor
+
+  return { color: firstGradientColor, opacity: opacity }
 }
 
-function blendColors(color1, color2, step) {
+function blendGradients(color1, color2, step) {
   // colors are [c, m, y, k], step is number 0 - 1.0
   // returns color in [c, m, y, k]
 
@@ -131,6 +146,10 @@ function blendColors(color1, color2, step) {
     blendedColor.push(valToAdd)
   }
   return blendedColor
+}
+
+function blendOpacity(opacity1, opacity2, step) {
+  return Math.round((opacity1 + ((opacity2 - opacity1) * step)) * 100) / 100
 }
 
 function checkColors(color1, color2) {
