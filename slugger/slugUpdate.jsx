@@ -1,6 +1,7 @@
 ﻿#target InDesign
 
 var BADFILESLIST = [];
+app.scriptPreferences.measurementUnit = MeasurementUnits.points;
 
 try{
   // These are declared here so they can be used by dialogSetup()
@@ -140,6 +141,12 @@ function dialogSetup() {
 function main(docToUpdate) {
   var codeInfoLayer = docToUpdate.layers.item("Code and info");
 
+  // TODO: Update dims on every page
+  // Currently only captures dims of first page
+  var page = docToUpdate.pages[0]
+  var width = page.bounds[3] - page.bounds[1]
+  var height = page.bounds[2] - page.bounds[0]
+
   // Log files that have missing "Code and info" layer
   // and continue to next file in the loop
   // (Better than breaking and losing progress)
@@ -156,6 +163,7 @@ function main(docToUpdate) {
       for(var i = 0; i < codeInfoFrames.length; i++) {
         updateBatchReview();
         updateDate();
+        updateDims(width, height)
       }
     } else if(batchReviewCheck.value) {
       for(var i = 0; i < codeInfoFrames.length; i++) {
@@ -185,6 +193,12 @@ function main(docToUpdate) {
   function updateDate(){
     if(codeInfoFrames[i].label === "dateInput") {
       codeInfoFrames[i].contents = dateEditText.text;
+    }
+  }
+
+  function updateDims(width, height) {
+    if(codeInfoFrames[i].label === "dimsInput") {
+      codeInfoFrames[i].contents = Math.round(width / 72 * 100) / 100 + " × " + Math.round(height / 72 * 100) / 100 + "in.";
     }
   }
 }
