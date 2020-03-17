@@ -17,7 +17,7 @@ for (var i = 0; i < imageFiles.length; i++) {
   }
 
   var imageFile = imageFiles[i]
-  var rect = doc.rectangles.add({
+  var rect = currentPage.rectangles.add({
     geometricBounds: [y, x, y + 72, x + 72],
     fillColor: "None",
     strokeColor: "None",
