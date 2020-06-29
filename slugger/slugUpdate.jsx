@@ -168,10 +168,12 @@ function main(docToUpdate) {
     } else if(batchReviewCheck.value) {
       for(var i = 0; i < codeInfoFrames.length; i++) {
         updateBatchReview();
+        updateDims(width, height)
       }
     } else if(dateCheck.value) {
       for(var i = 0; i < codeInfoFrames.length; i++) {
         updateDate();
+        updateDims(width, height)
       }
     }
 
