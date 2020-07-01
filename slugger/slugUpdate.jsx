@@ -5,8 +5,8 @@ app.scriptPreferences.measurementUnit = MeasurementUnits.points;
 
 try{
   // These are declared here so they can be used by dialogSetup()
-  var myWindow; var batchEditText; var reviewEditText; var dateEditText;
-  var batchReviewCheck; var dateCheck;
+  var myWindow, batchEditText, reviewEditText, dateEditText, notesEditCheck;
+  var batchReviewCheck, dateCheck, notesCheck;
   var alreadyRun;
 
   // Run on open file
@@ -29,7 +29,7 @@ try{
 
     dialogSetup();
 
-    if(myWindow.show() && (batchReviewCheck.value || dateCheck.value)) {
+    if(myWindow.show() && (batchReviewCheck.value || dateCheck.value || notesCheck.value)) {
       for(var i = 0; i < panelFiles.length; i++) {
         var panelFile = app.open(panelFiles[i])
         
@@ -123,6 +123,22 @@ function dialogSetup() {
 
   dateEditText = inputRow3.add("edittext {size: [155, 27], enabled: false}");
   dateEditText.text = today;
+
+  // Row 4
+  var inputRow4 = myWindow.add('group {alignment: "left"}');
+
+  // Date
+  notesCheck = inputRow4.add("checkbox {size: [60, 15], text: '\u00A0Notes:'}");
+  notesCheck.onClick = function() {
+    if(notesCheck.value) {
+      notesEditText.enabled = true;
+    
+    } else {
+      notesEditText.enabled = true;
+    }
+  }
+
+  notesEditText = inputRow4.add("edittext", [0, 0, 155, 100], "", {multiline: true, scrolling: true, wantReturn: true});
   
   // Buttons
   var buttonGroup = myWindow.add("group {alignment: 'right'}");
@@ -159,49 +175,62 @@ function main(docToUpdate) {
     
     var codeInfoFrames = codeInfoLayer.textFrames;
 
-    if(batchReviewCheck.value && dateCheck.value) {
-      for(var i = 0; i < codeInfoFrames.length; i++) {
-        updateBatchReview();
-        updateDate();
-        updateDims(width, height)
-      }
-    } else if(batchReviewCheck.value) {
-      for(var i = 0; i < codeInfoFrames.length; i++) {
-        updateBatchReview();
-        updateDims(width, height)
-      }
-    } else if(dateCheck.value) {
-      for(var i = 0; i < codeInfoFrames.length; i++) {
-        updateDate();
-        updateDims(width, height)
-      }
+    if(batchReviewCheck.value) {
+      updateBatchReview(codeInfoFrames);
     }
+
+    if(dateCheck.value) {
+      updateDate(codeInfoFrames);
+    }
+
+    if (notesCheck.value) {
+      updateNotes(codeInfoFrames)
+    }
+
+    updateDims(codeInfoFrames, width, height)
 
     //Re-lock Code and info layer
     docToUpdate.layers.item("Code and info").locked = true;
 
   }
 
-  function updateBatchReview(){
-    if(codeInfoFrames[i].label === "batchReviewInput") {
-      if(!fabCheck.value) {
-        codeInfoFrames[i].contents = "Batch " + batchEditText.text + " - " + "Review " + reviewEditText.text;  
-      } else {
-        codeInfoFrames[i].contents = "Batch " + batchEditText.text + " - " + "TO " + fabEditText.text.toUpperCase();
-      }
+  function selectTextFrameByLabel(textFrames, labelToSearch) {
+    for (var i = 0; i < textFrames.length; i++) {
+      if (textFrames[i].label === labelToSearch) return textFrames[i]
+    }
+    return null
+  }
+
+  function updateBatchReview(textFrames){
+    var batchReviewFrame = selectTextFrameByLabel(textFrames, "batchReviewInput")
+    if (!batchReviewFrame) return
+
+    if(!fabCheck.value) {
+      batchReviewFrame.contents = "Batch " + batchEditText.text + " - " + "Review " + reviewEditText.text;  
+    } else {
+      batchReviewFrame.contents = "Batch " + batchEditText.text + " - " + "TO " + fabEditText.text.toUpperCase();
     }
   }
 
-  function updateDate(){
-    if(codeInfoFrames[i].label === "dateInput") {
-      codeInfoFrames[i].contents = dateEditText.text;
-    }
+  function updateDate(textFrames){
+    var dateFrame = selectTextFrameByLabel(textFrames, "dateInput")
+    if (!dateFrame) return
+
+    dateFrame.contents = dateEditText.text;
   }
 
-  function updateDims(width, height) {
-    if(codeInfoFrames[i].label === "dimsInput") {
-      codeInfoFrames[i].contents = Math.round(width / 72 * 100) / 100 + " × " + Math.round(height / 72 * 100) / 100 + "in.";
-    }
+  function updateNotes(textFrames) {
+    var notesFrame = selectTextFrameByLabel(textFrames, "notesInput")
+    if (!notesFrame) return
+
+    notesFrame.contents = notesEditText.text
+  }
+
+  function updateDims(textFrames, width, height) {
+    var dimsFrame = selectTextFrameByLabel(textFrames, "dimsInput")
+    if (!dimsFrame) return
+
+    dimsFrame.contents = Math.round(width / 72 * 100) / 100 + " × " + Math.round(height / 72 * 100) / 100 + "in.";
   }
 }
 
