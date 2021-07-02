@@ -1,7 +1,7 @@
 ﻿/* Script to duplicate pages & replace PDFs with consecutive files */
 
-// Targetting Indd CS6
-#target "InDesign-8.0"
+// Targetting Indd
+#target "InDesign"
 
 try{
     var doc = app.activeDocument;
@@ -29,6 +29,7 @@ dupePageDialog.destroy();
 function dupePages(pageToDupe){
     var pdfFolder = Folder.selectDialog("Select PDF Folder");
     var pdfFiles = pdfFolder.getFiles("*.pdf");
+    pdfFiles.sort();
     
     for(var i = 1; i < pdfFiles.length; i ++){    
     
