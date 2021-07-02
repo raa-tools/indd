@@ -22,7 +22,7 @@ Some extras might be:
 
 GLOBALS = {
     MEASUREMENT : "imperial",
-    SLUGDIM : 144,
+    SLUGDIM : 108,
 
     BREAKPOINT : {
         small  : 612, // 8.5in.
@@ -161,10 +161,10 @@ function main(docToSetup) {
             documentBleedTopOffset            : bleedValue ,
             documentBleedInsideOrLeftOffset   : bleedValue ,
             documentBleedOutsideOrRightOffset : bleedValue,
-            slugBottomOffset                  : bottomSlug,
-            slugTopOffset                     : GLOBALS.SLUGDIM,
-            slugInsideOrLeftOffset            : GLOBALS.SLUGDIM,
-            slugRightOrOutsideOffset          : GLOBALS.SLUGDIM
+            slugBottomOffset                  : bleedValue + bottomSlug,
+            slugTopOffset                     : bleedValue + GLOBALS.SLUGDIM,
+            slugInsideOrLeftOffset            : bleedValue + GLOBALS.SLUGDIM,
+            slugRightOrOutsideOffset          : bleedValue + GLOBALS.SLUGDIM
         };
 
         // Set up "Code and info" layer
@@ -328,7 +328,7 @@ function main(docToSetup) {
             var maxRow = 4;
             var titleX = 0;
             var inputX = titleX + 80;
-            var y = -144;
+            var y = -bleedValue-GLOBALS.SLUGDIM;
 
             var inputWidth = pageWidth - inputX;
             var inputHeight;
@@ -355,7 +355,7 @@ function main(docToSetup) {
 
             var counter = 0;
             for (var col = 0; col < maxCol; col++) {
-                y = -144;
+                y = -bleedValue-GLOBALS.SLUGDIM;
 
                 if (col < 1) {
                     inputWidth = inputBoxData.width1;
