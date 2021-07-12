@@ -6,7 +6,7 @@ Currently checks the following:
   - If images are squished
 */
 
-#target "InDesign-8.0"
+#target "InDesign"
 THRESHOLD = 150;
 var LOG_ARRAY = [];
 var COUNT = 0;
